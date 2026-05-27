@@ -1,0 +1,1549 @@
+\chapter{Self-Balancing Sampling}
+
+This project was joint work with Daniel Raban.\\
+
+\section*{Abstract}
+\noindent We study a family of sequential sampling rules that adaptively biases samples in order to achieve faster convergence
+of the empirical distribution to a desired target law, both in an average and worst-case sense. The resulting self-balancing sampler is simple to implement and arises naturally
+among a class of Markovian samplers sharing a certain invariance property. Moreover, it is
+unique solution to a natural entropy-regularized control problem, which in a sense balances the convergence rate of the empirical law and
+the unpredictability of the samples. In the weak-biasing regime, we show the properly centered counts process converges to an Ornstein–Uhlenbeck process
+in the diffusive limit, and use this limit to study how the behavior of the sampler depends on the choice of biasing parameter.
+
+
+% Introduction %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+
+Consider the problem of sequentially sampling $X_i$ from $d$ outcomes in a way that allows the empirical distributions
+$$\mu(n) \coloneqq \frac{1}{n} \sum_{i=1}^n \delta_{X_i}$$
+to converge to the uniform distribution. Two naive ways of doing this are:
+\begin{itemize}
+    \item \emph{Uniformly at random}: Sample $X_i \overset{\operatorname{IID}}{\sim} \text{Uniform}([d])$.
+    \item \emph{Deterministically/Greedily}: Sample $X_i = i \pmod d + 1$.
+\end{itemize}
+
+For these two sampling schemes, there's a trade-off between the \emph{speed} of convergence and the \emph{predictability} of the samples. Namely, the former converges at rate $\Theta(n^{-1/2})$ in the total variation distance, while the latter converges at the much faster rate $\Theta(n^{-1})$. On the other hand, the former process is as unpredictable as possible, maximizing the entropy at each sampling step, while the latter is perfectly predictable.
+
+This tradeoff becomes readily apparent in the problem of scheduling audits or inspections, such as testing for doping in professional sports. A sports regulatory body is tasked with routinely testing teams for the use of performance enhancing drugs, but any deterministic schedule has the potential to be taken advantage of, since the players can temporarily cease doping in anticipation of the tests. On the other hand, sampling teams IID to receive doping tests can lead to wasteful behavior, such as spending resources to test a team multiple times in relatively short succession, while letting other teams remain temporarily untested; in effect, temporary imbalances in the empirical distribution of audited teams reflect inefficiencies in the order of teams chosen.
+
+A closely related problem is how to sample from a population while keeping the realized sample balanced across several overlapping strata. For example, suppose we are constructing a citizen's assembly of 100 members out of a volunteer pool of 1000, and we would like our assembly to be demographically representative across multiple overlapping characteristics, such as gender, age, and education level. We may attempt to balance these characteristics using a deterministic or quota-constrained selection algorithm for choosing a committee, but, as noted in \cite{flanigan2021fair}, some algorithms can lead to somewhat undemocratic outcomes in which certain members of the volunteer pool have a miniscule chance of being chosen for the commmittee. On the other hand, a simple random sample can result in a committee which is not properly representative for each characteristic. In a similar setting, \cite{Harshaw01102024} explores an analogous trade-off between covariate balance and robustness. 
+
+
+In this paper, we aim to explore the trade-off between these two aims for a natural family of sampling rules. Heuristically, we show that by adaptively 
+biasing our sampling process, we can limit predictability while maintaining fast convergence rates.
+
+
+For instance, consider the following sequential sampling rule, informally described as ``downweight the outcome's probability and renormalize'': Fix some $\alpha \in (0,1)$, and start with some initial distribution $p(0) \in \Delta^d$. At step $n$, recursively do the following:
+\begin{enumerate}
+    \item[] Step 1: Sample an outcome $X_n \sim p(n-1)$.
+    \item[] Step 2: Define $p(n)$ by downweighting $p_{X_n}(n-1)$ by a factor of $\alpha$ and renormalizing the probability vector, i.e.
+    $$p_{i}(n) \coloneqq \begin{cases}
+            \frac{\alpha \cdot p_{i}(n-1)}{1- (1-\alpha) \cdot p_{X_n}(n-1)} & \text{if $i = X_n$}, \\
+            \frac{p_{i}(n-1)}{1 - (1-\alpha) \cdot p_{X_n}(n-1)} & \text{if $i \neq X_n$}.
+        \end{cases}$$
+\end{enumerate}
+See Figure~\ref{fig:uniform_downweight_normalize} for a visual schematic of the update rule.
+
+\begin{figure}
+\centering
+\begin{tikzpicture}[
+    >=Latex,
+    font=\small,
+    x=0.9cm,
+    y=3.2cm,
+    bar/.style={draw, thick, fill=gray!20},
+    chosen/.style={draw, thick, fill=red!35}
+]
+
+% parameters
+\def\d{5}            % number of displayed outcomes
+\def\k{3}            % chosen outcome
+\def\w{0.65}         % bar width
+\def\gap{0.18}       % gap between bars
+\def\arrowlen{0.55}  % common arrow length between panels
+
+% x-shifts for the three panels
+\def\xA{0}
+\def\xB{5.55}
+\def\xC{11.10}
+
+% heights
+\def\hunif{0.42}
+\def\hdown{0.20}
+\def\hnormother{0.50}
+\def\hnormchosen{0.24}
+
+% panel axis extents
+\def\xleft{-0.4}
+\def\xright{4.2}
+
+% centered arrows between panels
+\pgfmathsetmacro{\arrowABstart}{((\xA+\xright)+(\xB+\xleft)-\arrowlen)/2}
+\pgfmathsetmacro{\arrowABend}{\arrowABstart+\arrowlen}
+\pgfmathsetmacro{\arrowBCstart}{((\xB+\xright)+(\xC+\xleft)-\arrowlen)/2}
+\pgfmathsetmacro{\arrowBCend}{\arrowBCstart+\arrowlen}
+
+% ---------------- Panel 1: uniform histogram ----------------
+\draw[thick] (\xA+\xleft,0) -- (\xA+\xright,0);
+\draw[thick] (\xA,0) -- (\xA,0.95);
+
+\foreach \i in {1,...,5}{
+    \pgfmathsetmacro{\x}{\xA + (\i-1)*(\w+\gap)}
+    \ifnum\i=\k
+    \draw[chosen] (\x,0) rectangle ++(\w,\hunif);
+\else
+    \draw[bar] (\x,0) rectangle ++(\w,\hunif);
+\fi
+    \node at (\x+0.5*\w,-0.08) {\(\frac{1}{d}\)};
+}
+
+% choice arrow
+\pgfmathsetmacro{\xchosenA}{\xA + (\k-1)*(\w+\gap) + 0.5*\w}
+\draw[->, very thick, red!70!black] (\xchosenA,0.92) -- (\xchosenA,\hunif+0.03);
+\node[red!70!black] at (\xchosenA,0.99) {choose};
+
+% ---------------- Arrow between panels ----------------
+\draw[->, ultra thick] (\arrowABstart,0.42) -- (\arrowABend,0.42);
+
+% ---------------- Panel 2: downweight by alpha ----------------
+\draw[thick] (\xB+\xleft,0) -- (\xB+\xright,0);
+\draw[thick] (\xB,0) -- (\xB,0.95);
+
+\foreach \i in {1,...,5}{
+    \pgfmathsetmacro{\x}{\xB + (\i-1)*(\w+\gap)}
+    \ifnum\i=\k
+        \draw[chosen] (\x,0) rectangle ++(\w,\hdown);
+        \node[red!70!black] at (\x+0.5*\w,-0.08) {\(\frac{\alpha}{d}\)};
+    \else
+        \draw[bar] (\x,0) rectangle ++(\w,\hunif);
+        \node at (\x+0.5*\w,-0.08) {\(\frac{1}{d}\)};
+    \fi
+}
+
+% ---------------- Arrow between panels ----------------
+\draw[->, ultra thick] (\arrowBCstart,0.42) -- (\arrowBCend,0.42);
+
+% ---------------- Panel 3: renormalize ----------------
+\draw[thick] (\xC+\xleft,0) -- (\xC+\xright,0);
+\draw[thick] (\xC,0) -- (\xC,0.95);
+
+\foreach \i in {1,...,5}{
+    \pgfmathsetmacro{\x}{\xC + (\i-1)*(\w+\gap)}
+    \ifnum\i=\k
+        \draw[chosen] (\x,0) rectangle ++(\w,\hnormchosen);
+    \else
+        \draw[bar] (\x,0) rectangle ++(\w,\hnormother);
+    \fi
+}
+
+% chosen-bar label
+\pgfmathsetmacro{\xchosenC}{\xC + (\k-1)*(\w+\gap) + 0.5*\w}
+\node[red!70!black] at (\xchosenC,-0.1075) {\( \frac{\alpha}{d-1+\alpha}\)};
+
+% grouped labels for unchanged bars
+\pgfmathsetmacro{\xleftlab}{\xC + \w + 0.5*\gap}
+\pgfmathsetmacro{\xrightlab}{\xC + 4*\w + 3.5*\gap}
+\node at (\xleftlab-0.4,-0.10) {\( \frac{1}{d-1+\alpha}\)};
+\node at (\xrightlab+0.4,-0.10) {\( \frac{1}{d-1+\alpha}\)};
+
+\end{tikzpicture}
+\caption{Schematic of the self-balancing update starting from a uniform distribution: choose an outcome, downweight it by \(\alpha\), then renormalize.}
+\label{fig:uniform_downweight_normalize}
+\end{figure}
+
+
+This sequential sampling rule is still random, and intuitively, it generates empirical distributions which are closer to uniform because it de-emphasizes outcomes which are currently over-represented in the empirical distribution. More precisely, if we denote the counts process $N_i = N_i(n) \coloneqq \# \{ 1 \leq j \leq n : X_j = i\}$, then this rule generates samples according to
+$$p_i = p_{i}(n) \coloneqq \frac{p_{i}(0) \cdot \alpha^{N_i(n)}}{\sum_{j=1}^d p_{j}(0) \cdot \alpha^{N_j(n)} }.$$
+
+\noindent Hence we can see that this sampler interpolates the two naive sampling methods: when $\alpha = 1$, we recover the uniform sampler, and when $\alpha \downarrow 0$, we essentially recover the deterministic sampler.
+
+
+We outline the paper as follows. Section \ref{sec:potential_biased_sampling} shows that such samplers arise naturally by enforcing an invariance property on the sampling probabilities $p(n)$, namely that they depend only on \emph{relative} differences in the counts $N_i$. We show that after properly centering the counts process, it descends to an irreducible and positive recurrent Markov chain on the centered counts.
+
+Then, in Section \ref{sec:convergence_rate} we show that for any choice of $\alpha$, the self-balancing sampler converges at rate $\Theta(1/n)$ in expectation, matching the fastest possible rate up to constants, while in the worst case it remains within $O(\log n / n)$ almost surely, which is optimal up to a logarithmic factor.
+
+In Section \ref{sec:optimization_problem}, we show that the self-balancing sampler admits a natural interpretation through entropy-regularized optimization: it arises as the unique solution to a one-step problem that balances minimizing the mean-squared imbalance in the counts with maximizing entropy. Appendix \ref{appendix:optimal_control} shows this fits within the broader framework of entropy-regularized optimal control.
+
+In an effort to quantify the trade-off between convergence and unpredictability, we develop diffusion limits in Section \ref{sec:diffusion_approximations} and an adversarial notion of predictability in Section \ref{sec:adversarial_interpretation}. In particular, we study a \emph{weak-biasing regime}, in which $\alpha \uparrow 1$. Using these tools, we study how the behavior of the sampler changes as we vary the bias parameter $\alpha$. In this weak-biasing regime, the centered counts are well-approximated by an Ornstein--Uhlenbeck process with stationary fluctuations of order $(\log(1/\alpha))^{-1/2}$ and mixing time of order $(\log(1/\alpha))^{-1}$, quantifying how stronger biasing enforces mean-reversion while reducing randomness. This perspective also refines the convergence behavior, leading to an average-case error of order $1/(n\sqrt{\log(1/\alpha)})$.
+
+Complementing this, the adversarial analysis translates these fluctuations into prediction accuracy: when $p^*$ does not have a unique maximizer, the leading correction vanishes and predictability improves at rate $O(\log(1/\alpha))$, whereas in the presence of ties, Gaussian fluctuations dominate and the improvement is only $O(\sqrt{\log(1/\alpha)})$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Basic Results 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Basic results}
+
+\subsection{Definitions}
+
+A \textit{sequential sampling rule} on $[d]$ consists of a sequence $(\rho_n)_{n \geq 0}$ of random distributions on $[d]$ and random variables $(X_n)_{n \geq 1}$ on $[d]$ so that $X_{n+1} \mid \rho_{n} \sim \rho_n$, $X_{n+1} \mid \rho_{n}$ are conditionally independent, and $\rho_n \in \sigma(X_0, X_1,..., X_{n-1})$. Namely, it selects its samples based solely on the previously observed samples, plus some independent randomness. 
+
+We say such a rule is \textit{Markovian} if it selects its next sample $X_{n+1} \in [d]$ based solely on the current selection counts $\{N_i(n)\}_{i=1}^d$ where:
+%
+\[N_i(n) := |\{ 1 \leq j \leq n : X_j = i\}|.\]
+%
+\noindent  Formally, such a sampling rule is given by a measurable function $\pi:\N^d \to \Delta^d$ where $\Delta^d$ is the unit simplex in $\R^d$, and samples are generated via:
+%
+\[\P\left(X_{n+1} = i \mid \{X_j\}_{j \leq n}\right) = \pi_i(N(n)).\]
+%
+\noindent The self-balancing sampler is then a Markovian sampling rule with sampling function $\pi_i = p_i$. In this paper, we will show that this sampler (and more generally samplers with $\alpha_i \in (0,1)$ possibly different for each outcome) arises naturally within this class of sampling rules after enforcing a specific symmetry on the sampling function $\pi$, and that it exhibits nice optimality properties. Note we can express this sampling rule as a softmax
+$$p_i = p_i(n) = \frac{p_{i}(0) \cdot e^{-\beta_i N_{i}(n)}}{\sum_{j=1}^d p_{j}(0) \cdot e^{-\beta_j N_{j}(n) }},$$
+where $\beta_i = - \log \alpha_i$. As we will see below, these $\beta_i$ are in some sense a more natural parameterization. Heuristically, they can be interpreted as follows: for $i,j \in [d]$, if $\frac{\beta_i^{-1}}{\beta_j^{-1}} = \frac{p}{q}$ is rational, then $p$ samples of $i$ are weighted the same as $q$ samples of $j$ under this sampling scheme. Thus $\beta_i^{-1}$ measures the relative weight assigned to sampling $i \in [d]$. Higher weighted indices tend to be selected more often.   
+
+In this paper, we are interested in how the empirical sampling distributions
+%
+\[\mu(n) := \frac{1}{n} \sum_{i=1}^n \delta_{X_i}\]
+%
+\noindent evolve over time under the self-balancing sampler. We show the limiting distribution is
+%
+\[p_i^* := \frac{\beta_i^{-1}}{\sum_{j=1}^d \beta_j^{-1}}.\]
+%
+\noindent Namely, asymptotically we just select each $i$ proportional to its relative weight $\beta_i^{-1}.$
+
+Since the counts $N_i(n)$ drift off to infinity over time, we will require some form of centering to properly study this process. There are two natural centering schemes. The first, which we call the \textit{mean-centered counts}, just centers each count by its expected limiting proportion:
+\[Y_i(n) := N_i(n) - n p_i^*.\]
+%
+The second, which we call the \textit{projection-centered counts}, reweights the counts according to their relative weights $\beta_i^{-1}$, fixes the coordinate $d$ as a baseline, and compares the counts against this baseline:
+%
+\[\widetilde{Y}_i(n) := \beta_iN_i(n) - \beta_d N_d(n) = \beta_i\beta_d \cdot  [\beta_d^{-1} N_i(n) - \beta_i^{-1} N_d(n)].\]
+%
+\noindent We can express the sample probabilities $p_i$ directly in terms of these centered counts:
+%
+\[p_i = \frac{p_{i}(0) \cdot e^{- \beta_i Y_{i}(n)}}{\sum_{j=1}^d p_{j}(0) \cdot e^{- \beta_j Y_{j}(n) }}= \frac{p_{i}(0) \cdot e^{- \widetilde{Y}_{i}(n)}}{\sum_{j=1}^d p_{j}(0) \cdot e^{-\widetilde{Y}_{j}(n) }}.\]
+%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Potential Based Sampling
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Potential-based sampling}
+\label{sec:potential_biased_sampling}
+
+In this section, we show that the self-balancing sampler arises naturally by enforcing a certain invariance property on our class of Markovian sampling rules, and that under 
+this relation the counts process $(N(n))_{n \in \N}$ descends 
+to a stationary Markov chain $(\tilde{Y}(n))_{n \in \N}$ on our projection-centered counts.
+
+ For a Markovian sampling rule, one natural choice for the sampling function $\pi$ is to define a potential $\phi_i: \N \to (0, \infty)$ for each coordinate and to select a sample proportional to its potential:
+%
+\[\pi^\phi_i(x) := \frac{\phi_i(x_i)}{\sum_{j=1}^d \phi_j(x_j)}, \quad \forall x \in \N^d.\]
+%
+\noindent We say a Markovian sampling rule $\pi$ is \textit{translation invariant} if:  
+%
+\[\pi(x + \mathbf{1}) = \pi(x), \quad \forall x \in \N^d.\]
+%
+\noindent Translation-invariance expresses the opinion that our next sample $X_{n+1}$ should depend only on the relative differences in the sampling counts $\{N_i(n)\}_{i=1}^d$ rather than their absolute sizes. More generally, we say $\pi$ is \textit{$v$-invariant} for some $v \in \N^d$ if:
+%
+\[\pi(x + v) = \pi(x), \quad \forall x \in \N^d.\]
+%
+\noindent Here $v$-invariance expresses the heuristic that sampling $i$ a total of $v_i$ times ought to be equivalent to sampling $j$ a total of $v_j$ times. Thus $(v_i)$ plays an analogous role to the relative weights $(\beta_i^{-1})$. 
+
+Note that we can view v-invariance as inducing an equivalence relation $\sim_v$ on $\N^d$:
+%
+\[x \sim_v y \iff v_d x_i - v_ix_d = v_dy_i - v_i y_d, \quad \forall i,j \in [d].\]
+%
+\noindent Under this relation, our counts process $(N(n))_{n \in \N}$ descends to a Markov chain on $\Z^{d-1}$:
+%
+\[N(n) \mapsto v_dN_i(n) - v_i N_d(n) = \beta_d^{-1}N_i(n) - \beta_i^{-1}N_d(n),\]
+%
+\noindent which, up to constants, is just our projection-centered counts $\tilde{Y}(n)$. Alternatively, we can express the above equivalence as:
+% 
+\[\frac{x_i}{v_i} - \frac{1}{d} \sum_{j=1}^d \frac{x_j}{v_j} = \frac{y_i}{v_i} - \frac{1}{d} \sum_{j=1}^d \frac{y_j}{v_j}, \quad \forall i \in [d],\]
+%
+which shows the projection-centered counts $\tilde{Y}(n)$ center the reweighted counts $\beta_iN_i(n)$ by their mean, rather than the long-term
+average $np^*$ as $Y(n)$ does. Now, we show the self-balancing sampler is essentially the only $v$-invariant sampling rule generated by a potential.
+
+\begin{proposition}
+    If  $\pi^\phi$ is $v$-invariant, then:
+    %
+    \[\phi_i(mv_i + k) = c_{i,k} b^m, \quad \forall m \in \N, k \in \{0, 1, \ldots, v_i-1\}\]
+    %
+    \noindent Moreover, if $\phi_i$ is either log-convex or log-concave, then $\phi_i(n) = c_i \alpha_i^n$ where:
+    %
+    \[(\log(\alpha_1), \ldots, \log(\alpha_d)) \propto (v_1^{-1}, \ldots, v_d^{-1}).\]
+    %
+  
+    \label{prop:charactizing_v_invariance}
+\end{proposition}
+
+\noindent In the case of translation-invariance, the log-convexity/concavity condition is unnecessary and we recover the self-balancing sampler in the case of uniform $\beta_i \equiv \beta$. Note that the sampling function for the self-balancing sampler is $v$-invariant only in the case the ratios $\beta_i^{-1}/\beta_j^{-1}$ are all rational, enforcing a relatively minor constraint on $\beta$. 
+
+In a sense, the projection-centered counts are more natural because they live 
+on a countable space $\Z^{d-1}$. As the self-balancing sampler has strong mean-reversion 
+properties, its natural to expect the projection-centered counts are positive recurrent, and hence
+have some stationary distribution. This is indeed the case.
+
+\begin{lemma}
+    If $\pi$ is $v$-invariant, the projection-centered chain $\tilde{Y}^v(n) = v_dN_i(n) - v_i N_d(n)$ is irreducible, 
+    positive recurrent, and has a unique stationary distribution $\eta$ on some subset of $\Z^{d-1}$.
+    \label{lem:projection_centered_has_stationarity}
+\end{lemma}
+%
+In general, determining the stationary distribution $\eta$ is challenging, as the chain is non-reversible for $d > 2$.
+However, in the special case $d=2$, we can calculate $\eta$ explicitly, which we do in Lemma \ref{lem:2d_stationary_project_centered} below. 
+Positive recurrence is just the first manifestation of the samplers mean-reversion properties, which we will explore more in the following sections. 
+
+Unsurprisingly, at stationarity the  sampler generates samples according to the target $p^*$.
+
+\begin{lemma}\leavevmode\par
+Suppose $\pi$ is $v$-invariant and the projection-centered chain $\tilde{Y}^v(n) = v_dN_i(n) - v_i N_d(n)$ has stationary distribution $\eta$ on $\Z^{d-1}$.
+ If we sample $y \sim \eta$ and $X \mid y \sim \pi(y)$, then:
+ %
+    \[\P(X_i = i) = \frac{v_i}{\sum_j v_j} = p_i^*\]
+ %
+ \label{lem:sampling_at_stationarity_gives_pstar}
+\end{lemma}
+
+\noindent .
+
+ 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Convergence of the empirical Distribution
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Fast convergence of the empirical distribution for self-balancing sampling}
+
+\label{sec:convergence_rate}
+
+In this section, we show that for any choice of $\alpha_i \in (0,1)$, the self-balancing sampler converges to the desired limiting distribution at a rate faster than IID sampling, and in fact converges as fast as possible.
+
+As a preliminary result, we note that the empirical distribution associated to \textit{any} sequential sampling rule generally converges, which is a consequence of its close relationship with the C\'esaro means of the 
+sampling distributions $p(n)$. However, this relationship is at the scale of $O(1/\sqrt n)$, which is the best one can hope for in general.
+
+\begin{proposition}\label{prop:empirical_averages}
+    $$\mathbb E \left[\max_{1 \leq i  \leq d} \left |\mu_{i}(n) - \frac{1}{n} \sum_{m=0}^{n-1} p_{i}(m) \right| \right]\lesssim \frac{d}{\sqrt n}.$$
+    Moreover, if the projection-centered count process for a sequential sampling rule is irreducible and positive recurrent, then both of these quantities converge almost surely.
+\end{proposition}
+
+
+Any empirical distribution sampled on $d \geq 2$ values (each with nonzero probability) converges at a rate of $\Omega(1/n)$, because for any distribution $q \in \Delta^d$,
+$$\| \mu_n - q\|_{\operatorname{TV}} = \frac{1}{2} \sum_{i=1}^d \left| \frac{N_i}{n} - q_i \right| \geq \frac{1}{2n}\sum_{i=1}^d \min_{z \in \Z} |z - nq_i|.$$
+If $q_i$ is irrational for some $i$, then $\{n q_i \pmod 1\}_{n=1}^\infty$ is dense in $[0,1]$, so there are infinitely many $n$ such that $\min_{z \in \Z} |z - nq_i| \geq 1/3$, giving an overall lower bound of $\|  \mu_n - q\|_{\operatorname{TV}} \geq \frac{1}{6n}$ for infinitely many $n$. On the other hand, if all $q_i$ are rational with least common denominator $m$, then for any $n$ not divisible by $m$, $\min_{z \in \Z} |z - nq_i| \geq 1/m$ for some $i$. Thus, for infinitely many $n$, we get $\| \ mu_n - q\|_{\operatorname{TV}} \geq \frac{1}{2mn}$.
+
+IID sampling converges at rate $\Theta(1/\sqrt n)$ in expectation, as for samples from a distribution $q$,
+$$\E[\| \mu_n - q\|_{\operatorname{TV}}] = \frac{1}{2\sqrt n} \sum_{i=1}^d \E \left[\left|\frac{N_i - nq_i}{\sqrt n}\right|\right],$$
+where each expectation term is $O(1)$ by the central limit theorem. However, for the self-balancing sampler, the empirical distribution converges much faster than IID sampling!
+ Theorem~\ref{thm:sampling_rate} shows that in expectation, the convergence actually matches the 
+ fastest possible rate of $\Theta(1/n)$, regardless of the choice of $\alpha_i \in (0,1)$! 
+ Additionally, Theorem~\ref{thm:limit_probabilities} shows even in the worst case
+ the empirical distribution stays within distance $O(\log n/n)$ of its target $p^*$ almost surely.
+
+\begin{theorem}[Average-case convergence rate] \label{thm:sampling_rate}
+    For the self-balancing sampling rule, the empirical distribution $\mu_n$ converges at a rate of $1/n$:
+    $$\E\| \mu(n) - p^* \|_{\operatorname{TV}} = \Theta(1/n).$$
+\end{theorem}
+
+The proof reduces to a statement about how far the count vector strays from being balanced.
+
+\begin{lemma} \label{lem:centered_counts_bdd}
+    Let $Y = (Y_1,\dots,Y_d)$ and $Y_i = Y_{i}(n) \coloneqq N_i(n) - np_i^*$ be the centered counts. Then $\E[\| Y \|_1]$ is uniformly bounded in $n$.
+\end{lemma}
+
+\begin{proof}[Proof of Theorem~\ref{thm:sampling_rate}]
+    Write
+    \begin{align*}
+        \| \mu_n - p^* \|_{\operatorname{TV}} &= \frac{1}{2} \sum_{i=1}^d \left| \frac{N_i}{n} - p_i^* \right| \\
+        &= \frac{1}{2n} \sum_{i=1}^d \left| N_i - np_i^* \right| \\
+        &= \frac{\|Y(n)\|_1}{2n}.
+    \end{align*}
+    Applying Lemma~\ref{lem:centered_counts_bdd} finishes the proof.
+\end{proof}
+
+\noindent Similarly, we can relate the total variation to the imbalance in the projection-centered counts:
+%
+\[||\mu_n - p^*||_{\operatorname{TV}} = \frac{1}{2n} \sum_{i=1}^d \frac{1}{\beta_i}\bigg|\tilde{Y}_i(n) - \langle \tilde{Y}(n), p^* \rangle \bigg| = O_\beta\left(\frac{||\tilde{Y}(n)||_1}{n}\right).\]
+%
+\noindent In Section \ref{sec:diffusion_approximations}, we will study how $\sup_n \E[\|Y(n)\|_1]$ depends on the choice of $\beta$, quantifying its effect on the convergence rate.
+
+The following shows even in the worst-case, the self-balancing sampler still improves upon the $\Theta(n^{-1/2})$ convergence rate of IID sampling.
+
+\begin{theorem}[Worst-case convergence rate] \label{thm:limit_probabilities}
+    For the self-balancing sampling rule, the empirical distribution
+    $$\| \mu(n) - p^*\|_{\operatorname{TV}} \xrightarrow{a.s.} 0$$
+    as $n \to \infty$. Moreover, almost surely,
+    $$\| \mu(n) - p^*\|_{\operatorname{TV}} \lesssim \frac{d^2 (\log n + O(1))}{n} \qquad \forall n \geq 1.$$
+\end{theorem}
+
+\noindent Hence, even in the worst-case realization, the empirical distribution converges at a rate of $O(\log n/n)$, which is only a logarithmic factor worse than the optimal $O(1/n)$ rate,
+and drastically improves over the rate of $O(1/\sqrt n)$ for IID sampling. 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Interpretation as an optimization problem
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Interpretation as an optimization problem}
+
+\label{sec:optimization_problem}
+
+Here, we formalize the interpretation of the self-balancing sampler as optimizing the trade-off between 
+the convergence rate of the empirical distribution and its unpredictability at each step.
+ To this end, we show that this sampling rule solves a greedy optimization problem, attempting 
+ to maximize both these quantities at every step.
+
+Let $H(q) \coloneqq -\sum_{i=1}^d q_i \log q_i$ denote the Shannon entropy, let $H(q,p) \coloneqq - \sum_{i=1}^d q_i \log p_i$ denote the cross-entropy, 
+and let $\operatorname{KL}(q \| p) \coloneqq H(q,p) - H(q) = \sum_{i=1}^d q_i \log \frac{q_i}{p_i}$.
+
+\begin{theorem} \label{thm:constant_optimization_problem}
+    Let $L(n) \coloneqq \frac{1}{2} \sum_{i=1}^d (N_i(n) - \frac{n}{d})^2$ denote the quadratic loss for the empirical counts and $D(q) \coloneqq  \mathbb E[ L(n+1) - L(n) \mid N(n), q]$ denote the one-step increase in $L$ when sampling $X_{n+1} \sim q$. Then the unique solution to the optimization problem
+    $$\argmax_{q \in \Delta^d} H(q) - \beta D(q)$$
+    is the self-balancing sampling method $p_i(n) \propto e^{-\beta N_i(n)}$, initialized at the uniform distribution.
+\end{theorem}
+
+
+
+Theorem~\ref{thm:constant_optimization_problem} is a special case of the following more general version, which 
+allows the $\alpha_i$ (and hence the $\beta_i$) to be non-constant in $i$. 
+\begin{theorem} \label{thm:general_optimization_problem}
+    Let $L_\beta(n) \coloneqq \frac{1}{2} \sum_{i=1}^d \beta_i (N_i(n) - np_i^*)^2$ denote the weighted quadratic loss for the empirical counts and $D_\beta(q) \coloneqq  \mathbb E[ L_\beta(n+1) - L_\beta(n) \mid N(n), q]$ denote the one-step increase in $L_\beta$ when sampling $X_{n+1} \sim q$. Then the unique solution to the optimization problem
+    $$\argmax_{q \in \Delta^d} H(q) - H(q,p(0)) - D_\beta(q) = \argmin_{q \in \Delta^d} \operatorname{KL}(q \| p(0)) + D_\beta(q)$$
+    is the $1/2$-offset self-balancing sampling method $p_i(n) \propto p_i(0)e^{-\beta_i (N_i(n)+1/2)}$, initialized at the distribution $p_i(0)$.
+\end{theorem}
+
+The entropy-regularized optimization problem found in Theorem \ref{thm:general_optimization_problem} appears naturally in the context of optimal control and reinforcement learning. In this setting, such regularization is used to quantify the classical exploration versus exploitation trade-off \cite{so2022maximumentropydifferentialdynamic}, \cite{WangZariphopoulouZhou2020}, \cite{haarnoja2018softactorcriticoffpolicymaximum}. Moreover, as \cite{NIPS2006_d806ca13} observes, such exponential-reweighting naturally appear as a result of this entropy penalty. We briefly summarize some of the main results in discrete-time in Appendix \ref{appendix:optimal_control} below, and show that the self-balancing sampler and the above entropy-regularized optimization problem arise naturally in this framework when you penalize imbalance using mean-squared error.
+
+The curious offset of $1/2$ in the counts appears to be an effect of greedy optimization over \emph{discrete} time steps with a quadratic cost. Indeed, $\frac{\beta_i}{2}((x+1)^2 - x^2) = \beta_i x + \frac{\beta_i}{2}$. When all $\beta_i$ are equal, this factor is absorbed into the normalization of the density. Theorem~\ref{thm:instantaneous_optimization} gives an ``instantaneous'' optimization perspective, which does not include the $1/2$ offset.
+
+ 
+
+
+
+
+
+\begin{theorem} \label{thm:instantaneous_optimization}
+    Let $L_\beta(x) \coloneqq \frac{1}{2} \sum_{i=1}^d \beta_i (x_i - n p_i^*)^2$ denote the weighted quadratic loss as a function of counts $x$. Then the unique solution to the optimization problem
+    $$\argmin_{q \in \Delta^d} \langle \nabla L_\beta(N(n)),q \rangle + \operatorname{KL}(q \|p(0))$$
+    is the self-balancing sampling method $p_i \propto p_i(0)e^{-\beta_i N_i(n+1)}$, initialized at the distribution $p_i(0)$.
+
+    \label{thm:mirror_descent_optimization}
+\end{theorem}
+
+Finally, we observe that the self-balancing sampler implements stochastic mirror descent, minimizing the objective $\ell_\beta(x) \coloneqq \frac{1}{2} \sum_{i=1}^d \beta_i (p_i - p_i^*)^2$. The sampler uses the unbiased stochastic gradient $\beta_{X_n} e_{X_n} - \frac{1}{\sum_{j=1}^d \beta_j^{-1}} \mathbf 1$, where $e_1,\dots,e_d$ are the standard basis vectors:
+$$\mathbb E\left[\beta_{X_n}e_{X_n} - \tfrac{1}{\sum_{j=1}^d \beta_j^{-1}} \mathbf 1 \mid p(n)\right] = \sum_{i=1}^d \beta_i(p_i(n) - p_i^*) e_i = \nabla \ell_\beta(p(n)).$$
+
+\begin{theorem}[Stochastic mirror descent formulation]\label{thm:stochastic_mirror_descent}
+    Let $\ell_\beta(x) \coloneqq \frac{1}{2} \sum_{i=1}^d \beta_i (p_i - p_i^*)^2$ denote the weighted quadratic imbalance in the sampling probabilities. The unique solution to the optimization problem
+    $$\argmin_{q \in \Delta^d} h \left\langle \beta_{X_n} e_{X_n} - \tfrac{1}{\sum_{j=1}^d \beta_j^{-1}} \mathbf 1, q \right \rangle + \operatorname{KL}(q \| p(n))$$
+    is the self-balancing sampler $p_i(n) \propto p_i(0) e^{-h\beta_i N_i(n)}$.
+\end{theorem}
+
+From an optimization perspective, the constant step-size $h$ may seem strange, since it generally means that the stochastic mirror descent algorithm may not converge. In our case, this is expected, since the sequence $p(n)$ does not converge. Considering a step size decreasing in $n$ could lead to a version of the sampler in which $p(n)$ does converge.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Expected Cover time
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Expected cover time}
+
+Beyond asymptotic convergence of the empirical distribution, it is also important in applications 
+that the sampler does not neglect any index for too long. A natural way to quantify this is via the cover 
+time, namely the number of steps required before every outcome has been sampled at least once.
+ In audit and inspection settings, this measures how long a team can go entirely untested; 
+ in sampling and representation problems, it measures how long a category can remain completely unrepresented in the realized sample.
+
+For deterministic sampling, the number of steps to see all $d$ outcomes is $d$, and for IID sampling, the expected number of steps to see all the outcomes, known as the ``coupon collector problem,'' is $\Theta(d\log d)$. The self-balancing sampler has behavior which interpolates between these two extremes, as we now show.
+
+\begin{theorem}\label{thm:expected_cover_time}
+    Let $C \coloneqq \max_{1 \leq i \leq d} \min \{ n \geq 1 : X_n = i \}$ be the number of steps until the self-balancing sampler sees every outcome at least once. Then, starting from the initial condition $p_i(0) = 1/d$,
+    $$\E[C] = \sum_{i=1}^d \frac{\log(1 + \beta_i \log d)}{\beta_i} + O(d).$$
+\end{theorem}
+
+For fixed $\beta_i$, the cover time is $\Theta(d \log \log d)$. Moreover, in the extremal cases $\beta \uparrow \infty$ and $\beta \downarrow 0$, the self-balancing sampler's behavior converges to the deterministic and IID behaviors, respectively:
+$$\lim_{\beta \uparrow \infty} \E[C] = \Theta(d), \qquad \lim_{\beta \downarrow 0} \E[C] = \Theta(d \log d).$$
+
+\noindent As a result, the self-balancing sampler only marginally increases the expected cover time compared to deterministic sampling. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Diffusion Approximation 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Diffusion Approximation}
+\label{sec:diffusion_approximations}
+
+In this section, we explore a few different diffusion approximations of our self-balancing sampler, highlighting its mean-reversion and other asymptotic properties. Later, we use these approximations to attempt to quantify how the sampler depends on the bias parameter $\beta$. 
+
+First, we show that, after properly centering and rescaling, each coordinate is in a sense just a time-changed Ornstein–Uhlenbeck (OU) process.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Projection-centered Diffusive Limit 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{proposition}\label{prop:projection_centered_diffusion_limit}
+    
+Fix $i \in [d]$ and let $\tilde{Y}_i^\beta(n) := \beta_iN_i(n) - \beta_dN_d(n)$ be the projection-centered version of the self-balancing sampler with the given $\beta$. Let:
+%
+\[\tau^\beta_k := \inf \Big\{n > \tau^\beta_{k-1} \; : \; \tilde{Y}_i^\beta(n) \neq \tilde{Y}_i^\beta(\tau^\beta_{k-1}) \Big\}, \quad \tau_0^\beta = 0.\]
+%
+For $h > 0$, define the continuous-time chain:
+%
+\[Z^h_t := h^{-1/2} \left(\tilde{Y}_i^{h\beta}(\tau^{\beta h}_{\lfloor t/h\rfloor}) - c_\beta\right), \quad c_\beta := \log\left(\frac{\beta_i}{\beta_d}\right)\]
+%
+\noindent If $Z_0^h \to z_0$, then we have $Z^h_t \Rightarrow Z_t$ as $h \downarrow 0$ where $Z_t$ is the diffusion:
+%
+\[dZ_t = -\frac{\beta_i \beta_d}{\beta_i + \beta_d} Z_t dt + \sqrt{\beta_i\beta_d} \cdot dW_t, \quad Z_0 = z_0.\]
+%
+\end{proposition}
+
+\noindent Here $\Rightarrow$ denotes convergence in the Skorokhod space $D([0,T], \R)$ for any $T < \infty$. 
+
+In the uniform case $\beta_i \equiv \beta$, the correction $c_\beta$ vanishes and our diffusion simplifies to:
+%
+\[dZ_t = -\frac{\beta}{2} Z_t dt + \beta dW_t.\]
+%
+\noindent 
+
+\noindent Namely, the above says if we look at a single coordinate $\tilde{Y}_i(n)$ of our projection-centered counts and we follow only the time points where it changes, then properly rescaled it is just an Ornstein–Uhlenbeck process, so it has strong mean-reversion properties. 
+
+Since we showed for fixed $\beta$ the original mean and projection-centered processes are basically $O(1)$, we must also scale-down the bias $\beta$ to allow the process to fluctuate at scale $h^{-1/2}$ if we hope to get a nontrivial diffusive limit. We call this $\beta h$ scaling the \textit{weak-biasing limit}. To see why the correction $c_\beta$ is necessary when $\beta$ is not constant, note the projection-centered counts have drift $(\beta_i - \beta_d)/2 \neq 0$ when $\tilde{Y}_i(n) = 0$. The shift $c_\beta$ just shifts the starting point of $Y(n)$ to the location where it has zero drift, and expands about this point. 
+
+Note that only in the uniform case $\beta_i \equiv \beta$ can we avoid centering by this $c_\beta$ term, and thus can we choose $\tilde{Y}^{h\beta}_0 = 0$ to get a diffusion starting at $Z_0 = 0$. Otherwise, we must choose $\tilde{Y}^{h\beta}_0 = c_\beta + o(h^{-1/2})$, or equivalently $N(n) = O(h^{-1/2})$, to get $Z_t$ to start at zero. 
+
+\noindent .
+
+We develop an analogous diffusion-approximation for the mean-centered counts, this time without needing a time-change. Here, the interaction between the different coordinates becomes visible, and again the process exhibits a mean-reversion property
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Mean-centered Diffusive Limit 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{proposition}
+Let $M^\beta(n) := (\beta_i[N_i(n) - np_i^*])_{i=1}^d$ be the (weighted) mean-centered version of the self-balancing sampler with the given $\beta$. For $h > 0$, define the continuous-time chain:
+%
+\[Z^h_t := h^{-1/2}\left(M^{h\beta}(\lfloor t/h\rfloor) - c_\beta\right), \quad (c_\beta)_i := \log(\beta_i)- \frac{\sum_j \frac{1}{\beta_j} \log(\beta_j)}{\sum_{j} \frac{1}{\beta_j}}\]
+%
+\noindent If $Z_0^h \to z_0$, then $Z^h_t \Rightarrow Z_t$ as $h \downarrow 0$ where $Z_t$ is the diffusion:
+%
+\[dZ_t = -\frac{1}{S_\beta}Z_t dt + \Sigma^{1/2} dW_t, \quad Z_0 = z_0,\]
+%
+\noindent for $S_\beta = \sum_j \beta_j^{-1}$  and $\Sigma = S_\beta^{-1}\mathrm{diag}(\beta)  - S_\beta^{-2} \mathbf{1}\mathbf{1}^T$.  
+
+\label{prop:mean_centered_diffusion_limit}
+\end{proposition}
+% end prop
+
+
+\noindent Hence we again see our limiting process is some kind of OU process. Note as a consequence of the mean-centering, the above diffusion is singular in the sense it is constrained to the hyperplane $\{z : \langle z, p^* \rangle = 0\}$.
+
+
+ Again, the situation simplifies considerably in the uniform $\beta_i \equiv \beta$ case. Here, the centering $c_\beta = 0$ and our diffusive limit simplifies to:
+%
+\[dZ_t = -\frac{\beta}{d} Z_t dt + \frac{\beta}{d}(d I_d  - \mathbf{1} \mathbf{1}^T)^{1/2} dW_t.\]
+%
+
+% Interpreting Diffusive Limits %%%%%%%%%%%%
+\subsection{Interpreting Diffusive Limits}
+
+Now that we have developed our diffusive limits, let's try to see how they suggest our two centered processes behave in this weak-biasing regime. This section is non-rigorous and mainly serves to provide some intuition on the role $\beta$ plays in the self-balancing sampler. We start with the projection centered case. Recall the one-dimensional OU process:
+%
+\[dZ_t = -\theta Z_t dt + \sigma dW_t, \quad Z_0 = z_0,\]
+%
+\noindent has stationary distribution $N(0, \sigma^2/2\theta)$ and mixing time $t_{mix}(\epsilon) \asymp \frac{1}{\theta} \log\left(\frac{1}{\epsilon}\right)$. Moreover at stationarity it has autocorrelation:
+%
+\[\mathrm{Corr}(Z_t, Z_{t+s}) = e^{-\theta s}.\]
+%
+\noindent For small $\beta$, where sampling is close to uniform, the waiting times $\tau^\beta_k - \tau_{k-1}^\beta \approx \mathrm{Geo}(d^{-1})$, so we wait roughly time $d$ between samples. Hence using Proposition \ref{prop:projection_centered_diffusion_limit}, we heuristically see that in the uniform $\beta$ case the (time-changed) projection-centered counts are well-approximated by: 
+% n = dt/h -> t = nh/d
+\[N_i(n) - N_d(n) \approx    \frac{Z_{nh/d}}{\beta\sqrt{h}}.\]
+%
+\noindent which is an OU process with stationary distribution $N(0, (\beta h)^{-1})$. At stationarity:
+%
+\[\mathrm{Corr}(N_i(n+k) -  N_d(n+k), N_i(n) -  N_d(n)) \approx \exp\left(-\frac{\beta hk}{2d}\right), \]
+%
+\noindent and $n_{mix}(\epsilon) \approx 2d(\beta h)^{-1} \log(\epsilon^{-1})$. Since $\beta h$ was just our rescaled bias, this essentially says in the small $\beta$ regime the process mixes at rate $O(\beta^{-1})$ and its auto-correlations decay exponentially at rate $O(\beta)$. Since $p^*(\beta) = p^*(c\beta)$ for any $c > 0$, scaling $\beta$ has no effect on the limiting distribution. Instead, it merely controls this trade-off between unpredictability and convergence. 
+
+For the mean-centered counts, the story is similar. Specifically, for arbitrary $d\times d$ matrices $\Theta, \Sigma$ the $d-$dimensional OU process:
+%
+\[dZ_t = -\Theta Z_t dt + \Sigma dW_t,\]
+%
+\noindent has stationary distribution $N(0, \omega)$ for $\omega$ solving the Lyapunov equation:
+%
+\[\Theta \omega + \omega \Theta^T = \Sigma \Sigma^T.\]
+%
+\noindent Moreover, its mixing time and stationary covariances are again given by:
+%
+\[t_{mix}(\epsilon) \asymp \frac{1}{\lambda_{min}(\Theta)} \log(1/\epsilon), \quad \mathrm{Cov}(Z_{t+s}, Z_t) = e^{-\Theta s} \omega\]
+%
+\noindent In the context of Proposition \ref{prop:mean_centered_diffusion_limit}, it is easy to see $\Theta = S_\beta^{-1} I_d$ and:
+%
+\[\omega = \frac{1}{2} [D_\beta - S_\beta^{-1} 11^T] = \frac{1}{2}D_\beta [I_d - 1(p^*)^T],\]
+%
+\noindent for $D_\beta = \mathrm{diag}(\beta_i)$. Thus, Proposition \ref{prop:mean_centered_diffusion_limit} implies:
+\[N(n) - np^* \approx D_\beta^{-1} \left[\frac{c_\beta}{h} + \frac{Z_{nh}}{\sqrt{h}} \right] \sim N\left( \frac{D_\beta^{-1}c_\beta}{h},\;  \frac{D_\beta^{-1}\omega D_\beta^{-1}}{h}\right).\]
+%
+\noindent At stationarity, for any nonzero $a \in \R^d$:
+%
+\[\mathrm{Corr}(a^T(N(n+k) - (n+k)p^*), \; a^T(N(n) - np^*)) = e^{-k h / S_\beta}\]
+%
+and mixing time:
+%
+\[n_{mix}(\epsilon) \approx \frac{S_\beta}{h} \log(1/\epsilon).  \]
+%
+Hence as before we see the convergence rate scales inversely with $\beta$, and the auto-correlation decay rate is proportional to $\beta$ in this weak-biasing regime.  
+
+In the proof of Theorem \ref{thm:sampling_rate}, we showed the self-balancing sampler has average-case convergence rate given by:
+%
+\[\E ||\mu_n - p^*||_{TV} = \frac{\E ||Y(n)||}{2n}.  \]
+%
+
+\noindent We showed that $\sup_n \E ||Y(n)|| < \infty$ in Lemma \ref{lem:centered_counts_bdd} already, but we can use our diffusive limit to get a better sense of how this behaves as a function of $\beta$. Using the above stationary distribution and the mean of a folded normal: 
+%
+\[\E |N(\mu, \sigma^2)| =
+\sigma \sqrt{\frac{2}{\pi}}
+\exp\!\left(-\frac{\mu^2}{2\sigma^2}\right)
++
+\mu\left[1-
+2\Phi\!\left(-\frac{\mu}{\sigma}\right)
+\right],
+\]
+\noindent we can see that our diffusion approximation suggests:
+%
+\[\E ||\mu_n - p^*||_{TV} \approx \frac{1}{2n}\left(\sum_{i=1}^d \E \left|N\left(\frac{(c_\beta)_i}{\beta_i h}, \;  \frac{1-p_i^*}{2\beta_ih}\right)\right| \right).\]
+%
+\noindent There are two regimes:
+%
+\[\E ||\mu_n - p^*||_{TV} \approx \begin{cases}
+    O\left(\frac{d}{n\sqrt{\beta h}}\right) & c_\beta = 0\\
+    O\left(\frac{1}{nh} \sum \frac{|(c_\beta)_i|}{\beta_i}\right)& c_\beta \neq 0\\
+\end{cases}\]
+%
+\noindent The former corresponds to the uniform $\beta$ case. Since $(c_\beta)_i = O(\log(\beta_i))$, this suggests a shift from $O(\beta^{-1/2})$ to $O(\log(\beta)/ \beta)$. In Appendix \ref{appendix:empirical_results}, we provide some additional empirical that there is indeed a fundamental shift in behavior as $\beta$ become non-uniform.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Adversarial Interpretation 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Adversarial Interpretation of Predictability}
+\label{sec:adversarial_interpretation}
+
+In order to develop a notion of how
+``predictable'' such a sampler is, consider the case where an adversary attempts to guess the next sample given the current sample history. Then one way of quantifying the predictability of the sampler is to study how accurate such an adversary can be if they behave optimally. In this section, we formalize this idea. Using our diffusive limits, we show if $\beta$ is small that the predictability is of the order $\max_i p_i^* + O(\sqrt{\beta})$ when $p^*$ does not have a unique maximizer. When it does, the predictability is roughly of order $\max_i p_i^* + O\left(\exp(-\beta^{-1}\right))$.
+
+
+Clearly, since the sampler exponentially favors under-sampled indices, the best strategy for the adversary is to just guess
+the most under-sampled index. Under this strategy, we define the adversary's asymptotic error-rate as:
+%
+\[\limsup_{n \to \infty} \frac{1}{n}\sum_{k=0}^{n-1}\P\!\left(X_k \neq \argmax_{i\in [d]} p_i(N(k-1))\right) = 1-\liminf_{n \to \infty} \frac{1}{n}\sum_{k=0}^{n-1} \E_{y \sim \tilde{Y}(k)} \left[\max_{i\in[d]} p_i(y)\right]\]
+
+\noindent where $\tilde{Y}(k)$ denote our projection-centered counts. Lemma \ref{lem:projection_centered_has_stationarity} shows these centered counts form an ergodic Markov chain, and hence by the ergodic theorem this error-rate ought to converge to the error-rate at stationarity.
+
+In general, it is hard to determine what the stationary distribution of the projection-centered counts $\tilde{Y}$ is. However, in the special case of $d=2$, then $\tilde{Y}$ becomes a simple birth-death process on $\Z$ which makes this a lot more tractable. 
+
+% Stationary in d=2
+\begin{lemma}
+    When $d=2$ and uniform $\beta_1 = \beta_2 = \beta > 0$, the projection-centered counts $\tilde{Y}(n)$ form a reversible Markov chain on $\beta\Z$ with stationary distribution:
+    %
+    \[\eta(\beta z) \propto  \frac{p_2(0) + p_1(0)e^{-\beta z}}{p_1(0) + p_2(0)} \left(\frac{p_1(0)}{p_2(0)}\right)^z e^{-\beta {z \choose 2}}\]
+    %
+    \label{lem:2d_stationary_project_centered}
+\end{lemma}
+
+\noindent In the case $p_1(0) = p_2(0) = \frac{1}{2}$, we get the symmetric and especially simple form:
+%
+\[\eta(\beta z) \propto \cosh\left(\frac{\beta z}{2}\right) \cdot e^{-\frac{\beta z^2}{2}}.\]
+%
+
+\noindent In the $d=2$ case, we can exactly quantify how this error-rate depends on $\beta$. 
+
+% Lemma
+\begin{lemma}\label{lem:small_beta_adversarial}
+    When $d=2$ and uniform $\beta$, as $\beta \downarrow 0$ we have:
+    %
+    \[\limsup_{n \to \infty} \frac{1}{n}\sum_{k=0}^{n-1}\P\!\left(X_k \neq \argmax_{i=1,2} p_i(N(k-1))\right) = \frac{1}{2} - \Theta(\sqrt{\beta}). \]
+\end{lemma}
+
+\noindent More precise constants can be found in Appendix \ref{appendix:proofs}. Even when $d=2$, when $\beta$ is non-uniform we lose this simple birth-death structure. Instead, to analyze the general $\beta$ case we rely on our diffusive limits. The following section is non-rigorous, but aims to add some heuristic evidence for why this $\Theta(\sqrt{\beta})$ rate appears. 
+
+We saw in Section \ref{sec:diffusion_approximations} that in the weak-biasing regime the weighted mean-centered counts are approximated at stationarity by
+%
+\[M^\beta(n) = D_\beta [N(n) - np^*] \approx c_\beta + \sqrt{h} Z, \qquad Z \sim N(0,\omega),\]
+%
+\noindent where $\omega$ is the stationary covariance from Section \ref{sec:diffusion_approximations}. Since
+%
+\[p_i(M) = \frac{p_i(0)e^{-M_i}}{\sum_{j=1}^d p_j(0)e^{-M_j}}, \qquad p(c_\beta) = p^*,\]
+%
+\noindent this suggests
+%
+\[\E\left[\max_i p_i(n)\right] \approx \E\left[\max_i p_i(c_\beta + \sqrt{h} Z)\right].\]
+%
+\noindent Let $J_\beta$ denote the Jacobian of the softmax map at $c_\beta$. A direct calculation gives
+%
+\[J_\beta = -\left[\operatorname{diag}(p^*) - p^*(p^*)^T\right],\]
+%
+\noindent and hence the first-order Taylor expansion yields
+%
+\[p(c_\beta + \sqrt{h} Z) = p^* + \sqrt{h}J_\beta Z + O(h).\]
+%
+\noindent so heuristically
+%
+\[\E\left[\max_i p_i(n)\right] \approx \E\left[\max_i \left(p_i^* + \sqrt{h} G_i\right)\right], \quad G = J_\beta Z \sim N(0, J_\beta \omega J_\beta^T).\]
+% 
+\noindent If the maximizer of $p^*$ (equivalently minimizer of $\beta$) is unique, then the max function is differentiable at $p^*$, and since $\E[G]=0$ the first-order correction vanishes:
+%
+\[\E\left[\max_i p_i(n)\right] = \max_i p_i^* + O(h).\]
+%
+\noindent In contrast, if several coordinates tie for the maximum of $p^*$, then the max is no longer differentiable and the first-order Gaussian fluctuation contributes. Writing $I^* = \{i : p_i^* = \max_j p_j^*\}$, standard analysis of maxima of correlated normals gives
+%
+\[\E\left[\max_i p_i(n)\right] = \max_i p_i^* + \sqrt{h}\,\E\left[\max_{i \in I^*} G_i\right] + O(h).\]
+%
+\noindent Using the fact $\langle Z, p^* \rangle  = 0$, we see:
+%
+\[G = -\mathrm{diag}(p^*) Z \overset{d}{=} -\mathrm{diag}(p^*)(W - \langle W, p^* \rangle 1) \]
+
+\noindent for $W \sim N(0, D_\beta / 2)$. Hence as the second term is constant on $I^*$ and mean-zero:
+%
+\[\E\left[\max_i p_i(n)\right] - \max_i p_i^* = \sqrt{\frac{h}{2\beta_{min} S_\beta^2}} \cdot \E \max_{i \leq |I^*|} B_i + O(h)  \asymp \sqrt{\frac{h \log | I^*|}{\beta_{min} S_\beta^2}} + O(h).\]
+%
+\noindent for $B_i \overset{iid}{\sim} N(0,1)$. The second approximation comes from classical asymptotics for the maximum of iid Gaussians, at least when $|I^*|$ is large. Hence the error rate at stationarity is approximately:
+%
+\[1-\max_i p_i^* - \sqrt{\frac{h \log | I^*|}{\beta_{min} S_\beta^2}} + O(h).\]
+%
+\noindent In the uniform $\beta$ case, this becomes:
+%
+\[1 - \frac{1}{d} - \frac{\sqrt{\beta h  \log d}}{d} + O(h)\]
+%
+ Again, this is reasonable when $d$ is large. Thus, the diffusion limit suggests in the weak-biasing regime, the predictability
+of the sampler is governed primarily by the maximum of $p^*$, and by the number of coordinates sharing this maximum value. Increasing either increases the predictability of the sampler. Moreover, for fixed $p^*$, it shows this
+ predictability grows at rate $\Theta(\beta^{1/2})$ as $\beta \downarrow 0$, which matches the $d=2$ case from Lemma \ref{lem:small_beta_adversarial}.
+
+Somewhat interestingly, predictability can increase when several coordinates share the minimal value of \(\beta_i\), since the adversary can exploit the largest realized fluctuation among these tied coordinates.
+
+Lastly, we briefly return to the case where $p^*$ has a unique maximizer. Suppose $m := \arg\max_i p_i^*$ and let:
+%
+    \[\Delta^* := p^*_m - \max_{j \neq m} p_i^* > 0,\]
+%
+\noindent be the gap between the two most likely outcomes. Then we see $m \neq \arg\max p(c_\beta + \sqrt{h}Z)$ essentially only when some coordinate $Z_i = O(\Delta^*/\sqrt{h})$ experiences a large deviation. Roughly, using $\P(N(0,1) > t) \asymp t^{-1}e^{-t^2/2}$, this has probability $O((ch)^{-1/2} \cdot e^{-1/2ch})$ exponentially small in $c^{-1}$. Hence in the case the of a unique maximizer, when $c$ is small we are exponentially close to the naive baseline $p_{max}^*$. 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Concluding Remarks
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Concluding Remarks}
+
+We introduced a family of self-balancing sequential samplers that adaptively downweight previously sampled outcomes. The resulting process interpolates between IID sampling, which is maximally random but poorly balanced, and deterministic sampling, which is optimally balanced but perfectly predictable. Despite retaining randomness at every step, the self-balancing sampler achieves empirical convergence at the deterministic scale \(O(n^{-1})\) in expectation and \(O(\log n/n)\) almost surely.
+
+A central theme of the paper is that this sampler is not merely a heuristic. It arises naturally from an invariance principle for potential-based Markovian samplers, is the unique solution to a one-step entropy-regularized imbalance minimization problem, and shows up informally in actual policy decisions. Together, these perspectives give complementary evidence for such exponential sampling rules naturally appear.
+
+The weak-biasing regime makes the convergence--predictability tradeoff explicit. As the bias parameter decreases, the centered counts fluctuate on a larger scale and mix more slowly, preserving more unpredictability. As the bias parameter increases, the process becomes more tightly mean-reverting, improving balance but making the next sample easier to predict. The diffusion approximation quantifies this tradeoff and shows that the geometry of the target law matters: tied maximizers of \(p^*\) produce first-order Gaussian corrections to predictability, while unique maximizers with fixed gaps only contribute through rare crossing events.
+
+Several extensions remain open. One natural direction is to replace categorical balance with covariate balance, sampling units according to their contribution to a cumulative covariate imbalance. Namely, suppose each unit $i \in [d]$ has some covariate vector $v_i$ assigned to it. If we have samples $X_1,..., X_n \in [d]$ define the cummulative (centered) covariate vector as:
+%
+    \[S_n := \sum_{i=1}^n v_{X_i} - n \bar{v}, \qquad \bar{v} := \frac{1}{d} \sum_{i=1}^d v_i.\]
+%
+\noindent We can then generalize our self-balancing sampler so that index $i$ is sampled with probability:
+%
+    \[p_i(n) \propto \exp\left(-\sum_{j} \beta_j v_{ij} (S_n)_j\right) = \exp\left(-\langle v_i, \beta \odot S_n \rangle\right).\]
+%
+\noindent When $v_i = e_i$ are the standard basis vectors, this recovers our original self-balancing sampler. This provides a parallel to the Gram-Schmidt walk of \cite{BansalDadushGargLovett2019}, which in the context of \cite{Harshaw01102024} provides the key tool for ensuring covariates are balanced across treatment groups in a randomized control trial. 
+
+Another is to study risk-weighted or nonstationary versions of the sampler, where the target distribution changes over time or depends on observed outcomes. Such extensions would bring the model closer to applications in inspections, audits, randomized experiments, and other settings where one seeks to balance coverage, responsiveness, and resistance to prediction.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Empirical Results
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage 
+\section{Empirical Results}
+\label{appendix:empirical_results}
+
+In this section, we provide some additional empirical evidence for some of the $\beta$ scalings we developed heuristically in previous sections. Simulation code can be found in the GitHub repository \href{https://github.com/zackmcnulty/self_balancing_sampler}{self\_balancing\_sampler}. We will study the behavior under two different unit-norm choices of $\beta$ when $d=4$: the uniform $\beta$ and the non-uniform $\beta \propto [1.1, 0.8, 0.9, 1.2]$, the latter of which also has a unique maximizer of $p^*(\beta)$. 
+
+% Convergence Rate
+\subsection{Convergence Rate}
+
+ Theorem \ref{thm:sampling_rate} implies:
+
+\[d_n := \E ||\mu_n - p^*||_{TV} = \frac{C(\beta)}{n} + o(n^{-1}).\]
+
+\noindent Since $C(\beta) = \lim_{n \to \infty} nd_n$, we can generate an estimate $\hat{C}(\beta)$ of this constant 
+by simulating many trajectories of the self-balancing sampler and taking the average of $Nd_N$ for some large $N$. To get a sense of how this constant varies with $\beta$, we fix some unit-norm $\beta$ and study how $C(c\beta)$ varies as we vary the scaling $c > 0$. The results are shown in Figure \ref{fig:convergence_plots} below. Since $p^*(\beta) = p^*(c\beta)$ for any $c>0$, all these samplers have the same limiting distribution. Our heuristic analysis in Section \ref{sec:diffusion_approximations} suggests:
+%
+\[C(c\beta) = \begin{cases}
+    \Theta(c^{-1/2}) & \beta \text{ uniform},\\
+    \Theta(c^{-1}) & \text{otherwise}.
+\end{cases}\]
+%
+Figure \ref{fig:convergence_plots} shows this is indeed the case, at least in the small $c$ regime where the diffusion approximations are reasonable. To generate these plots, we take $M=100$ trajectories of our sampler with $N=10000$ samples each. We estimate the limiting value $C(\beta) = \lim nd_n$ by taking the average of $Nd_N$ over our $M$ trials. 
+
+% convergence plots
+\begin{figure}[t]
+    \centering
+
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/convergence_plot_uniform.png}
+        \caption{Uniform $\beta$.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/convergence_plot_nonuniform.png}
+        \caption{Non-uniform $\beta$.}
+    \end{subfigure}
+
+    \caption{Log-log plots of $Nd_N$ as a function of the scaling factor $c$ for (a) uniform $\beta = [0.5, 0.5, 0.5, 0.5]$ and (b) non-uniform $\beta \propto [1.1, 0.8, 0.9, 1.2]$. Dotted lines show the expected $\Theta(c^{-1})$ and $\Theta(c^{-1/2})$ scalings in the uniform and non-uniform case respectively.}
+    \label{fig:convergence_plots}
+\end{figure}
+
+
+% Predictability %%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Predictability}
+
+In this section, we explore how the parameter $\beta$ affects the predictability of the sampler, as described in Section \ref{sec:adversarial_interpretation}. There, we showed that the key factor was whether or not $p^*$ has a unique maximizer. If it does not, then the predictability scales like $\Theta(\sqrt{\beta})$ above the naive baseline $p_{max}^*$ of IID sampling. If the maximizer is unique, we saw this first order correction vanishes, and the gap is exponentially small. We compare it to our two naive baselines: IID sampling and deterministic sampling. 
+
+In IID sampling, the adversary will clearly always predict the index $i$ which maximizes $p_i^*$, and hence its long-term accuracy will be $p_i^*$. In greedy sampling, we can make the sampler a bit more unpredictable by sampling the next index uniformly from $\arg\min_{i} N_i(n)$, rather than just the purely deterministically. In the uniform $\beta$ case, this gives an accuracy of approximate $\frac{\log(d)}{d}$, compared to the $d^{-1}$ of IID sampling. In the non-uniform $\beta$ case, we estimate the error rate under the greedy model through a simple Monte-carlo simulation.  
+
+Figures \ref{fig:predictability_plots} shows in the uniform $\beta$ case, there is a gradual increase in the prediction accuracy as we increase the bias $c$, and in the small $c$ regime we achieve the expected $\Theta(\sqrt{c})$ scaling. In the non-uniform $\beta$ case, we see prediction accuracy increases much more starkly. Moreover, the gap decays much more quickly as the bias $c \downarrow 0$.
+
+
+
+% predictability figure
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/predictability_uniform.png}
+        \caption{Uniform $\beta = [0.5, 0.5, 0.5, 0.5]$.}
+        \label{fig:predictability_uniform_top}
+    \end{subfigure}
+
+    \vspace{0.3cm}
+
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/predictability_nonuniform.png}
+        \caption{Non-uniform, distinct maximizer $\beta \propto [1.1, 0.8, 0.9, 1.2]$.}
+        \label{fig:predictability_nonuniform_bottom}
+    \end{subfigure}
+
+    \caption{Predictability plots for different choices of $\beta$. (left) Relationship between prediction accuracy and the scaling $c$ of $\beta$. (right) The ratio of the gap $\Delta(c) := \text{accuracy} - p_{max}^*$ from the uniform baseline and the first order $\sqrt{c}$ expected scaling. }
+    \label{fig:predictability_plots}
+\end{figure}
+% end fig
+
+% Trade Off %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Trade-Off}
+
+Lastly, we study the trade-off between predictability and the convergence rate. As discussed in the previous two sections, we quantify the former using the adversaries prediction accuracy, and the latter using the limit $\lim_{n\to \infty} n d_n$. Figure \ref{fig:trade_off} highlights the results.  
+
+Note the predictability starts essentially at the baseline $p_{max}^*$, and increases as we increase the scaling $c$. It starts smaller in the uniform $\beta$ case merely because $p_{max}^*$ is smaller than in the non-uniform case. However, we see that in the latter the predictability is much slower to increase initially, but then quickly becomes more predictable as we scale $\beta$. 
+
+
+% tradeoff plots
+\begin{figure}[t]
+    \centering
+
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/tradeoff_uniform.png}
+        \caption{Uniform $\beta$.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/tradeoff_nonuniform.png}
+        \caption{Non-uniform $\beta$.}
+    \end{subfigure}
+
+    \caption{Log-log plots of the trade-off between adversarial accuracy and the convergence rate $(Nd_N)^{-1}$.  (a) uniform $\beta = [0.5, 0.5, 0.5, 0.5]$ and (b) non-uniform $\beta \propto [1.1, 0.8, 0.9, 1.2]$. }
+    \label{fig:trade_off}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Optimal Control Background
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage 
+\section{Optimal Control}
+\label{appendix:optimal_control}
+
+
+In this section, we briefly review some of basic optimal control theory, and discuss how Theorem \ref{thm:general_optimization_problem} fits into the entropy-regularized optimal control framework. Suppose we have some discrete time dynamical system on some state space $S$:
+%a
+\[x_{t+1} = b(x_t, u_t), \quad x_t \in S, u_t \in U\]
+%
+\noindent where $u_t$ is the input of some controller and $U$ is the set of all allowable controls. In classical control
+theory, we have some loss function $\ell(x,u)$ and we wish to minimize the cummulative (discounted) loss over the entire
+trajectory $(x_t)_{t \in \N}$. Namely we aim to solve:
+%
+\[V(x) := \inf_{(u_t)} \left[\sum_{s=1}^\infty \gamma^s \cdot \ell(x^u_s, u_s) \right],\]
+%
+\noindent for some discount $\gamma \in (0,1)$ and where $x_0 = x$ is the initial state of the system. Here $(x^u_t)$ is the trajectory of the process when control sequence
+$(u_t)$ is applied. The \textit{value function} $V$ and optimal control $(u^*_t)$ can be determined
+using the standard Bellman equation. 
+%
+\[V(x) = \inf_{u \in U} \left\{\ell(x,u) + \gamma V( b(x,u))\right\}.\]
+%
+\noindent If we let $Q_\gamma(x,u) := \ell(x, u) + \gamma V(b(x,u))$ then we see the optimal policy $u^*$ and its
+corresponding value function $V$ satisfy:
+%
+\begin{equation} 
+	u^*(x) = \arg\min_{u \in U} Q_\gamma(x, u), \quad V(x) = Q_\gamma(x, u^*(x))
+	\label{eqn:optimal_unregularized_policy}
+\end{equation}
+
+%
+We can generalize the above by allowing the control policy to select its control $u_t$ at random, possibly depending on the current state. This paradigm is useful in the following settings:
+
+\begin{enumerate}[label=(\roman*)]
+    \item \textit{Imperfect Controls}: In many real-world settings, the controller does not have perfect control over the system, and the implemented actions may be subject to noise. By allowing for randomized control policies, we can model this inherent uncertainty in the control process.
+
+    \item \textit{Adversarial or Strategic Environments}: In some settings, predictability can be exploited by an adversary or the environment. Entropy regularization encourages policies that remain sufficiently randomized, thereby mitigating worst-case or strategic responses to deterministic behavior.
+
+    \item \textit{Exploration Versus Exploitation}: In reinforcement learning, we often want to encourage the agent to explore the state space in order to learn about the environment and the corresponding reward process. Randomized policies explicitly encode this exploration into the objective function.
+
+    \item \textit{Robustness and Regularization}: Entropy regularization acts as a convex regularizer on the control problem, smoothing the optimization landscape and preventing degenerate (overly deterministic) solutions. This can significantly improve stability and sample efficiency in practice \cite{haarnoja2018softactorcriticoffpolicymaximum}.
+
+    \item \textit{Information Constraints / Bounded Rationality}: Entropy regularization can also be interpreted as penalizing deviations from a reference policy via a Kullback--Leibler divergence. In this view, the controller faces a cost for using highly concentrated policies, reflecting limited information-processing capacity or a preference for staying close to a prior behavior (\cite{ortega2015informationtheoreticboundedrationality}). 
+\end{enumerate}
+
+ Suppose there is some deterministic function $\pi(\cdot \mid x) : S \to \mathcal{P}(U)$ which maps the state-space into the set of distributions over controls. Then define dynamics:
+%
+\[X_{t+1} \mid X_t  \sim b(X_t, U_t), \quad U_t \overset{ind}{\sim} \pi(\cdot \mid X_t), \quad X_0 = x_0.\]
+%
+\noindent This generalizes the Markovian sampler we discuss above. We then force a trade-off between the entropy of the control and the accrued loss:
+%
+\[V(x_0) := \inf_{(\pi)} \E\left[\sum_{s=0}^\infty \gamma^s \cdot (\ell(X^u_s, U_s) - \tau H(\pi(\cdot \mid X_s)))\right],\]
+%
+\noindent In this case, Bellman's equation gives:
+%
+\[V(x) = \inf_{\mu \in \mathcal{P}(U)} \left\{\int_U \left[Q_\gamma(x,u) + \tau \log(\mu(u))\right] \; \mu(du)  \right\}.\]
+%
+\noindent This can be optimized to find the optimal policy $\pi$ pointwise, as well as the value function. In the case $U$ is finite,
+these solutions can be expressed implicitly as:
+%
+\begin{equation}
+	\pi^*( u \mid x) \propto \exp\left(- \frac{Q_\gamma(x,u)}{\tau}\right), \quad V(x) = -\tau \log \left(\sum_{u \in U} \exp\left[- \frac{Q_\gamma(x,u)}{\tau}\right]\right).
+	\label{eqn:optimal_entropy_regularized_policy}
+\end{equation}
+
+%
+\noindent As we can see, the optimal policy is naturally a soft-min / Gibbs distribution with Hamiltonian $-Q_\gamma(x, \cdot ) / \tau$, and the value function
+is essentially the log-partition function of this distribution. Note how entropy-regularization essentially smooths out
+the strict minimization problem that occurs in equation \eqref{eqn:optimal_entropy_regularized_policy}. While equations \eqref{eqn:optimal_entropy_regularized_policy} only implicitly define the optimal policy, for certain choices of dynamics and loss functions we can be more explicit. Suppose we have some potential $\Phi:S \to \R$ and we define loss:
+%
+\[\ell(x, u)  := \Phi(x) +  \tau \log \sum_{v \in U} \exp\left(-\frac{\gamma}{\tau} \cdot \Phi(b(x,v))\right),\]
+%
+\noindent which is independent of $u$. Note that the second term is a simple soft-minimum. That is, we penalize spending time in states $x$ that have high-potential $\Phi(x)$ and that do not have neighboring low-potential states. In this setting:
+%
+\[\pi^*( u \mid x) \propto \exp\left(- \frac{\gamma(\Phi(b(x,u)) - \Phi(x))}{\tau}\right), \qquad V(x) = \Phi(x).\]
+%
+The self-balancing sampler fits nicely into this framework. If we choose state-space $S = \N^d$, controls $u \in [d]$, dynamics $b(x,u) = x + \delta_u $, and potential $\Phi(x) = \frac{1}{2}||x||^2$ then we have $\pi^*(u | x) \propto e^{-\gamma x_u/\tau}$. Hence we recover optimization problem Theorem \ref{thm:constant_optimization_problem}, the uniform $\beta_i \equiv \beta$ case. Analogously, if we instead choose $\Phi(x) = \frac{1}{2} \sum_i \beta_i(x_i - np_i^*)^2$ we recover optimization problem \ref{thm:general_optimization_problem}.
+
+The former gives us another way of interpreting the role of $\beta$ in the self-balancing sampler: $\beta = \gamma / \tau$ measures the trade-off between minimizing future imbalance through the value term $Q_\gamma$ and maintaining randomness in the sampling policy via entropy-regularization.
+
+Alternatively, if we choose a linear loss $\ell(x,u) = \beta_u x_u$, and myopic discounting $\gamma=0$, we see the policy $\pi^*(u \mid x) \propto \exp(-\beta_ux_u)$ is the minimizer of:
+%
+\[V(x) := \inf_\pi \left\{\sum_{i=1}^d [\pi(i|x) \cdot \beta_ix_i] - H(\pi(\cdot \mid x)) \right\},\]
+%
+\noindent Hence the self-balancing sampler can be seen as a greedy mechanism for minimizing the weighted-$L^1$ norm of our counts $N(n)$, analogous to Theorem \ref{thm:mirror_descent_optimization}. 
+
+
+We showed above that the self-balancing sampler converges at rate $O(n^{-1})$ on average. The theory of entropy-regularized optimal control provides us a convenient framework for extending these ideas to a broader class of samplers. The following shows as long as under-sampled indices are at least exponentially favored, we get the same convergence rate.
+
+\begin{theorem}
+
+Suppose we have sampler $\pi_i(x) \propto a_i\exp(-H_i(x))$ so that for $P = I - p^*1^T$ then $\pi(x) = \pi(x')$ whenever $Px=Px'$. Moreover, suppose there are constants $c,C > 0$ so for all $y$ with $\sum y_i = 0$ and $y_j \leq y_i$ we have: 
+%
+\[H_i(y) - H_j(y) \geq c(y_i-y_j) - C.\]
+%
+\noindent Then if $\mu_n$ is the empirical distribution associated to sampler $\pi$, we have:
+%
+\[\E || \mu_n - p^*||_{TV} \leq O(n^{-1}).\]
+%
+\label{thm:average_case_optimal_control}
+\end{theorem}
+
+\noindent As in the previous sections, $p^*$ plays the role of the limiting distribution. Our assumptions on $\pi$ simply state that it is a function of the mean-centered counts alone, and the proper centering $p^*$ determines the limiting distribution. 
+
+If we have a sampler generated by potential $\Phi$ as above, then the assumptions of Theorem \ref{thm:average_case_optimal_control} reduce to the constraints:
+%
+\[\Phi(x + \delta_i) - \Phi(x) = \Phi(Px + \delta_i) - \Phi(Px) + \kappa,\]
+\[\Phi(x + \delta_i) - \Phi(x+\delta_j) \geq c((Px)_i - (Px)_j) - C.\]
+%
+for some $\kappa$ independent of $x, i$. The self-balancing sampler is the special case $H_i(y) = \beta_i y_i$ which is globally linear and arises from potential $\Phi(x) = \frac{1}{2}||x||^2$. Alternatively, any separable potential $\Phi(x) = \sum_i \phi_i((Px)_i)$ for $\phi_i$ strongly-convex satisfies these constraints.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Proof Appendix
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage 
+\section{Proof Appendix}
+\label{appendix:proofs}
+
+In this Appendix, we collect the formal proofs of all the main results of the paper.
+
+\newcommand{\proofappendixheading}[1]{\bigskip\noindent\textbf{#1}\par\medskip}
+\newcommand{\proofappendixstatement}[2]{\noindent\emph{#1.} #2\par\medskip}
+
+\proofappendixheading{Proof of Proposition~\ref{prop:charactizing_v_invariance}}
+\proofappendixstatement{Proposition}{If $\pi^\phi$ is $v$-invariant, then for each $i$ there exist constants $b>0$ and $c_{i,k}$ such that $\phi_i(mv_i+k)=c_{i,k}b^m$ for all $m\in\N$ and $k\in\{0,\dots,v_i-1\}$. If, in addition, each $\phi_i$ is log-convex or log-concave, then $\phi_i(n)=c_ir_i^n$ and $(\log r_1,\dots,\log r_d)\propto (v_1^{-1},\dots,v_d^{-1})$.}
+\begin{proof}
+    Denote $S(x) := \sum_j \phi_j(x_j)$. 
+    Then $v$-invariance implies:
+    %
+    \[\frac{\phi_i(x_i)}{S(x)} = \frac{\phi_i(x_i + v_i)}{S(x + v)}, \quad \frac{\phi_j(x_j)}{S(x)} = \frac{\phi_j(x_j + v_j)}{S(x + v)}.\]
+    %
+    \noindent Dividing these equalities and rearranging yields:
+    %
+    \[\frac{\phi_i(x_i)}{\phi_i(x_i + v_i)} = \frac{\phi_j(x_j)}{\phi_j(x_j + v_j)}.\]
+    %
+    \noindent As the left side is independent of $x_j$ and the right side is independent of $x_i$, these ratios must equal some constant $b > 0$ independent of $x_i, x_j$. 
+    Hence for every $i \in [d]$ and $k \in \{0, 1, ..., v_i-1\}$ we must have:
+    %
+    \[\phi_i(m v_i + k) = \phi_i(k) \cdot b^m, \quad \forall m \in \N.\]
+    %
+    \noindent Log-convexity implies for $k \in \{0, 1, ..., v_{i} - 2\}$:
+    %
+    \[\frac{\phi_i(0)}{\phi_i(1)} \leq \frac{\phi_i(k)}{\phi_i(k+1)} \leq \frac{\phi_i(v_i)}{\phi_i(v_i+1)} = \frac{\phi_i(0)b}{\phi_i(1)b}.\]
+    %
+    \noindent If instead $\phi_i$ is log-concave, the direction of the inequalities all swap. Either way, we see these ratios are constant, and thus $\phi_i(m) = c_ir_i^m$ where $r_i = b^{1/v_i}$. 
+    Thus we have
+    \[\frac{\log(r_i)}{\log(r_j)} = \frac{v_j}{v_i},\]
+    \noindent giving the desired result.
+\end{proof}
+
+\proofappendixheading{Proof of Lemma~\ref{lem:projection_centered_has_stationarity}}
+\proofappendixstatement{Lemma}{
+    If $\pi$ is $v$-invariant, the projection-centered chain $\tilde{Y}_i^v(n) = v_dN_i(n) - v_i N_d(n)$ is irreducible, 
+    positive recurrent, and has a unique stationary distribution $\eta$ on some subset of $\Z^{d-1}$.}
+
+
+    \begin{proof}
+        Clearly the state-space of $\tilde{Y}^v$ is
+        the subset of $\Z^{d-1}$ generated by nonnegative integer combinations of the vectors $\{v_d e_i\}_{i=1}^{d-1} \cup \{-v\}$.
+        Of course, this does not always span $Z^{d-1}$, even when $\mathrm{gcd}(v_i) = 1$. For example, if $v_1 = 2, v_2 = 3, v_3 = 4$ then the first coordinate
+        of $\tilde{Y}^v$ is always a multiple of $2$. 
+
+        Nonetheless, we show the chain is still irreducible on this state-space. To see why, suppose:
+        %
+        \[x = v_d\sum_{i=1}^{d-1} a_i e_i - a_d v, \quad a_i \geq 0.\]
+        %
+        \noindent Clearly we can go from $0$ to $x$ by sampling $a_i$ times from index $i$ for each $i \in [d-1]$ and sampling $a_d$ times 
+        from index $d$. Conversely, we can go from $x$ to $0$ by sampling index $i$ a total of $k v_i - a_i$ times, for some $k$ large enough so $k v_d > a_d$ for all $i$. 
+        Then sample coordinate $d$ a total of $k v_d - a_d$ times. 
+
+        Lastly, we show the chain is positive recurrent by developing a suitable Lyapunov function and proving a Foster-Lyapunov drift condition. 
+        Let $\beta_i = v_i^{-1}$ and define:
+        %
+        \[Q_i := \beta_i N_i - \log(p_i(0) \beta_i), \quad \overline{Q} = \frac{1}{d} \sum_{i=1}^{d} Q_i.\]
+        %
+        \noindent The constants $\log(p_i(0) \beta_i)$ serve an analogous role to $c_\beta$ in our diffusive limit:
+        the shift the chain so it is centered at the zero-drift location. Note:
+        %
+        \[p_i = \frac{p_i(0)e^{-\beta_i N_i}}{\sum_j p_j(0)e^{-\beta_j N_j}} = \frac{v_i e^{-Q_i}}{\sum_j v_j e^{-Q_j}},\]
+        %
+        \noindent is a function of $Q$. Using this, define Lyapunov function:
+        %
+        \[V(Q) := \sum_{i=1}^{d} Z_i^2, \quad Z_i := Q_i - \overline{Q}.\]
+        %
+        \noindent Then $V$ is a function of the projection-centered counts $v_d N_i - v_i N_d$ alone. Moreover, $V(Q) = V(Q + c 1)$ for all $c \in \R$, so
+        it suffices to consider the case $Q_d = 0$. 
+        We will show $V$ has negative drift outside some finite set. First, note as $\sum Z_i = 0$::
+        %
+        \[V(Q + \Delta Q) = 2 \sum_{i=1}^{d} Z_i \Delta Q_i + \sum_{i=1}^{d} (\Delta Q_i - \overline{\Delta Q})^2\]
+        %
+        \noindent Thus $V$ has expected drift:
+        %
+        \[\E[ \Delta V(Q) \mid Q = q] = 2 \sum_{i=1}^d Z_i p_i(q)\beta_i + \frac{d-1}{d} \sum_{i=1}^d p_i(q) \beta_i^2\]
+        %
+        \noindent The second term is at most $C = \max \beta_i^2$. The first term is sufficiently negative on:
+        %
+        \[F := \left\{Q \in \N^d : \max_i Q_i - \min_i Q_i > R, \quad Q_d = 0\right\}.\]
+        %
+        \noindent To see why, suppose $M = \arg\max_i Q_i$ and $m = \arg\min_i Q_i$.
+        %
+        \begin{align*}
+            \sum_{i=1}^d Z_i p_i\beta_i & = \frac{1}{d} \sum_{i < j} (q_i - q_j)(p_i \beta_i - p_j\beta_j).\\
+            %
+            & = \frac{1}{d \sum_j v_j e^{-q_j}} \sum_{i < j} (q_i - q_j)(e^{-q_i} -  e^{-q_j}).\\
+            %
+            & \leq \frac{(q_m - q_M)(e^{-q_m} -  e^{-q_M})}{d \sum_j v_j e^{-q_j}} \\
+            %
+            & \leq \frac{(q_m - q_M)(e^{-q_m} -  e^{-q_M})}{d^2 e^{-q_m} \max_i v_i} \\
+            %
+            & \leq - \frac{R(1-e^{-R})}{d^2 \max_i v_i} \cdot \\
+        \end{align*}
+
+        %
+        \noindent where in the first inequality we observed every term in the sum is nonnegative. The complement $F^c$ is a finite subset of $\Z^{d-1}$, 
+        so we have the desired drift condition. 
+
+    \end{proof}
+
+
+
+
+\proofappendixheading{Proof of Lemma~\ref{lem:sampling_at_stationarity_gives_pstar}}
+\proofappendixstatement{Lemma}{Suppose $\pi$ is $v$-invariant and the associated projection-centered chain has stationary distribution $\eta$. If $y\sim\eta$ and $X\mid y\sim\pi(y)$, then $\P(X=i)=\frac{v_i}{\sum_j v_j}$ for each $i\in[d]$.}
+\begin{proof}
+    Suppose $\tilde{Y}^v \sim \eta$. Let $p_i := \P(X = i)$ and define $\Delta_n \tilde{Y}^v := \tilde{Y}^v(n+1) - \tilde{Y}^v(n)$. If $\tilde{Y}^v(n) \sim \eta$, then 
+    $\tilde{Y}^v(n+1) \sim \eta$ as well. Hence $\E \Delta_n \tilde{Y}^v = 0 \in \Z^{d-1}$. As discussed above, we can view $\tilde{Y}^v(n)$ as the image of $N(n)$ under the map
+    %
+    \[x \mapsto (v_dx_i - v_ix_d)_{i=1}^{d-1}.\]
+    \noindent Hence:
+    %
+    \[(\Delta_n \tilde{Y}^v)_i = \begin{cases}
+        v_d & w.p. \quad p_i,\\
+        -v_i & w.p. \quad p_d,\\
+        0 & w.p. \quad 1 - p_i - p_d.
+    \end{cases}\]
+    %
+    \noindent Hence the $i^{th}$ coordinate of this expectation is:
+    %
+    \[(\E \Delta_n \tilde{Y}^v)_i = v_dp_i - v_ip_d = 0.\]
+    %
+    \noindent Thus $p_i = \frac{v_i}{v_d}p_d$. Since $\sum_{i=1}^d p_i = 1$, we see:
+    %
+    \[\sum_{i=1}^d \frac{v_i}{v_d} = \frac{1}{p_d} \to p_d = \frac{v_d}{\sum_{j=1}^d v_j},\]
+    %
+    \noindent which yields the desired result. 
+\end{proof}
+
+\proofappendixheading{Proof of Proposition~\ref{prop:empirical_averages}}
+\proofappendixstatement{Proposition}{For every sequential sampling rule,
+\[
+\E\left[\max_{1\le i\le d}\left|\mu_i(n)-\frac1n\sum_{m=0}^{n-1}p_i(m)\right|\right]\lesssim \frac{d}{\sqrt n}.
+\]
+If the projection-centered count process is irreducible and positive recurrent, then both $\mu_i(n)$ and $\frac1n\sum_{m=0}^{n-1}p_i(m)$ converge almost surely.}
+\begin{proof}
+    For a given $1 \leq i \leq d$, consider the sequence $M_{i}(0) = 0$, $M_{i}(n) \coloneqq N_{i}(n) - \sum_{m=0}^{n-1} p_{i}(m)$. This is a martingale adapted to $\mathcal F_n \coloneqq \sigma(N_{i}(1),\dots,N_{i}(n))$, as
+    $$\mathbb E[M_{i}(n+1) - M_{i}(n) \mid \mathcal F_n] = \mathbb E[\mathbf 1_{\{X_{n+1} = i\}} - p_{i}(n) \mid \mathcal F_n] = p_{i}(n) - p_{i}(n) = 0.$$
+    Moreover, these martingales each have bounded differences $|M_i(n+1) - M_i(n)| \leq 1$, so the Azuma-Hoeffding inequality gives
+    $$\P(|M_i(n)| \geq n\varepsilon) \leq 2 e^{-n \varepsilon^2/2}.$$
+
+    This yields exponential concentration for $\mu_i(n) - \frac{1}{n} \sum_{m=0}^{n-1} p_i(m) = M_i(n)/n$ around $0$, so by the Borel-Cantelli theorem, the difference converges almost surely. And if the count process for a sequential sampling rule is irreducible and positive recurrent, then Birkhoff's ergodic theorem applied to the projection-centered count process guarantees almost sure convergence of $\frac{1}{n} \sum_{m=0}^{n-1} p_i(m)$.
+    
+    For the expectation bound, first, a union bound gives
+    $$\P \left(\max_{1 \leq i  \leq d} \left |\mu_{i}(n) - \frac{1}{n} \sum_{m=0}^{n-1} p_{i}(m) \right| \geq \varepsilon \right) \leq 2d e^{-n\varepsilon^2/2}.$$
+    We conclude that
+    \begin{align*}
+        \mathbb E \left[\max_{1 \leq i  \leq d} \left |\mu_{i}(n) - \frac{1}{n} \sum_{m=0}^{n-1} p_{i}(m) \right|  \right] &= \int_0^\infty \P \left(\max_{1 \leq i  \leq d} \left |\mu_{i}(n) - \frac{1}{n} \sum_{m=0}^{n-1} p_{i}(m) \right| \geq \varepsilon \right) \, d\varepsilon \\
+        &\leq \int_0^\infty 2d e^{-n\varepsilon^2/2} \, d\varepsilon \\
+        &= d \sqrt{\frac{2\pi }{n}}.\qedhere
+    \end{align*}
+\end{proof}
+
+\proofappendixheading{Proof of Lemma~\ref{lem:centered_counts_bdd}}
+\proofappendixstatement{Lemma}{If $Y_i(n)=N_i(n)-np_i^*$ and $Y(n)=(Y_1(n),\dots,Y_d(n))$, then for the self-balancing sampler one has $\sup_{n\ge 1}\E[\|Y(n)\|_1]<\infty$.}
+\begin{proof}
+First, note that since
+\[\exp(\beta_i n p_i^*) = \exp\left(\frac{n}{\sum_{j=1}^d \beta_j^{-1}} \right)\]
+\noindent is independent of $i$, we see $p_i(N(n)) = p_i(Y(n))$. Hence the sample probabilities can be viewed as a function of the centered counts alone. 
+
+By Theorem 1 of \cite{PemantleRosenthal1999}, it suffices to prove that there exists a $K$ such that $W_n := ||Y(n)||_1$ has negative drift whenever $W_n > K$. Note that:
+%
+\[\E [W_{n+1} - W_n \mid Y_n = y] = \sum_{i=1}^d [h_i(y_i) + p_i(y) g_i(y_i)],\]
+%
+\noindent where for each $i \in [d]$:
+%
+\[h_i(u) =  \big|u - p_i^*\big| - |u| = \begin{cases}
+    p_i^* & u \leq 0, \\
+    \text{linear} & u \in [0, p_i^*], \\
+    -p_i^* & u \geq p_i^*,
+\end{cases}\]
+\[g_i(u) =  \big|u + 1 - p_i^*\big| - \big|u - p_i^*\big|= \begin{cases}
+    -1 & u \leq -(1-p_i^*), \\
+    \text{linear} & u \in [-(1-p_i^*), p_i^*], \\
+    1 & u \geq p_i^*.
+\end{cases}\]
+%
+\noindent Let $p_{\max}^* := \max_i p_i^*$ and $p_{\min}^* := \min_i p_i^*$. First, if $\|y\|_1 \geq 2dp_{\max}^*$, then:
+%
+\[d\max_i y_i \geq\sum_{i : y_i > 0} y_i = \frac{\|y\|_1}{2} \geq dp_{\max}^*,\]
+%
+\noindent so for some $j$ we have $y_{j} \geq p_{j}^*$ and hence $h_{j}(y_{j}) = -p_{j}^*$. Since $h_i(y_i) \leq p_i^*$:
+%
+\[\sum_{i=1}^d h_i(y_i) \leq \sum_{i \neq j} p_i^* - p_{j}^* = 1 - 2p_{j}^* \leq 1 - 2p_{\min}^*.\]
+%
+\noindent This controls the first term in the drift. Next we control $\sum_i p_i(y)g_i(y_i)$.
+
+First, we show $m := \min_i \beta_i y_i \leq 0$ must be reasonably small. Since $\sum  y_i = 0$:
+%
+\[dm \leq \sum_{i : y_i < 0} \beta_i y_i \leq \beta_{min}\sum_{i : y_i < 0} y_i \leq -\frac{\|y\|_1}{2} \cdot \beta_{min}.\]
+%
+Define the set $S$ of coordinates that are not too small:
+%
+\[S := \{i \; : \; y_i > -1\}.\]
+%
+\noindent Then for $i \in S$:
+%
+\[p_i(y) = \frac{p_i(0) \exp(-\beta_i y_i)}{\sum_{j=1}^d p_j(0) \exp(-\beta_j y_j)} \leq \frac{p_{max}(0)}{p_{min}(0)} \cdot \frac{e^{-\beta_i y_i}}{e^{-m}} \leq \frac{p_{max}(0)}{p_{min}(0)} \cdot e^{m + \beta_{max}}.\]
+%
+\noindent By our above work, this is then upper bounded by:
+%
+\[\sum_{i \in S}p_i(y) \leq d\frac{p_{max}(0)}{p_{min}(0)} \cdot e^{-\frac{\|y\|_1}{2d} \beta_{min} + \beta_{max}} =: L(\|y\|_1).\]
+%
+\noindent Hence as $g_i(y_i) = -1$ for $i \in S^c$:
+%
+\[\sum_{i=1}^d p_i(y) g_i(y_i) \leq \sum_{i \in S} p_i(y)  - \sum_{i \in S^c} p_i(y) = 2\sum_{i \in S}p_i(y) - 1 \leq 2 L(\|y\|_1) - 1.\]
+%
+\noindent From here, we complete our drift bound:
+%
+\[\E [W_{n+1} - W_n \mid Y_n = y] \leq 1-2p_{\min}^* + 2L(\|y\|_1) - 1 =  2L(\|y\|_1) -2p_{\min}^*.\]
+%
+\noindent For $K$ large enough, if $\|y\|_1 > K$, then $L(\|y\|_1) \leq p_{\min}^*/2$, giving us drift $\leq -p_{\min}^*$.
+\end{proof}
+
+\proofappendixheading{Proof of Theorem~\ref{thm:limit_probabilities}}
+\proofappendixstatement{Theorem}{For the self-balancing sampler,
+\[
+\|\mu(n)-p^*\|_{\operatorname{TV}}\xrightarrow{a.s.}0,
+\qquad
+\|\mu(n)-p^*\|_{\operatorname{TV}}\lesssim \frac{d^2(\log n+O(1))}{n}
+\quad\text{a.s.}
+\]}
+\begin{proof}
+    The idea is to show that the log odds ratios of the sampling probabilities never get too large; this will force $\beta_i N_i \approx \beta_j N_j$, which will make $N_i/n \propto 1/\beta_i$. In particular, let
+    $$R_{i,j} \coloneqq -\log \frac{p_i(n)}{p_j(n)} + \log \frac{p_i(0)}{p_j(0)} = \beta_i N_i - \beta_j N_j.$$
+    It is very unlikely for $R_{i,j}$ to exceed $2\log n$, as the following one-step analysis shows:
+    \begin{align*}
+        \mathbb P(X_{n+1} = i, R_{i,j}(n) \geq 2 \log n) &= \E[ \mathbb P(X_{n+1} = i, R_{i,j}(n) \geq 2 \log n \mid p(n))] \\
+        &= \mathbb E[p_i(n) \mathbf 1_{\{R_{i,j}(n) \geq 2 \log n\}}] \\
+        &\leq \E \left[p_j(n) \frac{p_j(0)}{p_i(0)} \frac{1}{n^2} \mathbf 1_{\{R_{i,j}(n) \geq 2 \log n\}} \right] \\
+        &\lesssim \frac{1}{n^2}.
+    \end{align*}
+    Therefore, by the Borel-Cantelli theorem, with probability $1$, $R_{i,j}(n) \leq 2 \log n + O(1)$ for all $n$. Applying this argument to $R_{j,i} = -R_{i,j}$, we get that $|R_{i,j}(n)| \leq 2 \log n + O(1)$ for all $n$.
+
+    Now analyze the counts in terms of the $R_{i,1}$:
+    $$\frac{N_i}{n} = \frac{1}{\beta_i} \cdot \frac{\beta_1 N_1}{n} + \frac{R_{i,1}}{\beta_i n},$$
+    and summing over $i$ gives
+    $$1 = \sum_{k=1}^d \frac{N_k}{n} = \frac{\beta_1 N_1}{n} \left( \sum_{k=1}^d \frac{1}{\beta_k} \right) + \frac{1}{n} \sum_{k=1}^d \frac{R_{k,1}}{\beta_k},$$
+    which we rearrange into
+    $$\frac{\beta_1 N_1}{n} = \frac{1}{\sum_{k=1}^d 1/\beta_k} \left(1 - \frac{1}{n} \sum_{k=1}^d \frac{R_{k,1}}{\beta_k} \right).$$
+    Plugging this back into the expression for $N_i/n$ gives
+    $$\frac{N_i}{n} = \underbrace{\frac{1/\beta_i}{\sum_{k=1}^d 1/\beta_k}}_{p_i^*} \left(1 - \frac{1}{n} \sum_{k=1}^d \frac{R_{k,1}}{\beta_k} \right) + \frac{R_{i,1}}{\beta_i n}.$$
+    So the total variation distance is
+    \begin{align*}
+        \| \mu(n) - p^* \|_{\operatorname{TV}} &= \frac{1}{2} \sum_{i=1}^d \left| \frac{N_i}{n} - p_i^* \right| \\
+        &= \frac{1}{2n} \sum_{i=1}^d \left| \frac{R_{i,1}}{\beta_i} - p_i^*\sum_{k=1}^d \frac{R_{k,1}}{\beta_k} \right| \\
+        &\lesssim \frac{d^2 (\log n + O(1))}{n}.\qedhere
+    \end{align*}
+\end{proof}
+
+\proofappendixheading{Proof of Theorem~\ref{thm:expected_cover_time}}
+\proofappendixstatement{Theorem}{If $C=\max_{1\le i\le d}\min\{n\ge 1:X_n=i\}$ and $p_i(0)=1/d$, then
+\[
+\E[C]=\sum_{i=1}^d \frac{\log(1+\beta_i\log d)}{\beta_i}+O(d).
+\]}
+\begin{proof}
+    Writing $C = C_1 + \cdots + C_d$, where $C_i \coloneqq \{ 1 \leq n \leq C : X_n = i\}$ is the number of times we see outcome $i$ before covering all the outcomes, we need only show that $\E[C_i] = \frac{\log(1 + \beta_i \log d)}{\beta_i} + O(1)$.
+
+    The key insight is to embed the self-balancing sampler into a continuous time stochastic process with the sampling order determined by independent exponential clocks. For $1 \leq i \leq d$ and $j \geq 0$, let $W_{i,j} \sim \operatorname{Exp}(\alpha_i^j)$ be independent, and let $Y_{i,j} \coloneqq \sum_{k=0}^j W_{i,k}$. Then the order of the $Y_{i,j}$ and their associated $i$ indices has the same distribution as the order of the $X_n$, e.g.\ $\P(Y_{1,0} < Y_{1,1} < Y_{6,0} < \cdots) = \P(X_1 = 1, X_2 = 1, X_3 = 6, \dots)$. Letting $\widetilde C_i(t) \coloneqq \max \{ j \geq 0 : Y_{i,j} \leq t \}$, we claim that
+    $$\frac{\log(1 + \beta_i t)}{\beta_i} \leq \E[\widetilde C_i(t)] \leq \frac{\log(1 + \beta_i t)}{\beta_i} + 1.$$
+    
+    The lower bound is equivalent to $1 + \beta_i t \leq e^{\beta_i \E[\widetilde C_i(t)]}$, which follows from
+    \begin{align*}
+        e^{\beta_i \E[\widetilde C_i(t)]} &= 1 + \int_0^t \frac{d}{du}e^{\beta_i \E[\widetilde C_i(u)]} \Bigg|_{u=s} \, ds \\
+        &= 1 + \beta_i \int_0^t \frac{d}{du}\E[\widetilde C_i(u)] \Bigg|_{u=s} \cdot e^{\beta_i \E[\widetilde C_i(s)]} \, ds \\
+        &= 1 + \beta_i \int_0^t \E[e^{-\beta_i \widetilde C_i(s)}] e^{\beta_i \E[\widetilde C_i(s)]} \, ds \\
+        &\geq 1 + \beta_i \int_0^t e^{-\beta_i \E[\widetilde C_i(s)]} e^{\beta_i \E[\widetilde C_i(s)]} \, ds \\
+        &= 1 + \beta_i t,
+    \end{align*}
+    where we used that the derivative of the expectation of a birth process is the expected birth rate. For the upper bound, we have
+    \begin{align*}
+        e^{\beta_i \E[\widetilde C_i(t)]} &\leq \E[e^{\beta_i \widetilde C_i(t)}] \\
+        &= 1 + \int_0^t \frac{d}{du} \E[e^{\beta_i \widetilde C_i(u)}] \Bigg|_{u=s} \, ds.
+        \shortintertext{By Kolmogorov's forward equation, $\frac{d}{du} \E[e^{\beta_i \widetilde C_i(u)}]$ is the expectation of the generator of the birth process $\widetilde C_i(t)$ applied to the function $f(z) = e^{\beta_i z}$.}
+        &= 1 + \int_0^t \E[e^{-\beta_i \widetilde C_i(s)}(e^{\beta_i (\widetilde C_i(s)+1)} - e^{\beta_i \widetilde C_i(s)})] \, ds \\
+        &= 1 + \int_0^t e^{\beta_i} - 1 \, ds \\
+        &= 1 + (e^{\beta_i} - 1)t.
+    \end{align*}
+    This gives an upper bound of $\E[\widetilde C_i(t)] \leq \frac{\log(1 + (e^{\beta_i} - 1) t)}{\beta_i} \leq \frac{\log(1 + \beta_i t)}{\beta_i} + 1$.
+
+    Now, we incorporate the random time in the continuous process which corresponds to the cover time in the self-balancing sampler: $M_{-i} \coloneqq \max \{ W_{j,0} : j \neq i \}$. Then $C_i \overset{d}{=} \max \{ 1, \widetilde C_i(M_{-i}) \}$, so that
+    $$\E[C_i] = \E[\widetilde C_i(M_{-i})] + \underbrace{\P(W_{i,0} < W_{j,0} \: \forall j \neq i)}_{=1/d}.$$
+    Applying our previous inequalities gives
+    $$\left|\E[C_i] - \E \left[\frac{\log(1 + \beta_i M_{-i})}{\beta_i}  \right] \right| \leq 1 + \frac{1}{d},$$
+    and all that remains now is to show that $\E[\widetilde C_i(M_{-i})] \approx \E[\widetilde C_i(\log d)]$, where $\E[M_{-i}] = \sum_{k=1}^{d-1} \frac{1}{k} \approx \log d$. We have
+    \begin{align*}
+        \left|\E[C_i] - \frac{\log(1 + \beta_i \log d)}{\beta_i} \right| &\leq \left|\E[C_i] - \E \left[\frac{\log(1 + \beta_i M_{-i})}{\beta_i}  \right] \right| \\
+        &\qquad \qquad + \left|\E \left[\frac{\log(1 + \beta_i M_{-i})}{\beta_i}  \right]  - \frac{\log(1 + \beta_i \log d)}{\beta_i} \right|.
+        \intertext{The latter term can be bounded using the fact that $g(x) \coloneqq \frac{\log(1 + \beta_i x)}{\beta_i}$ is $1$-Lipschitz, which follows from $|g'(x)| = |\frac{1}{1+\beta x}| \leq 1$ for all $x \geq 0$.}
+        &\leq 1 + \frac{1}{d} + \E[|M_{-i} - \log d|] \\
+        &\leq 1 + \frac{1}{d} + \sqrt{\E[(M_{-i} - \log d)^2]} \\
+        &= 1 + \frac{1}{d} + \sqrt{(\E[M_{-i} - \log d])^2 + \Var(M_{-i})} \\
+        &= 1 + \frac{1}{d} + \sqrt{\left(\log d - \sum_{k=1}^{d-1} \frac{1}{k}\right)^2 + \sum_{k=1}^{d-1} \frac{1}{k^2}} \\
+        &\leq 1 + \frac{1}{d} + \sqrt{1 + \frac{\pi^2}{6}}.\qedhere
+    \end{align*}
+\end{proof}
+
+\proofappendixheading{Proof of Theorem~\ref{thm:general_optimization_problem}}
+\proofappendixstatement{Theorem}{Let $L_\beta(n)=\frac12\sum_{i=1}^d \beta_i(N_i(n)-np_i^*)^2$ and let $D_\beta(q)=\E[L_\beta(n+1)-L_\beta(n)\mid N(n),q]$. Then the optimization problem
+\[
+\argmax_{q\in\Delta^d}\bigl(H(q)-H(q,p(0))-D_\beta(q)\bigr)
+=
+\argmin_{q\in\Delta^d}\bigl(\operatorname{KL}(q\|p(0))+D_\beta(q)\bigr)
+\]
+has unique solution $q_i\propto p_i(0)e^{-\beta_i(N_i(n)+1/2)}$.}
+\begin{proof}
+    First, expand $D$ to isolate the terms depending on $q$:
+    \begin{align*}
+        D(q) &= \frac{1}{2}\sum_{i=1}^d \beta_i\E [N_i(n+1)^2 - 2(n+1) p_i^* N_i(n+1) + ((n+1) p_i^*)^2 \\
+        &\qquad \qquad \qquad - N_i(n)^2 + 2n p_i^* N_i(n) - (np_i^*)^2  \mid N(n),q ] \\
+        &= \frac{1}{2}\sum_{i=1}^d \beta_i[q_i (N_i(n) + 1)^2 + (1-q_i) N_i(n)^2 - N_i(n)^2 \\
+        &\qquad \qquad \qquad- 2 p_i^*((n+1)(N_i(n) + q_i) - n N_i(n)) + (2n+1)(p_i^*)^2] \\
+        &= \frac{1}{2}\sum_{i=1}^d \beta_i[2q_i N_i(n) + q_i - 2(n+1) p_i^* q_i - 2p_i^* N_i(n) + (2n+1)(p_i^*)^2] \\
+        &= \sum_{i=1}^d \left( \beta_i N_i(n) q_i + \frac{1}{2} \beta_iq_i + \frac{2n+1}{2} \beta_i (p_i^*)^2 - \frac{N_i(n)}{\sum_{k=1}^d 1/\beta_k} \right) - \frac{n+1}{\sum_{k=1}^d 1/\beta_k},
+    \end{align*}
+    so it is equivalent to maximize $H(q) - \sum_{i=1}^d \beta_i N_i(n) q_i + \frac{1}{2} \beta_iq_i$. When all the $\beta_i$ are equal, this just looks like maximizing $H(q) - \beta \langle N(n),q \rangle$.
+
+    Now solve the optimization problem using the Lagrange multiplier $\lambda$. The Lagrangian is
+    $$\mathcal L(q) \coloneqq \sum_{i=1}^d \left(- q_i \log q_i + q_i \log p_i(0) - \beta_i N_i q_i - \frac{1}{2} \beta_i q_i + \lambda q_i \right) - \lambda.$$
+    Setting $\nabla_q \mathcal L(q) = 0$ gives
+    $$0 = -\log q_i - 1 + \log p_i(0) - \beta_i N_i - \frac{\beta_i}{2} + \lambda \qquad \implies \qquad q_i = p_i(0)e^{-\beta_i N_i - \beta_i/2 + \lambda - 1}.$$
+    Therefore, $q_i \propto p_i(0)e^{-\beta_i (N_i(n)+1/2)}$, as claimed.
+\end{proof}
+
+\proofappendixheading{Proof of Theorem~\ref{thm:instantaneous_optimization}}
+\proofappendixstatement{Theorem}{If $L_\beta(x)=\frac12\sum_{i=1}^d \beta_i(x_i-np_i^*)^2$, then
+\[
+\argmin_{q\in\Delta^d}\Bigl(\langle \nabla L_\beta(N(n)),q\rangle+\operatorname{KL}(q\|p(0))\Bigr)
+\]
+has unique solution $q_i\propto p_i(0)e^{-\beta_iN_i(n)}$.}
+\begin{proof}
+    Calculate the gradient:
+    \begin{align*}
+        \frac{\partial L_\beta}{\partial x_i}(x) &= \beta_i(x_i - n p_i^*).   
+    \end{align*}
+    so we aim to optimize
+    $$\sum_{i=1}^d \beta_i(N_i(n)-np_i^*)q_i + \sum_{i=1}^d q_i \log q_i - q_i \log p_i(0).$$
+    Define the Lagrangian
+    $$\mathcal L(q) \coloneqq \left(\sum_{i=1}^d \beta_i(N_i(n)-np_i^*)q_i + q_i \log q_i - q_i \log p_i(0) + \lambda q_i\right) - \lambda$$
+    with Lagrange multiplier $\lambda$. Setting $\nabla_q \mathcal L(q) = 0$ gives
+    \begin{align*}
+    0 &= \beta_i(N_i(n)-np_i^*) + \log q_i + 1 - \log p_i(0) + \lambda, \\
+    &= \beta_i N_i(n) - \frac{n}{\sum_{j=1}^n 1/\beta_i} + \log q_i + 1 - \log p_i(0) + \lambda,
+    \end{align*}
+    which we solve to get
+    $$q_i \propto p_i(0) e^{-\beta_i N_i(n)}.$$
+\end{proof}
+
+\proofappendixheading{Proof of Theorem~\ref{thm:stochastic_mirror_descent}}
+\proofappendixstatement{Theorem}{The optimization problem
+\[
+\argmin_{q\in\Delta^d}\left(h\left\langle \beta_{X_n}e_{X_n}-\frac{1}{\sum_{j=1}^d\beta_j^{-1}}\mathbf 1,\;q\right\rangle+\operatorname{KL}(q\|p(n))\right)
+\]
+has unique solution $q=p(n+1)$, i.e. $q_i\propto p_i(0)e^{-h\beta_iN_i(n+1)}$.}
+\begin{proof}
+    Since $\langle \mathbf 1,q \rangle = 1$, it is equivalent to minimize
+    $$h \langle \beta_{X_n} e_{X_n},q \rangle + \operatorname{KL}(q \| p(n)) = h \beta_{X_n} q_{X_n} + \sum_{i=1}^d q_i \log q_i - q_i \log p_i(n).$$
+    Defining the Lagrangian
+    $$\mathcal L(q) \coloneqq h \beta_{X_n} q_{X_n} - \lambda + \sum_{i=1}^d q_i \log q_i - q_i \log p_i(n) + \lambda q_i$$
+    with Lagrange multiplier $\lambda$, the condition $\nabla_q \mathcal L(q) = 0$ gives
+    $$0 = \begin{cases}
+        h \beta_i + \log q_i + 1 - \log p_i(n) + \lambda &\text{if $X_n=i$}, \\
+        \log q_i + 1 - \log p_i(n) + \lambda &\text{if $X_n \neq i$}.
+    \end{cases}$$
+    Solving for $q_i$ gives
+    $$q_i \propto \begin{cases}
+        p_i(n) e^{-h\beta_i} &\text{if $X_n = i$}, \\
+        p_i(n) &\text{if $X_n \neq i$},
+    \end{cases}$$
+    which is precisely the update rule for the self-balancing sampler.
+\end{proof}
+
+\proofappendixheading{Proof of Proposition~\ref{prop:projection_centered_diffusion_limit}}
+\proofappendixstatement{Proposition}{Fix $i\in[d]$. If $Z_0^h\to z_0$, then $Z^h\Rightarrow Z$ in $D([0,T],\R)$ for each $T<\infty$, where $Z$ solves
+\[
+dZ_t=-\frac{\beta_i\beta_d}{\beta_i+\beta_d}Z_t\,dt+\sqrt{\beta_i\beta_d}\,dW_t,
+\qquad Z_0=z_0.
+\]}
+\begin{proof}
+For convenience, drop the subscript on $c_\beta$. Note:
+%
+\[\frac{p_i^{\beta h}}{p_i^{\beta h} + p_d^{\beta h}} = \frac{e^{-\beta_i h N_i}}{e^{-\beta_i h N_i} + e^{-\beta_d h N_d}} = \frac{e^{-Y_i^{\beta h}}}{1 + e^{-Y_i^{\beta h}}}\]
+%
+\noindent Since $Z_{nh}^h = z$ implies $Y^{h\beta}_i(n) = z \sqrt{h} + c_\beta$, we have increments:
+%
+\[\Delta Z_{nh}^h :=  Z_{(n+1)h}^h - Z_{nh}^h \mid \{Z_{nh}^h = z\} = \begin{cases}
+    \beta_i\sqrt{h} & \text{w.p. } \frac{e^{-( z\sqrt{h} + c) }}{1 + e^{-( z\sqrt{h} + c)}}, \\
+    -\beta_d\sqrt{h} & \text{w.p. } \frac{1}{1 + e^{-( z\sqrt{h} + c)}}, \\ 
+\end{cases}\]
+%
+\noindent so since $e^{-c} = \frac{\beta_d}{\beta_i}$, our process has drift:
+%
+\begin{align*}
+    \mu_h(z) & := \E [ \Delta Z_{nh}^h \mid Z_{nh}^h = z]\\
+    %
+    & = \frac{\sqrt{h}}{1 + e^{- (z \sqrt{h} + c)}}\left[\beta_i e^{- (z \sqrt{h} + c)} - \beta_d\right] \\
+    %
+    & = \frac{\beta_d\sqrt{h}}{1 + \frac{\beta_d}{\beta_i} e^{- z \sqrt{h}}} \left[e^{- z \sqrt{h}} - 1\right].
+\end{align*}
+%
+\noindent Hence:
+%
+\[\mu_h(z) = -\frac{\beta_d }{1 + \frac{\beta_d}{\beta_i}} zh + o(h) = -\frac{z}{\beta_d^{-1} + \beta_i^{-1}} h + o(h).\]
+%
+\noindent Similarly, for the variance:
+%
+\begin{align*}
+    \sigma^2_h(z) & := \E [ (\Delta Z_{nh}^h)^2 \mid Z_{nh}^h = z] - \mu_h(z)^2 \\
+    %
+    & = \frac{h}{1 + \frac{\beta_d}{\beta_i}e^{-z \sqrt{h}}} \left[\beta_i^2 \cdot \frac{\beta_d}{\beta_i} e^{- z \sqrt{h}} + \beta_d^2\right] + o(h)\\
+    %
+    & = \frac{\beta_i\beta_d + \beta_d^2}{1 + \frac{\beta_d}{\beta_i}}h + o(h)\\
+    %
+    & = \beta_i \beta_d h + o(h)
+\end{align*}
+
+\noindent Lastly, since $|\Delta Z_{nh}^h| \leq \max(\beta_i, \beta_d) \sqrt{h} \to 0$, we have no large jumps. 
+
+As the coefficients of the diffusion
+%
+\[dZ_t = -\frac{\beta_i \beta_d}{\beta_i + \beta_d} Z_t dt + \sqrt{\beta_i\beta_d} \cdot dW_t, \quad Z_0 = z_0,\]
+%
+are globally Lipschitz, there exists a unique strong solution, namely just the OU process. Standard theory shows the desired convergence. See for example Section 8.7 of \cite{durrett1996stochastic}. 
+\end{proof}
+
+\proofappendixheading{Proof of Proposition~\ref{prop:mean_centered_diffusion_limit}}
+\proofappendixstatement{Proposition}{If $Z_0^h\to z_0$, then $Z^h\Rightarrow Z$ as $h\downarrow 0$, where
+\[
+dZ_t=-\frac{1}{S_\beta}Z_t\,dt+\Sigma^{1/2}dW_t,
+\qquad
+S_\beta=\sum_j\beta_j^{-1},
+\qquad
+\Sigma=S_\beta^{-1}\operatorname{diag}(\beta)-S_\beta^{-2}\mathbf 1\mathbf 1^T,
+\]
+and the limiting diffusion is supported on $\{z:\langle z,p^*\rangle=0\}$.}
+\begin{proof}
+For convenience, drop the subscript of $c_\beta$. Note since $\beta_i p_i^*$ is independent of $i$:
+%
+\[p^{h\beta}_i = \frac{e^{-h\beta_i N_i}}{\sum_j e^{-h\beta_j N_j}} = \frac{e^{-Y_i^{h \beta}}}{\sum_j e^{-Y_j^{h\beta}}}\]
+%
+\noindent so the transitions are a function of our mean-centered counts alone. The value $c_\beta$ is chosen so that $e^{- c_i} = \kappa \beta_i^{-1}$ for $\kappa > 0$ independent of $i$, and so $\langle c_\beta, p^* \rangle = 0$ satisfies the same constraint as $Y^\beta$. Since $Z_{nh}^h = z$ implies $Y^{\beta h}_n = z\sqrt{h} + c$, this process has drift:
+%
+\begin{align*}
+    (\mu_h(z))_i & := \E [(\Delta Z_{nh}^h)_i \mid Z^h_{nh} = z] \\
+    %
+    & = \beta_i\sqrt{h} \left[\frac{e^{- (z_i \sqrt{h} + c_i)} }{\sum_{j=1}^d e^{- (z_j \sqrt{h} + c_j)}} - p_i^*\right]\\
+    %
+    & = \sqrt{h} \left[\frac{e^{- z_i \sqrt{h}} }{\sum_{j=1}^d \frac{1}{\beta_j}e^{- z_j \sqrt{h} }} - \beta_ip_i^*\right]\\
+    %
+    & = \sqrt{h} \left[\frac{1- z_i \sqrt{h}}{\sum_{j=1}^d \frac{1}{\beta_j}(1 - z_j \sqrt{h})} - \beta_ip_i^* + O(h)\right]\\
+    %
+    & = \sqrt{h} \left[\frac{\left(\sum_{j=1}^d p_j^*z_j-z_i\right)\sqrt{h}}{\sum_{j=1}^d \frac{1}{\beta_j}(1- z_j \sqrt{h})}  + O(h)\right]\\
+    %
+    & = \frac{1}{\sum_{j=1}^d \frac{1}{\beta_j}} \left(\sum_{j=1}^d p_j^*z_j-z_i\right) h + o(h)
+\end{align*}
+%
+\noindent Similarly, we can calculate the second moments. First:
+%
+\begin{align*}
+     \E [(\Delta Z_{nh}^h)_i^2 \mid Z_{nh}^h = z ] & = h \beta_i^2 \left[(p_i^*)^2 + \left(1-2p_i^* \right) \cdot \frac{\frac{1}{\beta_i}e^{- z_i \sqrt{h}}}{\sum_{j=1}^d \frac{1}{\beta_j}e^{- z_j \sqrt{h}}}\right]\\
+     %
+     & = h\beta_i^2 \left[(p_i^*)^2 + \left(1-2p_i^* \right) \cdot \left(p_i^* + O(\sqrt{h})\right)\right]\\
+     & = h \beta_i^2 \left(p_i^* - (p_i^*)^2\right) + o(h)
+\end{align*}
+
+\noindent Moreover, for $i \neq j$:
+%
+\begin{align*}
+     \E [(\Delta Z_{nh}^h)_i (\Delta Z_{nh}^h)_j \mid Z_{nh}^h = z  ] & = h \beta_i \beta_j\left[p_i^*p_j^* -  \left(\frac{\frac{p_i^*}{\beta_j}e^{- z_j \sqrt{h}} + \frac{p_j^*}{\beta_i}e^{-  z_i \sqrt{h}}}{\sum_{\ell = 1}^d \frac{1}{ \beta_\ell}e^{- z_\ell\sqrt{h}}}\right)\right] \\
+     %
+     & = h \beta_i \beta_j\left[p_i^*p_j^* - \left(\frac{\frac{p_i^*}{\beta_j} + \frac{p_j^*}{\beta_i}-O(\sqrt{h})}{\sum_{\ell=1}^d \frac{1}{\beta_\ell}-O(\sqrt{h})}\right)\right]\\
+     %
+     & = - \beta_i \beta_j p_i^*p_j^*h + o(h).
+\end{align*}
+%
+\noindent so we have the desired covariance. As the coefficients of the limiting diffusion are globally Lipschitz, the associated SDE has a unique strong solution. Again standard theory, such as Section 8.7 of \cite{durrett1996stochastic}, gives the desired convergence result. This gives a limiting diffusion of the form
+%
+\[dZ_t = -\frac{1}{S_\beta}(Z_t - \bar{Z_t}) dt + \Sigma^{1/2} dW_t, \qquad \bar{Z}_t := \langle p^*, Z_t \rangle.\]
+%
+\noindent Lastly, we show that the limiting diffusion lives in the hyperplane
+%
+\[Z_t \in \{z : \langle z, p^* \rangle = 0\}.\]
+%
+\noindent Note that by construction
+%
+\[\langle Y^\beta(n), p^*\rangle = \langle c_\beta, p^* \rangle = 0.\]
+%
+\noindent and hence $\langle Z^h_t, p^*\rangle = 0$ for all $h$ and $t$, from which the result follows. In particular, $\bar{Z}_t = 0$, so our above diffusion simplifies to the desired form.
+\end{proof}
+
+\proofappendixheading{Proof of Theorem~\ref{thm:average_case_optimal_control}}
+\proofappendixstatement{Theorem}{Suppose $\pi_i(x)\propto a_i e^{-H_i(x)}$, that $\pi(x)=\pi(x')$ whenever $(I-p^*1^T)x=(I-p^*1^T)x'$, and that there exist $c,C>0$ such that for all $y$ with $\sum_i y_i=0$ and $y_j\le y_i$,
+\[
+H_i(y)-H_j(y)\ge c(y_i-y_j)-C.
+\]
+Then the empirical distribution associated to $\pi$ satisfies $\E\|\mu_n-p^*\|_{\operatorname{TV}}=O(n^{-1})$.}
+\begin{proof}
+    Analogous to Theorem \ref{thm:sampling_rate}, it suffices to show the mean-centered counts $Y(n) := N(n) - np^*$ are uniformly bounded in $L^1$. The proof is almost identical to that of Lemma \ref{lem:centered_counts_bdd}. As before, we let $W_n := ||Y(n)||_1$, and we prove a drift condition. We decompose:
+    %
+    \[\E[W_{n+1} - W_n \mid Y(n)=y] = \sum_{i=1}^d h_i(y_i) + \pi_i(y) g_i(y_i),\]
+    %
+    \noindent for $h_i, g_i$ as defined in Lemma \ref{lem:centered_counts_bdd}. We showed above $\sum h_i(y_i) \leq 1 - 2p_{min}^*$, so we just must handle the $\sum \pi_i(y)g_i(y_i)$ term. 
+    
+    Let $m := \min y_i \leq 0$, $M := \max -H_i(y)$, and $S = \{i : y_i > -1\}$. Then $m \leq -||y||_1 / 2d$. For $i \in S$:
+    %
+    \[\pi_i(y) = \frac{a_i \exp(-H_i(y))}{\sum_j a_j \exp(-H_j(y))} \leq \frac{a_{max}}{a_{min}} \cdot e^{-c(y_i-m) + C}.\]
+    %
+    \noindent Hence by our above work we see:
+    %
+    \[\sum_{i \in S} \pi_i(y) \leq d \cdot \frac{a_{max}}{a_{min}} \cdot e^{-c||y||_1/2d  + C + c} := L(||y||_1).\]
+    %
+    \noindent The result then follows identically to before.
+\end{proof}
+
+\proofappendixheading{Proof of Lemma~\ref{lem:2d_stationary_project_centered}}
+\proofappendixstatement{Lemma}{When $d=2$ and $\beta_1=\beta_2=\beta>0$, the projection-centered chain $\tilde Y(n)$ is reversible on $\Z$ with stationary distribution
+\[
+\pi(z)\propto \frac{p_2(0)+p_1(0)e^{-\beta z}}{p_1(0)+p_2(0)}
+\left(\frac{p_1(0)}{p_2(0)}\right)^z
+e^{-\beta {z \choose 2}}.
+\]}
+\begin{proof}
+    In the $d=2$ case then $\tilde{Y}_n$ is a simple birth-death chain with birth probability:
+    %
+\[\lambda_n = \frac{p_1(0)e^{-\beta n}}{p_2(0) + p_1(0) e^{-\beta n}}\]
+    %
+    \noindent and death otherwise. The detailed balance equations then imply:
+    %
+    \[\frac{\pi(n)}{\pi(n-1)} = \frac{\lambda_{n-1}}{1-\lambda_{n}}.\]
+    %
+    \noindent Hence:
+    %
+    \[\pi(n) = \pi_0 \prod_{j=1}^n \frac{\lambda_{j-1}}{1-\lambda_j} = \pi_0 \frac{p_2(0) + p_1(0)e^{-\beta n}}{p_1(0) + p_2(0)} \left(\frac{p_1(0)}{p_2(0)}\right)^n e^{-\beta {n \choose 2}}\]
+    %
+    \noindent If $\beta > 0$ then this is normalizable as it has discrete Gaussian tails.
+\end{proof}
+
+\proofappendixheading{Proof of Lemma~\ref{lem:small_beta_adversarial}}
+\proofappendixstatement{Lemma}{For $d=2$, and uniform $\beta$, as $\beta \to 0$:
+\[
+\limsup_{n\to\infty}\frac1n\sum_{k=0}^{n-1}\P\!\left(X_k\neq \arg\min_{i=1,2}X_i(k-1)\right)
+=\frac12-\Theta(\sqrt{\beta}).
+\]}
+\begin{proof}
+    Note in the $d=2$ case with uniform $\beta$, we have:
+    %
+    \[\limsup_{n \to \infty} \frac{1}{n}\sum_{k=0}^{n-1}\P\!\left(X_k \neq \argmax_{i=1,2} \pi_i(N(k-1))\right) = \limsup_{n \to \infty} \frac{1}{n}\sum_{k=0}^{n-1} \E_{y \sim \tilde{Y}(k)} \left[\frac{1}{1+e^{\beta |y|}}\right].\]
+    %
+    \noindent Since $Y(n)$ is ergodic, the ergodic theorem and Lemma \ref{lem:2d_stationary_project_centered} imply:
+    %
+    \[\E_{y \sim \pi}\left[ \frac{1}{1+e^{\beta |y|}} \right]  = Z^{-1}\sum_{y \in \Z} \frac{\cosh\left(\frac{\beta y}{2}\right)}{1 + e^{\beta |y|}} \cdot e^{-\frac{\beta y^2}{2}} = \frac{1}{2Z}\sum_{y \in \Z}  e^{-\frac{\beta (y^2 + |y|)}{2} }.\]
+    %
+    \noindent for $Z = \sum_{z \in \Z} \cosh(\beta z/2) \cdot e^{-\beta z^2/2}$. While no simple closed-form exists, the simple bound:
+    %
+    \[\frac{1}{2} -\frac{x}{4}  \leq (1 + e^x)^{-1} \leq \frac{1}{2} -\frac{x}{4} + \frac{x^3}{48}, \quad \forall x \geq 0,\]
+     %
+    \noindent implies for small $\beta$ our error-rate is of order:
+    %
+    \[\E_{y \sim \pi}\left[ \frac{1}{1+e^{\beta |y|}} \right] = \frac{1}{2} - \frac{\beta}{4} \E_\pi |Y| + O\left(\beta^3 E_\pi |Y|^3\right).\]
+    %
+    \noindent To control this, note the stationary distribution of $Y$ is a mixture of two (discrete) Gaussians
+    %
+    \[\cosh\left(\frac{\beta y}{2} \right) e^{-\beta y^2/2} \propto \frac{1}{2} \left[e^{-\frac{\beta}{2}(y-1/2)^2} + e^{-\frac{\beta}{2}(y+1/2)^2} \right].\]
+    %
+    \noindent centered at $\pm \frac{1}{2}$ with variance $\beta^{-1}$. For small $\beta$, the standard Riemann sum comparison implies the distribution of $Y$ is well-approximated by the continuous counterpart. Hence $Y \approx \frac{\xi}{2} + \beta^{-1/2}G$ for a standard discrete gaussian $G$ and Rademacher $\xi \sim \mathrm{Unif}\{\pm 1\}$.
+    
+    We can then estimate $\E |Y|$ and $\E |Y|^3$ using the standard moments of the folded normal. In particular, as $\beta \downarrow 0$ the gaussian portion $G$ dominates and we get the moments of the half-normal distribution:
+    %
+    \[\E |Y| \asymp \sqrt{\frac{2}{\pi \beta}}, \qquad \E |Y|^3 = O(\beta^{-3/2}).\]
+    %
+    \noindent Combining this with the above yields:
+    %
+    \[\E_{y \sim \pi}\left[ \frac{1}{1+e^{\beta |y|}} \right] = \frac{1}{2} - c \sqrt{\beta} + O(\beta^{3/2}) = \frac{1}{2} - \Theta(\sqrt{\beta}).\]
+    %
+    \noindent as desired.
+ \end{proof}

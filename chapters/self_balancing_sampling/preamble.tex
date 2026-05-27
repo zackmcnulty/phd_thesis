@@ -1,0 +1,254 @@
+\usepackage[a4paper,width=15cm,height=24cm]{geometry}
+
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{bbm}
+\usepackage{mathrsfs}
+
+%\usepackage[authoryear,longnamesfirst]{natbib}
+%\usepackage{array}
+\usepackage{natbib}
+\usepackage{color}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tikz}
+\usepackage{tikz-cd}
+\usetikzlibrary{shapes.geometric}
+\usepackage{subcaption}
+\usepackage{caption}
+
+
+\usepackage{filemod}
+\usepackage[breaklinks=true]{hyperref}
+
+%\usepackage{showlabels}
+
+% define theorem environments
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+
+\theoremstyle{definition}
+\newtheorem{question}[theorem]{Question}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{conjexample}[theorem]{Conjectural Example}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{case}[theorem]{Case}
+\newtheorem{condition}[theorem]{Condition}
+\newtheorem{notation}[theorem]{Notation}
+
+
+% Reset proofclaim counter at start of each proof
+\newtheorem{proofclaim}{Claim}
+\let\oldproof\proof
+\renewcommand{\proof}{%
+    \setcounter{proofclaim}{0}%
+    \oldproof%
+}
+
+
+\makeatletter
+
+%% display environments
+\def\be#1{\begin{equation*}#1\end{equation*}}
+\def\ben#1{\begin{equation}#1\end{equation}}
+\def\bes#1{\begin{equation*}\begin{split}#1\end{split}\end{equation*}}
+\def\besn#1{\begin{equation}\begin{split}#1\end{split}\end{equation}}
+\def\bg#1{\begin{gather*}#1\end{gather*}}
+\def\bgn#1{\begin{gather}#1\end{gather}}
+\def\bm#1{\begin{multline*}#1\end{multline*}}
+\def\bmn#1{\begin{multline}#1\end{multline}}
+\def\ba#1{\begin{align*}#1\end{align*}}
+\def\ban#1{\begin{align}#1\end{align}}
+
+%%% bracket commands
+\def\given{\typeout{Command 'given' should only be used within bracket command}}
+\newcounter{@bracketlevel}
+\def\@bracketfactory#1#2#3#4#5#6{
+\expandafter\def\csname#1\endcsname##1{%
+\addtocounter{@bracketlevel}{1}%
+\global\expandafter\let\csname @middummy\alph{@bracketlevel}\endcsname\given%
+\global\def\given{\mskip#5\csname#4\endcsname\vert\mskip#6}\csname#4l\endcsname#2##1\csname#4r\endcsname#3%
+\global\expandafter\let\expandafter\given\csname @middummy\alph{@bracketlevel}\endcsname
+\addtocounter{@bracketlevel}{-1}}%
+}
+\def\bracketfactory#1#2#3{%
+\@bracketfactory{#1}{#2}{#3}{relax}{1mu plus 0.25mu minus 0.25mu}{0.6mu plus 0.15mu minus 0.15mu}
+\@bracketfactory{b#1}{#2}{#3}{big}{1mu plus 0.25mu minus 0.25mu}{0.6mu plus 0.15mu minus 0.15mu}
+\@bracketfactory{bb#1}{#2}{#3}{Big}{2.4mu plus 0.8mu minus 0.8mu}{1.8mu plus 0.6mu minus 0.6mu}
+\@bracketfactory{bbb#1}{#2}{#3}{bigg}{3.2mu plus 1mu minus 1mu}{2.4mu plus 0.75mu minus 0.75mu}
+\@bracketfactory{bbbb#1}{#2}{#3}{Bigg}{4mu plus 1mu minus 1mu}{3mu plus 0.75mu minus 0.75mu}
+}
+\bracketfactory{clc}{\lbrace}{\rbrace}
+\bracketfactory{clr}{(}{)}
+\bracketfactory{cls}{[}{]}
+\bracketfactory{abs}{\lvert}{\rvert}
+\bracketfactory{norm}{\Vert}{\Vert}
+\bracketfactory{floor}{\lfloor}{\rfloor}
+\bracketfactory{ceil}{\lceil}{\rceil}
+\bracketfactory{angle}{\langle}{\rangle}
+
+%% define \sA \cA \bA \IA for all capital letters A ... Z %%%%%%%
+\newcounter{ctr}\loop\stepcounter{ctr}\edef\X{\@Alph\c@ctr}%
+	\expandafter\edef\csname s\X\endcsname{\noexpand\mathscr{\X}}
+	\expandafter\edef\csname c\X\endcsname{\noexpand\mathcal{\X}}
+	\expandafter\edef\csname b\X\endcsname{\noexpand\boldsymbol{\X}}
+	\expandafter\edef\csname I\X\endcsname{\noexpand\mathbbm{\X}}
+	\expandafter\edef\csname r\X\endcsname{\noexpand\mathrm{\X}}
+\ifnum\thectr<26\repeat
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcount\minute
+\newcount\hour
+\newcount\hourMins
+\def\now{%
+\minute=\time%
+\hour=\time \divide \hour by 60%
+\hourMins=\hour \multiply\hourMins by 60%
+\advance\minute by -\hourMins%
+\zeroPadTwo{\the\hour}:\zeroPadTwo{\the\minute}%
+}
+\def\zeroPadTwo#1{\ifnum #1<10 0\fi#1}
+
+% Change layout
+\numberwithin{equation}{section}
+\allowdisplaybreaks[4]
+
+\renewcommand\section{\@startsection {section}{1}{\z@}%
+{-3.5ex \@plus -1ex \@minus -.2ex}%
+{1.3ex \@plus.2ex}%
+{\center\small\sc\mathversion{bold}\MakeUppercase}}
+
+\def\subsection#1{\@startsection {subsection}{2}{0pt}%
+{-3.5ex \@plus -1ex \@minus -.2ex}%
+{1ex \@plus.2ex}%
+{\bf\mathversion{bold}}{#1}}
+
+\def\subsubsection#1{\@startsection{subsubsection}{3}{0pt}%
+{\medskipamount}%
+{-10pt}%
+{\normalsize\itshape}{\kern-2.2ex. #1.}}
+
+
+\def\blfootnote{\xdef\@thefnmark{}\@footnotetext}
+
+\makeatother
+
+\def\note#1{\par\smallskip%
+\noindent%
+\llap{$\boldsymbol\Longrightarrow$}%
+\fbox{\vtop{\hsize=0.98\hsize\parindent=0cm\small\rm #1}}%
+\rlap{$\boldsymbol\Longleftarrow$}%
+\par\smallskip}
+
+\renewcommand{\cite}{\citet}
+
+\def\^#1{\ifmmode {\mathaccent"705E #1} \else {\accent94 #1} \fi}
+\def\~#1{\ifmmode {\mathaccent"707E #1} \else {\accent"7E #1} \fi}
+
+\edef\-#1{\noexpand\ifmmode {\noexpand\bar{#1}} \noexpand\else \-#1\noexpand\fi}
+\def\>#1{\vec{#1}}
+\def\.#1{\dot{#1}}
+\def\wh#1{\widehat{#1}}
+\def\wt#1{\widetilde{#1}}
+\def\atop{\@@atop}
+
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+\renewcommand{\phi}{\varphi}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\D}{\Delta}
+\newcommand{\eq}{\eqref}
+
+\newcommand{\dtv}{\mathop{d_{\mathrm{TV}}}}
+\newcommand{\dw}{\mathop{d_{\mathrm{W}}}}
+\newcommand{\dk}{\mathop{d_{\mathrm{K}}}}
+
+\newcommand{\bigo}{\mathrm{O}}
+\newcommand{\lito}{\mathrm{o}}
+\newcommand{\hence}{\Rightarrow}
+\newcommand{\toinf}{\to\infty}
+\newcommand{\tozero}{\to0}
+\newcommand{\longto}{\longrightarrow}
+\newcommand{\Var}{\mathop{\mathrm{Var}}\nolimits}
+\newcommand{\law}{\mathscr{L}}
+
+\newcommand{\ER}{Erd\H{o}s-R\'{e}nyi}
+
+
+\newcommand{\SL}{\mathrm{SL}}
+\newcommand{\Exp}{\mathrm{Exp}}
+\newcommand{\Ber}{\mathrm{Ber}}
+\newcommand{\Geo}{\mathrm{Geo}}
+\newcommand{\Beta}{\mathrm{Beta}}
+\def\equ#1{^{(#1)}}
+\def\zer#1{^{[#1]}}
+\def\dsb#1{^{\langle#1\rangle}}
+\newcommand{\eqd}{\stackrel{d}{=}}
+\newcommand{\im}{\mathrm{i}}
+\newcommand{\convd}{\stackrel{d}{\longrightarrow}}
+\newcommand{\bu}{\mathbf{u}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\bzero}{\mathbf{0}}
+\newcommand{\by}{\mathbf{y}}
+\newcommand{\bw}{\mathbf{w}}
+\newcommand{\te}{\mathbf{e}}
+\def\sp#1{^{(#1)}}
+\newcommand{\MVN}{\mathrm{MVN}}
+
+
+\def\BC{\mathrm{BC}}
+
+%%%%% My own commands and packages%%%%%%%%%%%%%%%%%%%
+
+\usepackage{nomencl}
+\makenomenclature
+
+\usepackage{mwe}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{mathtools} % for \bigtimes 
+
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Hn}{\mathbb{H}_{1,+}} % for nonnegative harmonics with h(x0) = 1
+
+\renewcommand{\Var}{\operatorname{Var}}
+\newcommand{\Cov}{\operatorname{Cov}}
+
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\bt}{\mathbf{t}}
+\newcommand{\bs}{\mathbf{s}}
+\newcommand{\Xn}{(X_n)_{n \in \mathbb{N}}}
+
+\newcommand{\induced}{\text{ind}}
+
+\newcommand{\red}{\textcolor{red}}
+\newcommand{\pink}{\textcolor{pink}}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+
+% indicator function
+\newcommand{\ind}{\mathbf{1}}
+
+% tilde commands
+\newcommand{\tx}{\tilde{x}}
+\newcommand{\tX}{\tilde{X}}
+\newcommand{\ty}{\tilde{y}}
+\newcommand{\tK}{\tilde{K}}
+\newcommand{\tE}{\tilde{E}}
+
+% Independence
+\newcommand{\indep}{\perp\!\!\!\perp}
+
+\newcommand{\zack}[1]{\textcolor{Violet}{Zack comment: #1}}
+\newcommand{\daniel}[1]{\textcolor{Emerald}{Daniel comment: #1}}
+
+\newtheorem*{theorem*}{Theorem}
+\newtheorem*{lemma*}{Lemma}

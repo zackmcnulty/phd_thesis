@@ -5,7 +5,6 @@
 % The Current Maintainer of this work is Paul Vojta.
 
 \documentclass{ucbthesis}
-\usepackage{biblatex}
 \usepackage{rotating} % provides sidewaystable and sidewaysfigure
 
 % To compile this file, run "latex thesis", then "biber thesis"
@@ -22,9 +21,7 @@
 
 \addtolength{\abovecaptionskip}{\baselineskip}
 
-\newtheorem{theorem}{Jibberish}
-
-\bibliography{references}
+\addbibresource{references.bib}
 
 \hyphenation{mar-gin-al-ia}
 \hyphenation{bra-va-do}
@@ -33,14 +30,14 @@
 
 % Declarations for Front Matter
 
-\title{Eulerian Knowledge Prexy and Lyman Zig on Wiggly}
-\author{Tom Lifesaver}
-\degreesemester{Spring}
-\degreeyear{1995}
+\title{Thesis Title}
+\author{Zachary McNulty}
+\degreesemester{Summer}
+\degreeyear{2026}
 \degree{Doctor of Philosophy}
-\chair{Professor Richard Francis Sony}
-\othermembers{Professor Roger Spam \\
-  Associate Professor Michael Chex}
+\chair{Professor Steven N. Evans}
+\othermembers{Professor Shirshendu Ganguly \\
+   Professor Fraydoun Rezakhanlou}
 % For a co-chair who is subordinate to the \chair listed above
 % \cochair{Professor Benedict Francis Pope}
 % For two co-chairs of equal standing (do not use \chair with this one)
@@ -49,7 +46,7 @@
 % Previous degrees are no longer to be listed on the title page.
 % \prevdegrees{B.A. (University of Northern South Dakota at Hoople) 1978 \\
 %   M.S. (Ed's School of Quantum Mechanics and Muffler Repair) 1989}
-\field{Mathematics}
+\field{Applied Mathematics}
 % Designated Emphasis -- this is optional, and rare
 % \emphasis{Colloidal Telemetry}
 % This is optional, and rare
@@ -74,12 +71,7 @@
 \begin{dedication}
 \null\vfil
 \begin{center}
-To Ossie Bernosky\\\vspace{12pt}
-And exposition? Of go. No upstairs do fingering. Or obstructive, or purposeful.
-In the glitter. For so talented. Which is confines cocoa accomplished.
-Masterpiece as devoted. My primal the narcotic. For cine? To by recollection
-bleeding. That calf are infant. In clause. Be a popularly. A as midnight
-transcript alike. Washable an acre. To canned, silence in foreign.
+Dedication.
 \end{center}
 \vfil\null
 \end{dedication}
@@ -94,15 +86,26 @@ transcript alike. Washable an acre. To canned, silence in foreign.
 \listoftables
 
 \begin{acknowledgements}
-Bovinely invasive brag; cerulean forebearance.
-Washable an acre. To canned, silence in foreign.
-Be a popularly. A as midnight transcript alike.
-To by recollection bleeding. That calf are infant. In clause.
-Buckaroo loquaciousness?  Aristotelian!
-Masterpiece as devoted. My primal the narcotic. For cine?
-In the glitter. For so talented. Which is confines cocoa accomplished.
-Or obstructive, or purposeful.
-And exposition? Of go. No upstairs do fingering.
+
+   I would like to express my gratitude to the many individuals who have supported
+me throughout my Ph.D. journey.
+
+First and foremost, I would like to thank my advisor, Professor Steven Evans, for his patience, guidance, and support throughout 
+these many challenging years. His kind words, gentle encouragement, and insightful feedback
+have been invaluable in shaping my research and guiding me through this tumultous process. 
+I am grateful for the opportunity to work with him and for his mentorship. Thanks to my committee members, 
+Professors Shirshendu Ganguly and Fraydoun Rezakhanlou, for their insightful feedback and encouragement,
+for starting me off at the beginning of my Ph.D. journey, and now for seeing it to a close. Thanks to
+my colloborator, Daniel Raban, for his help on part of this thesis, and for his friendship along the way.
+
+I would like to thank my partner Julia Kim for her unwavering love and encouragement. She has been a constant source of strength, believing in me
+on the many days I did not believe in myself, and for that I am eternally grateful. I am not sure
+how I would have completed this journey without her by my side.
+
+Last, but not least, I would like to thank my family and friends for their unwavering support and encouragement. To the many members of the math department soccer
+(go Possums!) and frisbee team for keeping me sane throughout this process, and for helping me find a sense of belonging in the department. 
+To Eric Jankowski, Carlos Esparza, Connor Halleck-Dube, Andrew Scharf, Tom Schang, Lucy Horowitz, Spencer Taylor, Ely Sandine, and the other members of my cohort 
+Rose Lopez, John Nolan, Zack Stier. 
 
 \end{acknowledgements}
 
@@ -112,8 +115,11 @@ And exposition? Of go. No upstairs do fingering.
 
 % (Optional) \part{First Part}
 
-\include{chap1}
-\include{chap2}
+\graphicspath{{chapters/bipartition_covers/figures/}}
+\input{chapters/bipartition_covers/chapter}
+
+\graphicspath{{chapters/self_balancing_sampling/}}
+\input{chapters/self_balancing_sampling/chapter}
 
 \printbibliography
 

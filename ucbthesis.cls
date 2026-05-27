@@ -715,4 +715,165 @@ by\par
 %    \edef\@halignto{to\the\dimen@}\@tabular}
 % \expandafter \let \csname endscriptsizetabular*\endcsname = \endtabular
 
+% Shared thesis math support.
+% Keep this section free of article-specific layout changes.
+\RequirePackage{amsmath}
+\RequirePackage{amsthm}
+\RequirePackage{amssymb}
+\RequirePackage{mathtools}
+\RequirePackage{bbm}
+\RequirePackage{mathrsfs}
+\RequirePackage{graphicx}
+\RequirePackage[dvipsnames]{xcolor}
+\RequirePackage{tikz}
+\RequirePackage{tikz-cd}
+\usetikzlibrary{shapes.geometric}
+\RequirePackage{subcaption}
+\RequirePackage{caption}
+\RequirePackage{enumitem}
+\RequirePackage[natbib=true]{biblatex}
+\AtBeginBibliography{\sloppy}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+
+\theoremstyle{definition}
+\newtheorem{question}[theorem]{Question}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{conjexample}[theorem]{Conjectural Example}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{case}[theorem]{Case}
+\newtheorem{condition}[theorem]{Condition}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem{heuristic}[theorem]{Heuristic}
+
+\newtheorem{proofclaim}{Claim}
+\let\thesis@oldproof\proof
+\renewcommand{\proof}{%
+  \setcounter{proofclaim}{0}%
+  \thesis@oldproof%
+}
+
+\def\be#1{\begin{equation*}#1\end{equation*}}
+\def\ben#1{\begin{equation}#1\end{equation}}
+\def\bes#1{\begin{equation*}\begin{split}#1\end{split}\end{equation*}}
+\def\besn#1{\begin{equation}\begin{split}#1\end{split}\end{equation}}
+\def\bg#1{\begin{gather*}#1\end{gather*}}
+\def\bgn#1{\begin{gather}#1\end{gather}}
+\def\bm#1{\begin{multline*}#1\end{multline*}}
+\def\bmn#1{\begin{multline}#1\end{multline}}
+\def\ba#1{\begin{align*}#1\end{align*}}
+\def\ban#1{\begin{align}#1\end{align}}
+
+\def\given{\typeout{Command 'given' should only be used within bracket command}}
+\newcounter{@bracketlevel}
+\def\@bracketfactory#1#2#3#4#5#6{
+\expandafter\def\csname#1\endcsname##1{%
+\addtocounter{@bracketlevel}{1}%
+\global\expandafter\let\csname @middummy\alph{@bracketlevel}\endcsname\given%
+\global\def\given{\mskip#5\csname#4\endcsname\vert\mskip#6}\csname#4l\endcsname#2##1\csname#4r\endcsname#3%
+\global\expandafter\let\expandafter\given\csname @middummy\alph{@bracketlevel}\endcsname
+\addtocounter{@bracketlevel}{-1}}%
+}
+\def\bracketfactory#1#2#3{%
+\@bracketfactory{#1}{#2}{#3}{relax}{1mu plus 0.25mu minus 0.25mu}{0.6mu plus 0.15mu minus 0.15mu}
+\@bracketfactory{b#1}{#2}{#3}{big}{1mu plus 0.25mu minus 0.25mu}{0.6mu plus 0.15mu minus 0.15mu}
+\@bracketfactory{bb#1}{#2}{#3}{Big}{2.4mu plus 0.8mu minus 0.8mu}{1.8mu plus 0.6mu minus 0.6mu}
+\@bracketfactory{bbb#1}{#2}{#3}{bigg}{3.2mu plus 1mu minus 1mu}{2.4mu plus 0.75mu minus 0.75mu}
+\@bracketfactory{bbbb#1}{#2}{#3}{Bigg}{4mu plus 1mu minus 1mu}{3mu plus 0.75mu minus 0.75mu}
+}
+\bracketfactory{clc}{\lbrace}{\rbrace}
+\bracketfactory{clr}{(}{)}
+\bracketfactory{cls}{[}{]}
+\bracketfactory{abs}{\lvert}{\rvert}
+\bracketfactory{norm}{\Vert}{\Vert}
+\bracketfactory{floor}{\lfloor}{\rfloor}
+\bracketfactory{ceil}{\lceil}{\rceil}
+\bracketfactory{angle}{\langle}{\rangle}
+
+\newcounter{ctr}
+\loop\stepcounter{ctr}\edef\X{\@Alph\c@ctr}%
+  \expandafter\edef\csname s\X\endcsname{\noexpand\mathscr{\X}}
+  \expandafter\edef\csname c\X\endcsname{\noexpand\mathcal{\X}}
+  \expandafter\edef\csname b\X\endcsname{\noexpand\boldsymbol{\X}}
+  \expandafter\edef\csname I\X\endcsname{\noexpand\mathbbm{\X}}
+  \expandafter\edef\csname r\X\endcsname{\noexpand\mathrm{\X}}
+\ifnum\thectr<26\repeat
+
+\numberwithin{equation}{section}
+\allowdisplaybreaks[4]
+
+\newcommand{\wh}[1]{\widehat{#1}}
+\newcommand{\wt}[1]{\widetilde{#1}}
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+\renewcommand{\phi}{\varphi}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\D}{\Delta}
+\newcommand{\eq}{\eqref}
+
+\newcommand{\dtv}{\mathop{d_{\mathrm{TV}}}}
+\newcommand{\dw}{\mathop{d_{\mathrm{W}}}}
+\newcommand{\dk}{\mathop{d_{\mathrm{K}}}}
+\newcommand{\bigo}{\mathrm{O}}
+\newcommand{\lito}{\mathrm{o}}
+\newcommand{\hence}{\Rightarrow}
+\newcommand{\toinf}{\to\infty}
+\newcommand{\tozero}{\to0}
+\newcommand{\longto}{\longrightarrow}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\law}{\mathscr{L}}
+\newcommand{\ER}{Erd\H{o}s-R\'{e}nyi}
+
+\newcommand{\SL}{\mathrm{SL}}
+\newcommand{\Exp}{\mathrm{Exp}}
+\newcommand{\Ber}{\mathrm{Ber}}
+\newcommand{\Geo}{\mathrm{Geo}}
+\newcommand{\Beta}{\mathrm{Beta}}
+\def\equ#1{^{(#1)}}
+\def\zer#1{^{[#1]}}
+\def\dsb#1{^{\langle#1\rangle}}
+\newcommand{\eqd}{\stackrel{d}{=}}
+\newcommand{\im}{\mathrm{i}}
+\newcommand{\convd}{\stackrel{d}{\longrightarrow}}
+\newcommand{\bu}{\mathbf{u}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\bzero}{\mathbf{0}}
+\newcommand{\by}{\mathbf{y}}
+\newcommand{\bw}{\mathbf{w}}
+\newcommand{\te}{\mathbf{e}}
+\def\sp#1{^{(#1)}}
+\newcommand{\MVN}{\mathrm{MVN}}
+\newcommand{\BC}{\mathrm{BC}}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Hn}{\mathbb{H}_{1,+}}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\bt}{\mathbf{t}}
+\renewcommand{\bs}{\mathbf{s}}
+\newcommand{\Xn}{(X_n)_{n \in \mathbb{N}}}
+\newcommand{\induced}{\text{ind}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\newcommand{\ind}{\mathbf{1}}
+\newcommand{\tx}{\tilde{x}}
+\newcommand{\tX}{\tilde{X}}
+\newcommand{\ty}{\tilde{y}}
+\newcommand{\tK}{\tilde{K}}
+\newcommand{\tE}{\tilde{E}}
+\newcommand{\indep}{\perp\!\!\!\perp}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\providecommand{\href}[2]{#2}
+
+\newtheorem*{theorem*}{Theorem}
+\newtheorem*{lemma*}{Lemma}
+
 \endinput

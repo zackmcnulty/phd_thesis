@@ -2,6 +2,8 @@
 
 \section{Introduction}
 
+\cite{jain2024limitorderbooksimulations} provides a survey of modern techniques for modeling and simulating the CLOB \red{todo}.
+
 The goal of this project is to propose a new notion for the fair value of an exchange-tradeable asset given only its level two (L2) market data. L2 data consists of an \textit{order book}, a list of prices and quantities that market participants are willing to buy (bid) or sell (ask/offer) at. If there are any bids and asks that are overlapping, they are matched according to some matching rule and removed from the order book. What remains is a collection of bids and asks separated by some distance called the \textit{spread}. 
 
 The bid side of the order book is typically encoded as list of prices $\{bbpx_i\}$ at which orders are placed, where $bbpx_0 > bbpx_1 > ...$, and a list of total quantities $\{bbsz_i\}$ at each price level. Likewise, the ask side has lists $\{bopx_i\}, \{bosz_i\}$ for $bopx_0 < bopx_1 < ...$. The highest buy offer $bbpx_0$ and lowest sell offer $bopx_0$ are called the \textit{best bid} (BB) and \textit{best ask/offer} (BO) respectively, and together they are called the BBO.

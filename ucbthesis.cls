@@ -751,6 +751,7 @@ by\par
 \newtheorem{condition}[theorem]{Condition}
 \newtheorem{notation}[theorem]{Notation}
 \newtheorem{heuristic}[theorem]{Heuristic}
+\newtheorem*{assumption}{Assumption}
 
 \newtheorem{proofclaim}{Claim}
 \let\thesis@oldproof\proof
@@ -851,10 +852,18 @@ by\par
 \def\sp#1{^{(#1)}}
 \newcommand{\MVN}{\mathrm{MVN}}
 \newcommand{\BC}{\mathrm{BC}}
+\newcommand{\ask}{\text{ask}}
+\newcommand{\bid}{\text{bid}}
+\newcommand{\red}{\textcolor{red}}
+\newcommand{\pink}{\textcolor{pink}}
+\newcommand{\zack}[1]{\textcolor{Violet}{Zack comment: #1}}
+\newcommand{\daniel}[1]{\textcolor{Emerald}{Daniel comment: #1}}
 
 \newcommand{\R}{\mathbb{R}}
+\newcommand{\Q}{\mathbb{Q}}
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\Z}{\mathbb{Z}}
+\newcommand{\C}{\mathbb{C}}
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\Hn}{\mathbb{H}_{1,+}}
 \renewcommand{\P}{\mathbb{P}}

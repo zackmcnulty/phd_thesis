@@ -79,7 +79,8 @@ Dedication.
 % You can delete the \clearpage lines if you don't want these to start on
 % separate pages.
 
-\tableofcontents
+\setpnumwidth{2em}
+{\sloppy\tableofcontents}
 \clearpage
 \listoffigures
 \clearpage
@@ -115,11 +116,22 @@ Rose Lopez, John Nolan, Zack Stier.
 
 % (Optional) \part{First Part}
 
+\part{Completed Projects}
 \graphicspath{{chapters/bipartition_covers/figures/}}
 \input{chapters/bipartition_covers/chapter}
 
 \graphicspath{{chapters/self_balancing_sampling/}}
 \input{chapters/self_balancing_sampling/chapter}
+
+\part{Developing Projects}
+\graphicspath{{chapters/sym_max_fair_values/}}
+\input{chapters/sym_max_fair_values/chapter}
+
+\graphicspath{{chapters/entropy_regularized_opt_control/}}
+\input{chapters/entropy_regularized_opt_control/chapter}
+
+\graphicspath{{chapters/exch_array_processes/}}
+\input{chapters/exch_array_processes/chapter}
 
 \printbibliography
 

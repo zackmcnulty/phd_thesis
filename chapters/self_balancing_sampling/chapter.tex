@@ -1,4 +1,5 @@
 \chapter{Self-Balancing Sampling}
+\setcounter{secnumdepth}{2}
 
 This project was joint work with Daniel Raban.\\
 
@@ -740,13 +741,16 @@ Another is to study risk-weighted or nonstationary versions of the sampler, wher
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newpage 
-\section{Empirical Results}
+\section{Appendix}
+\label{sec:self_balancing_appendix}
+
+\subsection{Empirical Results}
 \label{appendix:empirical_results}
 
 In this section, we provide some additional empirical evidence for some of the $\beta$ scalings we developed heuristically in previous sections. Simulation code can be found in the GitHub repository \href{https://github.com/zackmcnulty/self_balancing_sampler}{self\_balancing\_sampler}. We will study the behavior under two different unit-norm choices of $\beta$ when $d=4$: the uniform $\beta$ and the non-uniform $\beta \propto [1.1, 0.8, 0.9, 1.2]$, the latter of which also has a unique maximizer of $p^*(\beta)$. 
 
 % Convergence Rate
-\subsection{Convergence Rate}
+\subsubsection{Convergence Rate}
 
  Theorem \ref{thm:sampling_rate} implies:
 
@@ -784,7 +788,7 @@ Figure \ref{fig:convergence_plots} shows this is indeed the case, at least in th
 
 
 % Predictability %%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Predictability}
+\subsubsection{Predictability}
 
 In this section, we explore how the parameter $\beta$ affects the predictability of the sampler, as described in Section \ref{sec:adversarial_interpretation}. There, we showed that the key factor was whether or not $p^*$ has a unique maximizer. If it does not, then the predictability scales like $\Theta(\sqrt{\beta})$ above the naive baseline $p_{max}^*$ of IID sampling. If the maximizer is unique, we saw this first order correction vanishes, and the gap is exponentially small. We compare it to our two naive baselines: IID sampling and deterministic sampling. 
 
@@ -819,9 +823,9 @@ Figures \ref{fig:predictability_plots} shows in the uniform $\beta$ case, there 
 % end fig
 
 % Trade Off %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Trade-Off}
+\subsubsection{Trade-Off}
 
-Lastly, we study the trade-off between predictability and the convergence rate. As discussed in the previous two sections, we quantify the former using the adversaries prediction accuracy, and the latter using the limit $\lim_{n\to \infty} n d_n$. Figure \ref{fig:trade_off} highlights the results.  
+Lastly, we study the trade-off between predictability and the convergence rate. As discussed in the previous two subsections, we quantify the former using the adversaries prediction accuracy, and the latter using the limit $\lim_{n\to \infty} n d_n$. Figure \ref{fig:trade_off} highlights the results.  
 
 Note the predictability starts essentially at the baseline $p_{max}^*$, and increases as we increase the scaling $c$. It starts smaller in the uniform $\beta$ case merely because $p_{max}^*$ is smaller than in the non-uniform case. However, we see that in the latter the predictability is much slower to increase initially, but then quickly becomes more predictable as we scale $\beta$. 
 
@@ -851,7 +855,7 @@ Note the predictability starts essentially at the baseline $p_{max}^*$, and incr
 % Optimal Control Background
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage 
-\section{Optimal Control}
+\subsection{Optimal Control}
 \label{appendix:optimal_control}
 
 
@@ -968,10 +972,10 @@ for some $\kappa$ independent of $x, i$. The self-balancing sampler is the speci
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newpage 
-\section{Proof Appendix}
+\subsection{Proof Appendix}
 \label{appendix:proofs}
 
-In this Appendix, we collect the formal proofs of all the main results of the paper.
+In this subsection, we collect the formal proofs of all the main results of the paper.
 
 \newcommand{\proofappendixheading}[1]{\bigskip\noindent\textbf{#1}\par\medskip}
 \newcommand{\proofappendixstatement}[2]{\noindent\emph{#1.} #2\par\medskip}

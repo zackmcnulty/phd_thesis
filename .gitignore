@@ -22,3 +22,6 @@ build/
 *.synctex.gz
 *.toc
 *-SAVE-ERROR
+
+# Misc
+AGENT.md

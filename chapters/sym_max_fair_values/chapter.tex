@@ -561,7 +561,12 @@ $z_\ell, \theta, a_i, b_j$. Hence we still expect some level of stability, which
       \label{lem:wp_fv_stability}
 \end{lemma}
 
-\red{Say something about why quantifying the rate of convergence is difficult.}
+The difficulty in obtaining a quantitative bound analogous to Lemma~\ref{lem:fv_continuity_w2}
+is that, for $p \neq 2$, the $p^{th}$-mean is no longer a linear functional of the
+underlying distribution, so the movement of the minimizer depends on the local
+curvature of the objective near its minimum rather than just on the perturbation level.
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -588,14 +593,11 @@ Here we will generate some plots and simulations to analyze the performance of o
 
 \noindent In this paper, we proposed a new model for the fair value of a financial
 asset  which seeks to maximize the symmetry of the central limit order book around it. This generalizes several
-commonly used heuristics, such as the mid-price and weighted mid-price,and provides a natural variational characterization of the fair value. When symmetry is measured via the Wasserstein distance, we derive 
+commonly used heuristics, such as the mid-price and weighted mid-price, and provides a natural variational characterization of the fair value. When symmetry is measured via the Wasserstein distance, we derive 
 explicit formulas for the fair value and show it is stable under small perturbations of the order 
-book. 
+book. There are a few further research directions I think are worth exploring.
 
-% Future Directions %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- \subsection{Future Directions}
-
-\noindent Corrollary~\ref{corr:w2_fv_is_mean_barycenter} suggests in the case of $W_2$ our symmetrized fair-value equals 
+Firstly, Corrollary~\ref{corr:w2_fv_is_mean_barycenter} suggests in the case of $W_2$ our symmetrized fair-value equals 
 the mean of the (weighted) barycenter of $\mu_a, \mu_b$, given by
 %
     \[\overline{\mu_\theta} := \argmin_{\nu} \theta d_{W_2}(\nu, \mu_a) + (1-\theta) d_{W_2}(\nu, \mu_b).\]
@@ -623,6 +625,13 @@ We would like to somehow aggregate these perturbed versions $\mu_i, \nu_i$
  of the true quality of a movie. Analogous to \cite{raban2024_aggregate_ratings}, it would be interesting to see
  if there is a natural generative model under which this procedure is optimal. 
 
+ Lastly, the symmetrized fair value only utilizes a static picture of the order book at a given time.
+  It would be interesting to see if we can extend this to incorporate the dynamics of the order book as well. 
+  For example, we could try to find a fair value that maximizes the symmetry of the order book across time, 
+  rather than just at a single snapshot. This might be more robust to noise and provide a better estimate of 
+  the true underlying value of the asset. There are many existing models for order book dynamics, some of 
+  which are discussed in \cite{jain2024limitorderbooksimulations}. It would be interesting to study under what circumstances
+  symmetry naturally arises in any of these existing models.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Proof Appendix 
@@ -882,7 +891,9 @@ The main idea is that the optimization problem in \eqref{eqn:wp_imbalanced_symme
     \begin{align*}
         ||\rho_n - \rho||_{L_p} & \leq ||\theta_n Q_{\mu_n}(1-\cdot) - \theta Q_{\mu}(1-\cdot)||_{L_p} + ||(1-\theta_n) Q_{\nu_n} - (1-\theta) Q_{\nu}||_{L_p} \\[5pt]
         %
-        & \leq |\theta_n - \theta| \cdot ||Q_{\mu}||_{L_p} + \theta_n || Q_{\mu_n} - Q_{\mu} ||_{L_p} + |\theta_n - \theta| \cdot ||Q_{\nu}||_{L_p} + (1-\theta_n) || Q_{\nu_n} - Q_{\nu} ||_{L_p}.
+        & \leq |\theta_n - \theta| \cdot ||Q_{\mu}||_{L_p} + \theta_n || Q_{\mu_n} - Q_{\mu} ||_{L_p} + |\theta_n - \theta| \cdot ||Q_{\nu}||_{L_p} + (1-\theta_n) || Q_{\nu_n} - Q_{\nu} ||_{L_p}
+        %
+        & = |\theta_n - \theta| \cdot ||Q_{\mu}||_{L_p} + \theta_n ||\mu_n - \mu||_{W_p} + |\theta_n - \theta| \cdot ||Q_{\nu}||_{L_p} + (1-\theta_n) ||\nu_n - \nu||_{W_p}.
     \end{align*}
     %
     \noindent As $\mu_n \xrightarrow{W_p} \mu, \nu_n \xrightarrow{W_p} \nu$ and $\theta_n \to \theta$, 

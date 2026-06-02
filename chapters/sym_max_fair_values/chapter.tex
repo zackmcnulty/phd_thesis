@@ -178,7 +178,7 @@ preference and current buying and selling pressures are balanced, it is natural
 to model their quotes as being placed symmetrically around some latent fair value
 $v$. Thus, a simple paired-order model takes bids and asks of the form
 %
-\[bid = v - h, \qquad ask = v + h,\]
+\[\bid = v - h, \qquad \ask = v + h,\]
 %
 where $h$ is a latent half-spread specific to that quote pair, reflecting the
 agent's uncertainty, inventory concerns, or required compensation for supplying
@@ -186,7 +186,7 @@ liquidity. More generally, if buying and selling pressures are not balanced, we
 may expect market makers to shift their bids and asks asymmetrically around their
 fair values.
 %
-\[bid = v - \theta^{-1}h, \qquad ask = v + (1-\theta)^{-1}h,\]
+\[\bid = v - \theta^{-1}h, \qquad \ask = v + (1-\theta)^{-1}h,\]
 %
 where $\theta \in (0,1)$ is an exogenous imbalance parameter. Namely, as
 $\theta$ approaches zero, selling pressure is interpreted as increasing, and
@@ -221,8 +221,8 @@ Formally, we study the following generative model:
 
  \begin{lemma}
  Suppose that $\bid_n \leq ... \leq \bid_1 \leq \ask_1 \leq ... \leq \ask_n$. Then if we define $\mu_a, \mu_b$
-as in \ref{eqn:mua_mub_proportional}, regardless of how bids and asks are paired up, we have:
-\[m_2(\hat{\mu}) = \theta \cdot m_2(\mu_b) + (1-\theta) \cdot m_2(\mu_a), \qquad m_2(\hat{\nu}^\tau) = \theta (1-\theta)(m_2(\mu_a) - m_2(\mu_b)).\]
+as in \eqref{eqn:mua_mub_proportional}, regardless of how bids and asks are paired up, we have:
+\[m_2(\hat{\mu}) = \theta \cdot m_2(\mu_b) + (1-\theta) \cdot m_2(\mu_a), \qquad m_2(\hat{\nu}) = \theta (1-\theta)(m_2(\mu_a) - m_2(\mu_b)).\]
 %
 \noindent where $m_2(\mu)$ is the standard mean. Moreover, if for a permutation $\tau$ of $[n]$ we let:
 %
@@ -377,7 +377,6 @@ value under a canonical choice of distance metric: the Wasserstein metric.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Incorporating Order Book Shape}
 \label{sec:incorporating_order_book_shape}
-
 
 There are many natural measures of ``distance" between probability measures: total
 variation, Jensen-Shannon divergence, and $\chi^2$-type distances. These are less
@@ -583,7 +582,7 @@ Here we will generate some plots and simulations to analyze the performance of o
 
 \noindent In this paper, we proposed a new model for the fair value of a financial
 asset  which seeks to maximize the symmetry of the central limit order book around it. This generalizes several
-commonly used heuristics, and provides a natural variational characterization of the fair value. When symmetry is measured via the Wasserstein distance, we derive 
+commonly used heuristics, such as the mid-price and weighted mid-price,and provides a natural variational characterization of the fair value. When symmetry is measured via the Wasserstein distance, we derive 
 explicit formulas for the fair value and show it is stable under small perturbations of the order 
 book. 
 
@@ -619,9 +618,9 @@ We would like to somehow aggregate these perturbed versions $\mu_i, \nu_i$
  if there is a natural generative model under which this procedure is optimal. 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Proof Appendix 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage 
 \section{Proof Appendix}
 
@@ -676,7 +675,9 @@ In fact, more is true: as shown in \cite{stats_in_wasserstein}, convergence in $
     \noindent For the latter result, just use $\E_\mu X = \int_0^1 Q_\mu(z) \; dz$ and linearity of expectation. 
 \end{proof}
 
-%%%%%% Main Results
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Main Results
+%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Main Results}
 
 \begin{proof}[Proof of Theorems \ref{thm:wasserstein_solution} ,\ref{thm:imbalanced_wasserstein_solution}]
@@ -714,13 +715,20 @@ In fact, more is true: as shown in \cite{stats_in_wasserstein}, convergence in $
     & = \theta \cdot  m_2(\mu) + (1-\theta) \cdot m_2(\nu).
 \end{align*}
 %
-\noindent where the second line follows by grouping terms where $f(\ell) = k$ and terms where $g(\ell) = k$ respectively. Replacing $p_i, q_i, x_i, y_i$ by their analogs in \eqref{eqn:mua_mub} yields Theorem \ref{thm:imbalanced_wasserstein_solution}. Theorem \ref{thm:wasserstein_solution} is just the special "balanced" case when $\theta = \frac{1}{2}$. 
+\noindent where the second line follows by grouping terms where $f(\ell) = k$ and 
+terms where $g(\ell) = k$ respectively. Replacing $p_i, q_i, x_i, y_i$ by their 
+analogs in \eqref{eqn:mua_mub} yields Theorem~\ref{thm:imbalanced_wasserstein_solution}. 
+Theorem~\ref{thm:wasserstein_solution} is just the special ``balanced" case when $\theta = \frac{1}{2}$. 
 \end{proof}
 
 % continuization
-We can re-state the above proof purely in terms of the quantile functions. Note if $X \sim \mu$ has 
-quantile distribution $Q_X$, then the transformed random variable $Y = 2\theta X - c$ has 
-quantile function $Q_Y(z) = 2\theta Q_X(z) - c$. Using Lemma~\ref{lem:quantile_fns_are_isometry}, then the objective in \eqref{eqn:imbalanced_optimization_problem} becomes:
+We can re-state the above proof purely in terms of the quantile functions. Note if $X$ has 
+quantile function $Q_X$, then the transformed random variables $Y = c-2\theta X$ and $Y' = 2(1-\theta)X - c$ have 
+quantile functions
+% 
+    \[Q_Y(u) = c-2\theta Q_X(1-u), \quad Q_{Y'}(u) = 2(1-\theta) Q_X(u) - c,\]
+%
+\noindent respectively. Using Lemma~\ref{lem:quantile_fns_are_isometry}, then \eqref{eqn:imbalanced_optimization_problem} becomes:
 %
 \[d_{W_p}\left(\mu \left[\frac{c - \cdot}{2\theta} \right], \; \nu \left[\frac{c + \cdot}{2(1-\theta)} \right]\right)^p = 2^p \int_0^1 \left[c - \theta Q_\mu(1-u) - (1-\theta) Q_\nu(u)\right]^p \; du.\]
 %
@@ -733,25 +741,27 @@ view $v_s^\theta$ in \eqref{eqn:imbalanced_optimization_problem} as the $p^{th}$
 random variable $Z = \rho(U)$ for $U \sim \mathrm{Unif}[0,1]$. This naturally extends 
 beyond discrete distributions as well. 
 
-In the special case of $p=2$, the $p^{th}$ mean is just the standard mean. By linearity and as $U \overset{d}{=} 1-U$:
+In the special case of $p=2$, the $p^{th}$ mean is just the standard mean. By linearity
 %
-\[\E Z = \theta \E Q_\mu(1-U) + (1-\theta) \E Q_\nu(U) = \E Q_{\bar{\mu}_\theta}(U), \]
+\[\E Z = \theta \E Q_\mu(1-U) + (1-\theta) \E Q_\nu(U) = \theta \E Q_\mu(U) + (1-\theta) \E Q_\nu(U) =\E Q_{\bar{\mu}_\theta}(U), \]
 %
-\noindent where $\bar{\mu}_\theta$ is the $W_2$ barycenter of $\mu, \nu$ with weights $\theta, 1-\theta$, as mentioned in
+\noindent where $\bar{\mu}_\theta$ is the $W_2$ barycenter of $\mu, \nu$ with weights $\theta, 1-\theta$, as discussed in
 Lemma~\ref{lem:quantile_of_w2_barycenter}. Thus, in the case of $p=2$, our symmetrized fair value is just the mean of the 
-(weighted) $W_2$ barycenter of $\mu, \nu$.
+(imbalance-weighted) $W_2$ barycenter of $\mu, \nu$. Namely
 %
+% Corollary: the fair value is the mean of the barycenter
 \begin{corollary} For any measures $\mu, \nu \in W_2(\R)$:
 %
     \[ v_s^\theta = \argmin_{c > 0} d_{W_2}\left(\mu\left[\frac{\cdot + c} {2\theta} \right], \; \nu\left[\frac{c-\cdot}{2(1-\theta)}\right] \right) = \int_\R x \; \bar{\mu}_\theta(dx).\]
     \label{corr:w2_fv_is_mean_barycenter}
 \end{corollary}
 %
-This observation accomplishes two things: (i) it gives us another interpretation of the symmetrized fair-value from the theory of Wasserstein 
-barycenters and (ii) allows us to extend our fair value estimate from a point estimate
- of the typical fair value to an estimate of the \textit{full fair-value distribution.} 
-
- For $p \neq 2$, we lose the linearity of the $p^{th}$ mean. However, we can still interpret $Z$ as follows: \red{todo}
+For $p \neq 2$, we lose the linearity of the $p^{th}$ mean. However, we can still 
+interpret $\rho$ as a measure of the fair value at different ``spreads/levels'' $u$, and $Z$ 
+encodes the distribution these fair values can take on. The $p^{th}$ mean then just aims to quantify
+the typical fair value. For example, when $\mu, \nu$ are mirror 
+images, then $\rho$ is just some constant $c$, so every level $u$ agrees on the fair value. In this case,
+the $p^{th}$ is just $c$ for every $p > 1$.
 
 Now, we prove the above variance bounds for the estimated fair value and spread. 
 The key point is that the only dependence on the pairing $\tau$ is in $\sum \bid_i \ask_{\tau(i)}$,
@@ -776,7 +786,11 @@ The equations for the means is immediate from the definition and linearity of ex
     & = \theta^2(1-\theta)^2 \Big[\Var(\mu_b) + \Var(\mu_a) - \frac{2}{n} \sum_{i=1}^n [\bid_i \ask_{\tau(i)} - m_2(\mu_b)m_2(\mu_a)] \Big].
 \end{align*}
 %
-\noindent In both, the only dependence on $\tau$ is in $\sum \bid_i \ask_{\tau(i)}$. By Lemma 4.1 of \cite{bobkov2009one} with $V(x)= x^2$ this is maximized when bids and asks are paired in an increasing way, where the smallest bid is paired with the smallest ask and so on (our left to right pairing), and minimized when bids and asks are paired in a decreasing way, where the largest bid is paired with the smallest ask (our inside out pairing). 
+\noindent In both, the only dependence on $\tau$ is in $\sum \bid_i \ask_{\tau(i)}$. 
+Trivially, this empirical correlation is maximized when bids and asks 
+are paired in an increasing way, where the smallest bid is paired with the smallest ask and so
+ on (our left to right pairing), and minimized when bids and asks are paired in a decreasing way, 
+ where the largest bid is paired with the smallest ask (our inside out pairing). 
 \end{proof}
 
 \begin{proof}[Proof of Lemma \ref{lem:optimal_pairing_bids_and_asks_gaussian}]
@@ -835,38 +849,8 @@ The equations for the means is immediate from the definition and linearity of ex
     %
     Using the triangle inequality on the last term gives the desired result. For the second, note by Jemnsen's inequality
     %
-    \[m_2(\mu) - m_2(\mu' = \int_\R (x - t(x)) \; \mu(dx) \leq ||\mathrm{id} - t||_{L^p(\mu)} ,\]
+    \[m_2(\mu) - m_2(\mu') = \int_\R (x - t(x)) \; \mu(dx) \leq ||\mathrm{id} - t||_{L^p(\mu)} ,\]
     %
     \noindent so the above work gives the desired result again.
-
-    \zack{Well it seems like this suffices for the case $p=2$, but I am not sure what the general case looks like?}
 \end{proof}
-
-
-
-
-% Extensions %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newpage
-\section{Extensions}
-
-\begin{itemize}
-    \item The Wasserstein metric only really accounts for differences in the shapes of the distributions. Because we normalize the bid and asks sides by their respective quantities, we lose information about the imbalance in sizes of the order book that the weighted mid captures. We can instead try to consider some kind of unbalanced Wasserstein metric to account for these differences in mass, and use the unnormalized distributions.
-
-    \item How could we extend this to the case the bid and ask sides have significantly different quantities? Somehow we want to bias the estimate towards the side with less volume, but is there an axiomatic way of doing so?
-
-
-    \item Maybe instead of placing only one quantity, the market maker places like $Poisson(\lambda)$ quantity or something. 
-
-    \item What if market makers have different levels of uncertainty; like $\sigma$ depends on the market maker, and we can have some kind of hierarchical Bayesian model where $\sigma \sim N(0, \tau^2)$ or something. 
-
-
-
-    \item I recall several models for limit order book dynamics (e.g. modeling the bid and ask sides as independent Poisson processes; find that survey paper I read over summer). We could try to study how our fair value metric behaves under some of these processes, or propose our own. Compare its performance.
-
-    \item Use functional data analysis model to try to LEARN "true ask / bid books" discussed in section 4 over time?
-
-  
-\end{itemize}
-
-
 

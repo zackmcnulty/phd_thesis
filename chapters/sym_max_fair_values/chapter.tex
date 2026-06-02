@@ -553,10 +553,16 @@ Under $d_{W_p}$ for $p \neq 2$, things get a little more interesting.
 Such an explicit closed-form bound is no longer possible. However, intuitively, 
 in equation~\eqref{eqn:wp_imbalanced_symmetric_fair_value} we are solving an optimization
 problem which is strictly convex in $c$ for $p > 1$ and depends smoothly on the parameters 
-$z_\ell, \theta, a_i, b_j$. 
+$z_\ell, \theta, a_i, b_j$. Hence we still expect some level of stability, which the following makes precise.
 
+\begin{lemma}
+    For any $p > 1$, if $\mu_n \xrightarrow{W_p} \mu, \nu_n \xrightarrow{W_p} \nu$, and $\theta_n \to \theta$, then
+      \[v^{\theta_n}_s(\mu_n, \nu_n) \to v^\theta_s(\mu, \nu).\]
+      \label{lem:wp_fv_stability}
+\end{lemma}
 
-\red{Say something about the $p > 1$ case being continuous at least.}
+\red{Say something about why quantifying the rate of convergence is difficult.}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Empirical Analysis %
@@ -724,7 +730,7 @@ Theorem~\ref{thm:wasserstein_solution} is just the special ``balanced" case when
 % continuization
 We can re-state the above proof purely in terms of the quantile functions. Note if $X$ has 
 quantile function $Q_X$, then the transformed random variables $Y = c-2\theta X$ and $Y' = 2(1-\theta)X - c$ have 
-quantile functions
+quantile functions (up to Lebesgue null sets) given by:
 % 
     \[Q_Y(u) = c-2\theta Q_X(1-u), \quad Q_{Y'}(u) = 2(1-\theta) Q_X(u) - c,\]
 %
@@ -854,3 +860,51 @@ are paired in an increasing way, where the smallest bid is paired with the small
     \noindent so the above work gives the desired result again.
 \end{proof}
 
+\noindent Now, we prove the more general stability result under $d_{W_p}$ for $p \neq 2$. 
+The main idea is that the optimization problem in \eqref{eqn:wp_imbalanced_symmetric_fair_value} is strictly convex in $c$ for $p > 1$ and depends smoothly on the parameters.
+
+\begin{proof}[Proof of Lemma~\ref{lem:wp_fv_stability}]
+     For $u \in [0,1]$, define
+    %
+    \[\rho_n(u) := \theta_n Q_{\mu_n}(1-u) + (1-\theta_n) Q_{\nu_n}(u), \quad \rho(u) := \theta Q_{\mu}(1-u) + (1-\theta) Q_{\nu}(u).\]
+    %
+    \noindent and the functions
+    %
+    \[f_n(c) := \int_0^1 |c - \rho_n(u)|^p \; du, \quad f(c) := \int_0^1 |c - \rho(u)|^p \; du.\]
+    %
+    \noindent By Lemma~\ref{lem:quantile_fns_are_isometry} and the definition of $v_s^\theta$ in \eqref{eqn:wp_imbalanced_symmetric_fair_value}, we have
+    %
+    \[v_s^\theta(\mu_n, \nu_n) = \argmin_{c > 0} f_n(c), \quad v_s^\theta(\mu, \nu) = \argmin_{c > 0} f(c).\]
+    %
+    \noindent We start by showing $\rho_n \to \rho$ 
+    in $L_p([0,1])$. By Lemma~\ref{lem:quantile_fns_are_isometry}
+    %
+    \begin{align*}
+        ||\rho_n - \rho||_{L_p} & \leq ||\theta_n Q_{\mu_n}(1-\cdot) - \theta Q_{\mu}(1-\cdot)||_{L_p} + ||(1-\theta_n) Q_{\nu_n} - (1-\theta) Q_{\nu}||_{L_p} \\[5pt]
+        %
+        & \leq |\theta_n - \theta| \cdot ||Q_{\mu}||_{L_p} + \theta_n || Q_{\mu_n} - Q_{\mu} ||_{L_p} + |\theta_n - \theta| \cdot ||Q_{\nu}||_{L_p} + (1-\theta_n) || Q_{\nu_n} - Q_{\nu} ||_{L_p}.
+    \end{align*}
+    %
+    \noindent As $\mu_n \xrightarrow{W_p} \mu, \nu_n \xrightarrow{W_p} \nu$ and $\theta_n \to \theta$, 
+    this vanishes, so $\rho_n \to \rho$ in $L_p$. Then, using the inequality
+    %
+    \[||a|^p - |b|^p|| \leq p |a-b| \cdot (|a|^{p-1} + |b|^{p-1}),\]
+    %
+    \noindent we see:
+    %
+    \begin{align*}
+        \Big| |\rho_n(u) - c|^p - |\rho(u) - c|^p\Big| & \leq p \cdot |\rho_n(u) - \rho(u)| \cdot \left[(|\rho_n(u)| +c)^{p-1} + (|\rho(u)| + c)^{p-1}\right]\\
+        %
+        & \leq C_p \cdot |\rho_n(u) - \rho(u)| \cdot \left[c + |\rho_n(u)|^{p-1} + |\rho(u)|^{p-1}\right].
+    \end{align*}
+    \noindent Hence for $R > 0$
+    %
+    \[\sup_{|c| \leq R} |f_n(c) - f(c)| \leq C_p \cdot ||\rho_n - \rho||_{L_1} \cdot \left[R + ||\rho_n||_{L^{p-1}}^{p-1} + ||\rho||_{L^{p-1}}^{p-1}\right].\]
+    %
+    \noindent Since $\rho_n \to \rho$ in $L_p$, for $p > 1$, we have $\sup_n ||\rho_n||_{L^{p-1}} < \infty$ and $||\rho_n - \rho||_{L_1} \to 0$, so the right hand 
+    side goes to zero. Hence $f_n \to f$ uniformly on compact sets. 
+    
+    Note that $f_n, f$ are strictly convex for $p > 1$, and they achieve their minimum at a 
+    unique point. This and locally uniform convergence then imply these minimizers converge,
+    so $v_s^\theta(\mu_n, \nu_n) \to v_s^\theta(\mu, \nu)$ as desired.
+\end{proof}

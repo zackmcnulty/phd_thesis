@@ -320,7 +320,7 @@ outwards. Towards this end, we introduce the discrete differences
     \label{lem:optimal_pairing_bids_and_asks_gaussian}
 \end{lemma}
 
-\noindent Note, the right hand side of equation \eqref{eqn:gaussian_concavity_condition} is just the second 
+\noindent Note, ignoring the constant depending on $\theta$, the right hand side of equation \eqref{eqn:gaussian_concavity_condition} is just the second 
 discrete derivative of $g(x) = -\frac{x^2}{2\sigma^2}$, the log-density of the Gaussian. Thus, the 
 condition is saying that our fair value distribution is more log-concave than our spread distribution in a strong way.
 
@@ -369,7 +369,7 @@ the optimal pairing of bids and asks are the two naive ones: either
 pairing from the ``inside-out" by pairing the best bid with the best offer, and so on, or pairing from 
 ``left to right", pairing the worst bid with the best offer. In Section \ref{sec:stability_fv} below, 
 we will show such pairings naturally arise from our proposed symmetry-maximizing fair 
-value under a canonical choice of distance metric: the $W_2$ Wasserstein metric. 
+value under a canonical choice of distance metric: the Wasserstein metric. 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -390,7 +390,7 @@ comparisons.
 The Wasserstien distance is the natural candidate. In this section, we aim to study
 how the symmetry-maximizing fair value behaves when the underlying metric $d$ is chosen to be this distance. 
 In Theorem~\ref{thm:wasserstein_solution}, we characterize the symmetry-maximizing fair value under the Wasserstein metric, 
-and in Lemma~\ref{lem:fv_continuity} we quantify the stability of this fair-value with respect to small changes 
+and in Lemma~\ref{lem:fv_continuity_w2} we quantify the stability of this fair-value with respect to small changes 
 of the order book. 
 
 
@@ -408,9 +408,9 @@ This metric comes from the theory of optimal transport. It measures how
 \noindent where $\Pi(\mu, \nu)$ is the space of all couplings of $\mu, \nu$, joint distributions of $(X,Y)$ that have marginals $\mu, \nu$ respectively. Namely, for each $x \in \R$ our coupling $\pi(x, \cdot)$ specifies where in $\nu$ the mass $\mu(x)$ must be sent, and we search for a way of doing this that minimizes the total transportation distance. The below theorem shows \eqref{eqn:optimization_problem} takes the form of a simple convex optimization problem. First, we introduce some notation for equation \eqref{eqn:mua_mub}.
 %
 \begin{align*}
-    b_i & := \frac{\sum_{j=1}^i\lambda^{b_j} \cdot \beta_j}{\sum_{j=1}^n \lambda^{b_j} \cdot \beta_j} \qquad a_i  := \frac{\sum_{j=1}^i\lambda^{a_j} \cdot \alpha_j}{\sum_{j=1}^m \lambda^{a_j} \cdot \alpha_j} \qquad  a_0 = b_0 = 0\\
+    b_i & := \frac{\sum_{j=1}^i\lambda^{b_j} \cdot \beta_j}{\sum_{j=1}^n \lambda^{b_j} \cdot \beta_j}, \qquad a_i  := \frac{\sum_{j=1}^i\lambda^{a_j} \cdot \alpha_j}{\sum_{j=1}^m \lambda^{a_j} \cdot \alpha_j}, \qquad  a_0 = b_0 = 0,\\
     \\
-    z_k & := \inf \{a_i : a_i > z_{k-1}\} \cup \{b_i : b_i > z_{k-1}\} \qquad \Delta z_\ell := z_\ell - z_{\ell - 1} \qquad  z_0 := 0.
+    z_k & := \inf \{a_i : a_i > z_{k-1}\} \cup \{b_i : b_i > z_{k-1}\}, \qquad \Delta z_\ell := z_\ell - z_{\ell - 1}, \qquad  z_0 := 0.
 \end{align*}
 %
 
@@ -522,77 +522,42 @@ the age of different orders on the book. The main point is that
  framework by simply changing the way we warp the bid and ask 
  distributions before comparing them.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Properties of the Symmetrized Fair Value %%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Stability of the Fair Value}
 \label{sec:stability_fv}
 
 \noindent Recall the main motivation behind using Wasserstein metrics in the first place were
 that they provide a natural robustness to small perturbations in the underlying distribution. 
 In this section, we extend classical stability results for the Wasserstein metric to our symmetrized 
-fair value. This gives the following continuity property:
+fair value. This gives the following continuity property under $d_{W_2}$
 
 \begin{lemma}
-    \label{lem:fv_continuity}
-    The fair value $v^\theta_s$ in \eqref{eqn:w2_imbalanced_symmetric_fair_value} satisfies for any $p \geq 1$:
+    \label{lem:fv_continuity_w2}
+    The fair value $v^\theta_s$ under $d_{W_2}$ in \eqref{eqn:w2_imbalanced_symmetric_fair_value} satisfies for any $p \geq 1$:
     %
     \begin{equation}
-        \Big| v^\theta_s(\mu, \nu) - v^{\theta'}_s(\mu', \nu') \Big | \leq \theta d_{W_p}(\mu, \mu') + (1-\theta) d_{W_p}(\nu, \nu') + C_{\mu, \nu} |\theta - \theta'|.
+        \Big| v^\theta_s(\mu, \nu) - v^{\theta'}_s(\mu', \nu') \Big | \leq \theta' d_{W_p}(\mu,\mu') + (1-\theta') d_{W_p}(\nu,\nu') + |\theta-\theta'| \cdot d_{W_p}(\mu,\nu).
     \end{equation}
     %
     \noindent In particular, if $\mu' = t^\# \mu, \nu' = s^\# \nu$ are pushforward measures then:
     \begin{equation}
-        \Big| v^\theta_s(\mu, \nu) - v^{\theta'}_s(\mu', \nu') \Big | \leq \theta ||t - id||_{L^p(\mu)} + (1-\theta) ||s-id||_{L^p(\nu)} + C_{\mu, \nu} |\theta - \theta'|.
+        \Big| v^\theta_s(\mu, \nu) - v^{\theta'}_s(\mu', \nu') \Big | \leq \theta' ||t - id||_{L^p(\mu)} + (1-\theta') ||s-id||_{L^p(\nu)} + |\theta - \theta'| \cdot d_{W_p}(\mu,\nu).
     \end{equation}
 \end{lemma}
-
-\begin{proof}
-    The first follows immediately from \eqref{eqn:w2_imbalanced_symmetric_fair_value} and Lemma \ref{lem:conv_Wp_implies_means_conv}.
-
-    \zack{todo; add more details}
-\end{proof}
-
-\noindent Note that Lemma \ref{lem:quantile_of_w2_barycenter} suggests in the case of $W_2$ our symmetrized fair-value is really just the mean of the (weighted) barycenter $\overline{\mu_\theta} := \argmin_{\nu} \theta d_{W_2}(\nu, \mu_a) + (1-\theta) d_{W_2}(\nu, \mu_b)$ of $\mu_a, \mu_b$. Let's take a moment to make this more explicit. Let $L^2 := L^2([0,1], Leb)$. By our isometry in Lemma \ref{lem:quantile_fns_are_isometry}:
 %
-\begin{align*}
-    v_s^\theta & := \argmin_{c \in \R} d_{W_2} \left(\mu\left[\frac{c-\cdot} {2\theta} \right], \; \nu\left[\frac{c+\cdot}{2(1-\theta)}\right]\right)^2 \\[10pt]
-    %
-    & =  \argmin_{c \in \R} \bigg| \bigg| Q_{\mu(c-\cdot / 2\theta)} - Q_{\nu(c+\cdot / 2 (1-\theta)} \bigg| \bigg|^2_{L^2} \\[10pt]
-    %
-    & = \argmin_{c \in \R} \bigg| \bigg| [c-2\theta \cdot  Q_{\mu}(1-z)] - [2(1-\theta) \cdot Q_{\nu} - c] \bigg| \bigg|^2_{L^2} \\[10pt]
-    & =  \argmin_{c \in \R} \bigg| \bigg| \Big[c - Q_{\overline{\mu_\theta}} \Big] + \theta \cdot \Big[Q_\mu - Q_\mu(1-z) \Big] \bigg| \bigg|^2_{L^2}.
-\end{align*}
-%
-\noindent Expand the square. Note the cross term vanishes as $\int_0^1 Q_\mu(z) = \int_0^1 Q_\mu(1-z)$, and the latter outside term does not depend on $c$. Thus:
-%
+The result is not exactly surprising: equation~\eqref{eqn:w2_imbalanced_symmetric_fair_value} shows the fair value is completely determined by 
+the means of $\mu, \nu$, so if we only perturb $\mu, \nu$ by a small amount, their means should not change by much either.
 
-     \[= \argmin_{c \in \R} \bigg|\bigg| c - Q_{\overline{\mu_\theta}} \bigg| \bigg|_{L^2}^2 = \argmin_{c \in \R} \E_{\overline{\mu_\theta}} |X - c|^2 = \E_{\overline{\mu_\theta}} X.\]
-
-\vskip 0.1in
-\noindent which by Lemma \ref{lem:quantile_of_w2_barycenter} is the same as \eqref{eqn:w2_imbalanced_symmetric_fair_value}.
-
-This observation accomplishes two things: (i) it gives us another interpretation of the symmetrized fair-value from the theory of Wasserstein 
-barycenters and (ii) allows us to extend our fair value estimate from a point estimate
- of the typical fair value to an estimate of the \textit{full fair-value distribution.} 
-
-\zack{As Daniel mentions, we could also see \eqref{eqn:w2_imbalanced_symmetric_fair_value} as 
-the mean of the barycenter of $\mu$ and $\nu(\E_\nu X - \cdot)$, $\nu$ reflected across its 
-mean. This would give a different distribution than the barycenter of $\mu, \nu$ but 
-the two barycenters would have the SAME mean. We should justify why one might be 
-better than the other.}
-
-\zack{Here I would like to give some quantitative gaurantees on properties of 
-the fair value. Like we intuitively constructed it to be smoother than the mid 
-price to changes in the order book, but how smooth? Can we quantify the smoothness 
-in terms of properties of the order books (or the measures $\mu_a, \mu_b$ that
- encode them). Also, how often is it within the spread? Can we state some mild
-  conditions under which it will be in the spread? How much does it tend to
-   differ from the mid price? These questions might be a bit vague and depend 
-   on the choice of encoding of $\mu_a, \mu_b$, but maybe if we fix encoding 
-   \eqref{eqn:mua_mub} we can say something more concrete.}
+Under $d_{W_p}$ for $p \neq 2$, things get a little more interesting.
+Such an explicit closed-form bound is no longer possible. However, intuitively, 
+in equation~\eqref{eqn:wp_imbalanced_symmetric_fair_value} we are solving an optimization
+problem which is strictly convex in $c$ for $p > 1$ and depends smoothly on the parameters 
+$z_\ell, \theta, a_i, b_j$. 
 
 
-
-
+\red{Say something about the $p > 1$ case being continuous at least.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Empirical Analysis %
@@ -614,28 +579,44 @@ Here we will generate some plots and simulations to analyze the performance of o
 % Concluding Remarks 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage 
-\section{Concluding Remarks}
+\section{Concluding Remarks and Future Directions}
 
-If we have a collection $i \in [n]$ of highly correlated assets, we might be interested in trying to simultaneously estimate their fair values, using information from one asset to inform us about another. We have some idea that for highly correlated assets, the order book dynamics can be viewed as some "noisy/warped" version of some "true market sentiment". From a functional data analysis perspective, we can suppose there is a "true" ask / bid book distributions $\mu, \nu$ and some distribution $\P$ on "warping functions" $\phi_i:\R \to \R$ so that the ask/bid distributions $\mu_i, \nu_i$ of asset $i$ are just the (random) pushforwards $\mu_i = \phi_i^* \mu, \nu_i = \phi_i^* \mu$.
+\noindent In this paper, we proposed a new model for the fair value of a financial
+asset  which seeks to maximize the symmetry of the central limit order book around it. This generalizes several
+commonly used heuristics, and provides a natural variational characterization of the fair value. When symmetry is measured via the Wasserstein distance, we derive 
+explicit formulas for the fair value and show it is stable under small perturbations of the order 
+book. 
 
-In this setting, our above work suggests a natural notion for the "market fair value": 
+% Future Directions %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ \subsection{Future Directions}
+
+\noindent Corrollary~\ref{corr:w2_fv_is_mean_barycenter} suggests in the case of $W_2$ our symmetrized fair-value equals 
+the mean of the (weighted) barycenter of $\mu_a, \mu_b$, given by
 %
-\[v := \argmin_{c > 0} d_{W_2}\Big(\mu(c- \cdot), \nu(c + \cdot)\Big) = \frac{1}{2} \Big( mean(\mu) + mean(\nu) \Big).\]
+    \[\overline{\mu_\theta} := \argmin_{\nu} \theta d_{W_2}(\nu, \mu_a) + (1-\theta) d_{W_2}(\nu, \mu_b).\]
 %
-\noindent From this, we could estimate the individual asset fair values by $v_i = \phi_i(v)$. Of course, we don't have access to $\phi_i$ so we have to estimate it somehow:
+This observation accomplishes two things: (i) gives another interpretation of the symmetrized fair-value from the theory of Wasserstein 
+barycenters and (ii) extends our fair value estimate from a point estimate
+of the typical fair value to an estimate of the \textit{full fair-value distribution.} 
 
-\begin{itemize}
-    \item in the increasing case, we could estimate it as the optimal transport map from the empirical barycenter of the $\mu_1,..., \mu_n$ to $\mu_i$, as the optimal transport map is the only increasing map sending $\mu$ to $\mu_i$. So $\phi_i = F_{\mu_i}^{-1} \circ F_{\hat{\mu}}$
+ We could extend this idea even further to incorporate information from 
+ several order books simultaneously. If the same financial asset is listed 
+ across several different financial exchanges, each with their own bid and ask order books $\mu_i, \nu_i$,
+ this might be more natural than merely aggregating all the books into a single ask book and bid book. 
+ To do so, we might assume that there is some true fair-value distribution $\eta$, 
+ and that each of these books are a noisy version of this true distribution, 
+ which have been biased downwards and upwards respectively to account for market-makers desired edge.
 
-    \item if we don't want to assume $\phi_i$ is increasing, we have to find a fix analogous to Daniel's rating paper. By Brenier's polar factorization Daniel mentions, we know $\phi_i = F_{\mu_i}^{-1} \circ F_{\hat{\mu}} \circ \sigma$ for some $\mu$-preserving $\sigma$ (well Daniel only states it for maps $f:[0,1] \to [0,1]$) 
-\end{itemize}
-
- If we assume the distribution of $\P$ is such that $\mu, \nu$ are the population $W_2$ barycenters (e.g. assume some sort of unbiasedness; Daniel's assumption (A1)) then a natural estimate for $\mu, \nu$ is the empirical barycenters $\hat{\mu}, \hat{\nu}$ defined through the quantile functions by:
-
- \[Q_{\hat{\mu}} := \frac{1}{n} \sum_{i=1}^n Q_{\mu_i}.\]
-
-
- \zack{I want to say something like there is some fair value distribution $\mu$ and that this is distorted to some fair value dsitribution for each asset. This fair value distribution for the assest is then distorted by (iid random) monotonic maps to generate the bid and ask books of each asset.}
+We would like to somehow aggregate these perturbed versions $\mu_i, \nu_i$
+ to generate an estimate of $\eta$. One way of doing this is to first aggregate $\{\mu_i\}, \{\nu_i\}$
+ into single order books by letting $\hat{\mu}, \hat{\nu}$ be their respective empirical $W_2$-barycenters.
+ Corollary~\ref{corr:w2_fv_is_mean_barycenter} then suggests one 
+ natural way of estimating $\eta$ is to reflect the ask estimate $\hat{\nu}$ about its mean to get 
+ $\hat{\nu}'$, and then take the barycenter of $\hat{\mu}, \hat{\nu}'$ to get our estimate $\hat{\eta}$. 
+ This is similar in spirit to the work of \cite{raban2024_aggregate_ratings}, which aggregates movie
+ ratings in this way across many users in order to get a more faithful estimate
+ of the true quality of a movie. Analogous to \cite{raban2024_aggregate_ratings}, it would be interesting to see
+ if there is a natural generative model under which this procedure is optimal. 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -665,10 +646,12 @@ in our analysis. More details can be found in \cite{stats_in_wasserstein}.
 \end{proof}
 
 In fact, more is true: as shown in \cite{stats_in_wasserstein}, convergence in $W_p$ is equivalent
- to weak convergence and convergence of $p^{th}$ moments, from which the above follows. 
+ to weak convergence and convergence of $p^{th}$ moments. Below, we show for distributions on $\R$ 
+ that the Wasserstein distance can be easily computed using the quantile function $Q_\mu$. Again, this result
+ can be found in \cite{stats_in_wasserstein}. 
 
 \begin{lemma}
-    For any $p \geq 1$ the map $\mu \mapsto Q_\mu$ from $W_p$ to $L_p([0,1], \mathrm{Leb})$ is an isometry. Namely for $\mu, \nu \in W_p$:
+    For any $p \geq 1$ the map $\mu \mapsto Q_\mu$ from $W_p(\R)$ to $L_p([0,1], \mathrm{Leb})$ is an isometry. Namely for $\mu, \nu \in W_p(\R)$:
     %
     \[d_{W_p}(\mu, \nu) = \left(\int_0^1 |Q_\mu(z) - Q_\nu(z)|^p \; dz \right)^{1/p}.\]
     %
@@ -692,7 +675,6 @@ In fact, more is true: as shown in \cite{stats_in_wasserstein}, convergence in $
     %
     \noindent For the latter result, just use $\E_\mu X = \int_0^1 Q_\mu(z) \; dz$ and linearity of expectation. 
 \end{proof}
-
 
 %%%%%% Main Results
 \subsection{Main Results}
@@ -735,38 +717,47 @@ In fact, more is true: as shown in \cite{stats_in_wasserstein}, convergence in $
 \noindent where the second line follows by grouping terms where $f(\ell) = k$ and terms where $g(\ell) = k$ respectively. Replacing $p_i, q_i, x_i, y_i$ by their analogs in \eqref{eqn:mua_mub} yields Theorem \ref{thm:imbalanced_wasserstein_solution}. Theorem \ref{thm:wasserstein_solution} is just the special "balanced" case when $\theta = \frac{1}{2}$. 
 \end{proof}
 
-\noindent Note that in no part of the proof above do we assume anything other than the fact $\mu, \nu$ are discrete. We can extend the above work on discrete measures to all of $W_2(\R)$, which is a slight generalization of .
-
-\begin{lemma} For any measures $\mu, \nu \in W_2(\R)$:
+% continuization
+We can re-state the above proof purely in terms of the quantile functions. Note if $X \sim \mu$ has 
+quantile distribution $Q_X$, then the transformed random variable $Y = 2\theta X - c$ has 
+quantile function $Q_Y(z) = 2\theta Q_X(z) - c$. Using Lemma~\ref{lem:quantile_fns_are_isometry}, then the objective in \eqref{eqn:imbalanced_optimization_problem} becomes:
 %
-    \[ \theta \cdot m_2(\mu) + (1-\theta) \cdot m_2(\nu) = \argmin_{c > 0} d_{W_2}\left(\mu\left[\frac{\cdot + c} {2\theta} \right], \; \nu\left[\frac{c-\cdot}{2(1-\theta)}\right] \right).\]
-\end{lemma}
-
-\begin{proof}
-    Our proof above covers the case of two discrete measures. Since the discrete measures are dense in $(W_2, d_{W_2})$ by Theorem 2.2.7 \cite{stats_in_wasserstein} let $\mu_n, \nu_n$ be approximating sequences of discrete measures. From the discrete case we know:
-    %
-        \[ c_n^* := \theta \cdot m_2(\mu_n) + (1-\theta) \cdot m_2(\nu_n) = \argmin_{c > 0} d_{W_2}\left(\mu_n\left[\frac{\cdot + c} {2\theta} \right], \; \nu_n\left[\frac{c-\cdot}{2(1-\theta)}\right] \right).\]
-    %
-    \noindent Lemma \ref{lem:conv_Wp_implies_means_conv} implies:
-    %
-    \[c_n^* \rightarrow c^* := \theta \cdot m_2(\mu) + (1-\theta) \cdot m_2(\nu),\]
+\[d_{W_p}\left(\mu \left[\frac{c - \cdot}{2\theta} \right], \; \nu \left[\frac{c + \cdot}{2(1-\theta)} \right]\right)^p = 2^p \int_0^1 \left[c - \theta Q_\mu(1-u) - (1-\theta) Q_\nu(u)\right]^p \; du.\]
 %
-    \noindent so the optimizers of our discrete problems converge. Moreover, by the triangle inequality:
-    %
-    \begin{align*}
-        & \bigg| d_{W_2}\left(\mu_n\left[\frac{\cdot + c} {2\theta} \right], \; \nu_n\left[\frac{c-\cdot}{2(1-\theta)}\right] \right) - d_{W_2}\left(\mu\left[\frac{\cdot + c} {2\theta} \right], \; \nu\left[\frac{c-\cdot}{2(1-\theta)}\right] \right) \bigg| \\
-        %
-         & \leq d_{W_2}\left(\mu_n\left[\frac{\cdot + c} {2\theta} \right], \; \mu\left[\frac{\cdot + c} {2\theta}\right] \right) + d_{W_2}\left(\nu\left[\frac{c-\cdot}{2(1-\theta)} \right], \; \nu_n\left[\frac{c-\cdot}{2(1-\theta)}\right] \right) \\
-        %
-         & =  \frac{1}{2\theta} \cdot d_{W_2}\left(\mu_n, \; \mu \right) + \frac{1}{2(1-\theta)} \cdot d_{W_2}\left(\nu, \; \nu_n \right).
-    \end{align*}
-    %
-    \noindent so our objective functions converge uniformly (in $c$) as well. These objective functions are trivially continuous in $c$. Choosing $c = c_n^*$ shows \zack{todo}
-    
-    Hence $c^* = \theta \cdot m_2(\mu) + (1-\theta) \cdot m_2(\nu)$ must be the optimizer of the limiting optimization problem.
-\end{proof}
+\noindent Defining:
+%
+\[\rho(u) := \theta Q_\mu(1-u) + (1-\theta) Q_\nu(u),\]
+%
+\noindent we can up to constants the above is just $\int_0^1 |c - \rho(u)|^p \; du$. Hence we can 
+view $v_s^\theta$ in \eqref{eqn:imbalanced_optimization_problem} as the $p^{th}$ mean of the 
+random variable $Z = \rho(U)$ for $U \sim \mathrm{Unif}[0,1]$. This naturally extends 
+beyond discrete distributions as well. 
 
+In the special case of $p=2$, the $p^{th}$ mean is just the standard mean. By linearity and as $U \overset{d}{=} 1-U$:
+%
+\[\E Z = \theta \E Q_\mu(1-U) + (1-\theta) \E Q_\nu(U) = \E Q_{\bar{\mu}_\theta}(U), \]
+%
+\noindent where $\bar{\mu}_\theta$ is the $W_2$ barycenter of $\mu, \nu$ with weights $\theta, 1-\theta$, as mentioned in
+Lemma~\ref{lem:quantile_of_w2_barycenter}. Thus, in the case of $p=2$, our symmetrized fair value is just the mean of the 
+(weighted) $W_2$ barycenter of $\mu, \nu$.
+%
+\begin{corollary} For any measures $\mu, \nu \in W_2(\R)$:
+%
+    \[ v_s^\theta = \argmin_{c > 0} d_{W_2}\left(\mu\left[\frac{\cdot + c} {2\theta} \right], \; \nu\left[\frac{c-\cdot}{2(1-\theta)}\right] \right) = \int_\R x \; \bar{\mu}_\theta(dx).\]
+    \label{corr:w2_fv_is_mean_barycenter}
+\end{corollary}
+%
+This observation accomplishes two things: (i) it gives us another interpretation of the symmetrized fair-value from the theory of Wasserstein 
+barycenters and (ii) allows us to extend our fair value estimate from a point estimate
+ of the typical fair value to an estimate of the \textit{full fair-value distribution.} 
 
+ For $p \neq 2$, we lose the linearity of the $p^{th}$ mean. However, we can still interpret $Z$ as follows: \red{todo}
+
+Now, we prove the above variance bounds for the estimated fair value and spread. 
+The key point is that the only dependence on the pairing $\tau$ is in $\sum \bid_i \ask_{\tau(i)}$,
+ which is maximized when bids and asks are paired in an increasing way, where the smallest bid is paired with the smallest ask and so on (our left to right pairing), 
+ and minimized when bids and asks are paired in a decreasing way, where the largest bid is paired with the 
+ smallest ask (our inside out pairing).
 
 \begin{proof}[Proof of Lemma \ref{lem:estimated_fv_and_spread_mean_and_variance}]
 The equations for the means is immediate from the definition and linearity of expectation. For the variances, some simple algebra shows that if $\hat{\mu}^\tau_n$ is the empirical distribution where $\bid_i$ is paired with $\ask_{\tau(i)}$ then:
@@ -815,6 +806,42 @@ The equations for the means is immediate from the definition and linearity of ex
     \noindent By assumption, this is nonnegative. Because we can go from any permutation to the identity through a series of transpositions, the result follows.
 \end{proof}
 
+\begin{proof}[Proof of Lemma~\ref{lem:fv_continuity_w2}]
+    The first inequality follows almost immediately from \eqref{eqn:w2_imbalanced_symmetric_fair_value} 
+    and Lemma~\ref{lem:conv_Wp_implies_means_conv}. Just note
+        %
+    \begin{align*}
+        &\left|v_s^\theta(\mu, \nu) - v_s^{\theta'}(\mu', \nu')\right|\\
+        &=
+        \left|
+        \theta m_2(\mu) + (1-\theta)m_2(\nu)
+        - \theta' m_2(\mu') - (1-\theta')m_2(\nu')
+        \right| \\[5pt]
+        &=
+        \left|
+        \theta' \bigl(m_2(\mu)-m_2(\mu')\bigr)
+        + (1-\theta')\bigl(m_2(\nu)-m_2(\nu')\bigr)
+        + (\theta-\theta')\bigl(m_2(\mu)-m_2(\nu)\bigr)
+        \right| \\[5pt]
+        &\leq
+        \theta' \left|m_2(\mu)-m_2(\mu')\right|
+        + (1-\theta') \left|m_2(\nu)-m_2(\nu')\right|
+        + |\theta-\theta'| \left|m_2(\mu)-m_2(\nu)\right| \\[5pt]
+        &\leq
+        \theta' d_{W_p}(\mu,\mu')
+        + (1-\theta') d_{W_p}(\nu,\nu')
+        + |\theta-\theta'| d_{W_p}(\mu,\nu).
+    \end{align*}
+    %
+    Using the triangle inequality on the last term gives the desired result. For the second, note by Jemnsen's inequality
+    %
+    \[m_2(\mu) - m_2(\mu' = \int_\R (x - t(x)) \; \mu(dx) \leq ||\mathrm{id} - t||_{L^p(\mu)} ,\]
+    %
+    \noindent so the above work gives the desired result again.
+
+    \zack{Well it seems like this suffices for the case $p=2$, but I am not sure what the general case looks like?}
+\end{proof}
+
 
 
 
@@ -840,3 +867,6 @@ The equations for the means is immediate from the definition and linearity of ex
 
   
 \end{itemize}
+
+
+

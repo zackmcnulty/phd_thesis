@@ -1,10 +1,10 @@
 \chapter{Inference under the Canby Model}
 
+Let's start by introducing some notation. Let $T^*$ denote the true species tree underlying our Canby model,
+which has $k$ leaves (species/languages). Given any phylogenetic tree $T$, let $\cQ_T$ denote its set of 
+\textit{quartets}, which are the subtrees induced by a collection of four leaves. Hence $|\cQ_T| = {k \choose 4}$.
+Unless stated otherwise, assume any states $\alpha, \beta$ referenced are non-homoplastic. 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Introduction
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Introduction}
 
 The goals of this project are
 
@@ -19,30 +19,94 @@ The goals of this project are
           with high probability. 
 \end{itemize}
 
-Let's start by introducing some notation. Let $T^*$ denote the true species tree underlying our Canby model,
-which has $k$ leaves (species/languages). Given any phylogenetic tree $T$, let $\cQ_T$ denote its set of 
-\textit{quartets}, which are the subtrees induced by a collection of four leaves. Hence $|\cQ_T| = {k \choose 4}$.
-Unless stated otherwise, assume any states $\alpha, \beta$ referenced are non-homoplastic. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Introduction
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+
+In phylogenetics, we have a collection objects whose ancestrial history we hope to infer
+using only modern-day information. This shared history is summarized by a \textit{phylogenetic tree},
+a graphical tree whose leaves are labeled by these objects. Classically, these objects represented different biological species,
+the relevant data was their DNA, and the phylogenetic tree encoded the sequence of
+speciation events that occurred over time to produce the species we see today. Nonetheless, the tools of phylogenetics are far 
+more broadly applicable: it has been used in medicine to better understand the 
+progression of cancer~\cite{somarelli2017phylooncology}, in astrophysics as a hierarchical clustering procedure for astral
+ bodies~\cite{fraixburnet2015multivariate}, and in terrane analysis to study the geological history of specific 
+ regions~\cite{michaux2018cladistic}. 
+
+In this paper, we study a specific application to linguistics, where the objects of interest are different 
+languages and the underlying data are \textit{linguistic characters}. These characters encode features 
+that vary across languages and are commonly divided into three broad categories: \textit{phonological},
+ \textit{morphological}, and \textit{lexical} characters. 
+ 
+ Phonological characters describe sound patterns, 
+ such as whether a language distinguishes tones or permits consonant clusters. Morphological characters 
+ describe grammatical structure, such as how past tense or plural number is expressed. Lexical characters describe the word 
+ forms used to express specific ideas, often by grouping languages according to whether their words for 
+  common concepts such as ``fire,'' or ``mother'' descend from a common historical source. Lexical characters are 
+  particularly interesting as they can be multi-state---several different words can simultaneously share 
+  the same meaning---a property known as \textit{polymorphism}.  We are specifically interested in a model known as the \textit{Canby et al. model}, introduced in 
+\cite{polymorphism_linguistic_phylogenetics}, which explicitly models this polymorphism.
 
 %%%%%%%%%%%%%%%%%%%%
 % Canby Model 
 %%%%%%%%%%%%%%%%%%%%≈
 \subsection{The Canby et al. Model}
-\zack{Give a description of the Canby model and the ASTRAL procedure used for inferring the underlying tree.}
-\cite{polymorphism_linguistic_phylogenetics}
+
+Suppose that $\cT$ is the underlying rooted phylogenetic tree of langauges. Given some collection of characters $\cC$, the Canby model~\cite{polymorphism_linguistic_phylogenetics}
+assumes each character $c \in \cC$ evolves down this tree according to a simple birth-death process independently in each branch. Namely, associated to each character $c$ is a set $\Sigma^{(c)}$
+of possible states, birth/death rates $\{\lambda_i^{(c)}\}, \{\mu_i^{(c)}\}$, and a probability measure $\nu^{(c)}$ 
+on $\Sigma^{(c)}$. Given a path $[0, \ell]$ from the root of $\cT$ to some leaf $\ell$, we assume the
+multi-state $c(x)$ for the given character evolves down this path as follows
+%
+\begin{enumerate}[label=(\roman*)]
+    \item If $|c(x)| = i$, at rate $\lambda_i^{(c)}$ a new character is born, and at rate $\mu_i^{(c)}$ a character will die.
+    \item If a death occurs, a state $\alpha \in c(x)$ is chosen uniformly at random to kill. If a birth occurs, a new state $\alpha \notin c(x)$ is chosen proportional to $\nu^{(c)}$, namely via
+                \[\mu(A) := \frac{\nu^{(c)}(A \setminus c(x))}{\nu^{(c)}(\Sigma^{(c)} \setminus c(x))}\]
+\end{enumerate}
+%
+When a branch-point $v$ of $\cT$ is reached, the multi-state evolves independently down each child branch starting from
+state $c(v)$. A state $\alpha \in \Sigma^{(c)}$ with $\nu^{(c)}(\{\alpha\}) > 0$ is called \textit{homoplastic}. These states
+can evolve independently in different lineages, rather than from shared ancestry. We denote the set of homoplastic states
+and non-homoplastic states by $\Sigma_H^{(c)}, \Sigma_N^{(c)}$ respectively.
+ 
+Throughout this paper, we will assume characters follow the \textit{immigration-death rates}
+%
+\begin{equation}
+    \lambda_i^{(c)} = \lambda^{(c)}, \quad \mu_i^{(c)} = i \mu^{(c)}.
+\end{equation}
+%
+\noindent for $i > 1$. Additionally, we will assume that $\mu_1^{(c)} = 0$. This ensures that each character
+has at least one state at any point in time, and that the number of states cannot blow up in finite time.  
 
 
-\zack{Describe the ASTRAL-based inference procedure; figure out some way to cite the identifiability of Canby paper?}
+The full Canby model additionally incorporates another mechanism of character transmission known
+as \textit{borrowing} which allows characters to transfer latterally throughout the tree, analogous to
+horizontal gene transfer in biological contexts. In this paper, we only consider the case where no borrowing
+occurs.
 
-ASTRAL \cite{mirarab2014astral}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 % ASTRAL-Based Inference
 %%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{ASTRAL-Based }
+\subsection{ASTRAL-Based Inference}
+
+In phylogenetic inference, you often want to combine information from many sources, like genetic information across
+a collection of genes or, in our case, states across different linguistic characters. \textit{Consensus methods} \red{work as follows.}
+
+ASTRAL \cite{mirarab2014astral}.
+
 
 Describe the procedure, and its consistency gaurantees; introduce two main problems:
 bipartition covers (for heuristic version) and sample complexity (for exact version). 
+
+
+In the follow-up paper \red{cite this somehow}, the authors describe an extension of the 
+ASTRAL algorithm to the Canby et al. model. 
+\zack{Describe the ASTRAL-based inference procedure; figure out some way to cite the identifiability of Canby paper?}
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Properties of ID Processes
@@ -50,7 +114,7 @@ bipartition covers (for heuristic version) and sample complexity (for exact vers
 \section{Immigration-Death Processes}
 
 The constraint $\mu_1 = 0$ makes the Canby model hard to analyze, because it adds a certain
-dependence structure between the different characters of the model. If we drop this condition, we 
+dependence structure between the different cognates of a specific character. If we drop this condition, we 
 get a classical immigration death (ID) process, which is quite tractable to analyze. This approximation
 is reasonable in the parameter regime where the number of characters in a given branch is rarely one. 
 Because of this, we take some time to derive some relevant properties of ID processes.

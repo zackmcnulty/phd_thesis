@@ -1,0 +1,1080 @@
+\chapter{Inference under the Canby Model}
+
+\begin{center}
+    \textbf{Abstract}
+\end{center}
+
+\noindent This chapter studies phylogenetic inference under the Canby model, a stochastic model for
+polymorphic linguistic characters. We focus on the no-borrowing setting and develop basic probabilistic
+properties of the model, with particular attention to how non-homoplastic states generate quartet support
+and candidate bipartitions. These results motivate ASTRAL-based inference procedures and provide preliminary
+sample-complexity bounds for recovering the underlying language phylogeny from independently evolving
+characters.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Introduction
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+
+In phylogenetics, we have a collection of objects whose ancestral history we hope to infer
+using only modern-day information. This shared history is summarized by a \textit{phylogenetic tree},
+a graphical tree whose leaves are labeled by these objects. Classically, these objects represented different biological species,
+the relevant data was their DNA, and the phylogenetic tree encoded the sequence of
+speciation events that occurred over time to produce the species we see today. Nonetheless, the tools of phylogenetics are far 
+more broadly applicable: they have been used in medicine to better understand the 
+progression of cancer~\cite{somarelli2017phylooncology}, in astrophysics as a hierarchical clustering procedure for astral
+ bodies~\cite{fraixburnet2015multivariate}, and in terrane analysis to study the geological history of specific 
+ regions~\cite{michaux2018cladistic}. 
+
+In this chapter, we study a specific application to linguistics, where the objects of interest are different 
+languages and the underlying data are \textit{linguistic characters}. These characters encode features 
+that vary across languages and are commonly divided into three broad categories: \textit{phonological},
+ \textit{morphological}, and \textit{lexical} characters. 
+ 
+ Phonological characters describe sound patterns, 
+ such as whether a language distinguishes tones or permits consonant clusters. Morphological characters 
+ describe grammatical structure, such as how past tense or plural number is expressed. Lexical characters describe the word 
+ forms used to express specific ideas, often by grouping languages according to whether their words for 
+  common concepts such as ``fire,'' or ``mother'' descend from a common historical source. Lexical characters are 
+  particularly interesting as they can be multi-state---several different words can simultaneously share 
+  the same meaning---a property known as \textit{polymorphism}.  We are specifically interested in a model known as the \textit{Canby et al. model}, introduced in 
+\cite{polymorphism_linguistic_phylogenetics}, which explicitly models this polymorphism.
+
+%%%%%%%%%%%%%%%%%%%%
+% Canby Model
+%%%%%%%%%%%%%%%%%%%%
+\subsection{The Canby et al. Model}
+
+The key feature of the Canby model is that a language may carry a set of states for a given
+character, and these states may be born or die as the character evolves along the tree.
+Suppose that $\cT^*$ is the underlying rooted phylogenetic tree of languages. Given some collection of characters $\cC$, the Canby model~\cite{polymorphism_linguistic_phylogenetics}
+assumes each character $c \in \cC$ evolves down this tree according to a simple birth-death process independently in each branch. Namely, associated to each character $c$ is a set $\Sigma^{(c)}$
+of possible states, birth/death rates $\{\lambda_i^{(c)}\}, \{\mu_i^{(c)}\}$, a probability measure $\nu^{(c)}$ 
+on $\Sigma^{(c)}$ for selecting new states, and a probability measure $\rho^{(c)}$ on the set ${\Sigma^{(c)} \choose *}$ of nonempty finite subsets of $\Sigma^{(c)}$ for 
+determining the multi-state of the root. Let $[0, \ell]$ denote the unique path from the root of $\cT^*$ to some leaf $\ell \in \cT$. For $x \in [0, \ell]$ we assume the
+multi-state $c(x)$ for the given character evolves down this path as follows
+%
+\begin{enumerate}[label=(\roman*)]
+    \item The multi-state $c(0)$ of the root is sampled from $\rho^{(c)}$. 
+    \item If $|c(x)| = i$, at rate $\lambda_i^{(c)}$ a new character is born, and at rate $\mu_i^{(c)}$ a character will die.
+    \item If a death occurs, a state $\alpha \in c(x)$ is chosen uniformly at random to delete. If a birth occurs, a new state $\alpha \notin c(x)$ is chosen proportional to $\nu^{(c)}$, namely via
+                \[\mu(A) := \frac{\nu^{(c)}(A \setminus c(x))}{\nu^{(c)}(\Sigma^{(c)} \setminus c(x))}\]
+\end{enumerate}
+%
+When a branch-point $v$ of $\cT^*$ is reached, the multi-state evolves independently down each child branch starting from
+state $c(v)$. 
+
+A state $\alpha \in \Sigma^{(c)}$ with $\nu^{(c)}(\{\alpha\}) > 0$ is called \textit{homoplastic}. These states
+can evolve independently in different lineages, rather than from shared ancestry. We denote the set of homoplastic states
+and non-homoplastic states by $\Sigma_H^{(c)}, \Sigma_N^{(c)}$ respectively. Homoplastic states in a sense complicate the 
+inference process, as two languages can share the homoplastic trait without necessarily having any recent shared ancestry.
+ 
+Throughout this paper, we will assume characters follow the \textit{immigration-death rates}
+%
+\begin{equation}
+    \lambda_i^{(c)} = \lambda^{(c)}, \quad \mu_i^{(c)} = i \mu^{(c)}.
+\end{equation}
+%
+\noindent for $i > 1$. Namely, the birth-rate is constant, and the death rate is proportional to the number of individuals. 
+Additionally, we will assume that $\mu_1^{(c)} = 0$. This ensures that each character
+has at least one state at any point in time, and that the number of states cannot blow up in finite time.  
+
+Since the upcoming inference procedure is based solely on non-homoplastic states, we also make the
+following assumptions about $\nu^{(c)}$ and $\rho^{(c)}$.
+
+\begin{assumption}[1]
+    Non-homoplastic states occur sufficiently often. Namely
+    %
+    \begin{enumerate}[label=(\roman*)]
+        \item There is positive probability that the macro-state at the root contains at
+              least one micro-state that is not homoplastic
+              %
+                \[\rho^{(c)} \left(\left\{A \in {\Sigma^{(c)} \choose *} \; : \; A \cap \Sigma^{(c)}_N \neq \emptyset \right\}\right) > 0.\]
+              %
+        \item There is positive probability of adding a micro-state that is not homo-
+                plastic to the current macro-state when there is a birth
+                %
+                \[\nu^{(c)}(\Sigma_N^{(c)}) > 0.\]
+                %
+    \end{enumerate}
+\end{assumption}
+
+The full Canby model additionally incorporates another mechanism of character transmission known
+as \textit{borrowing} which allows characters to transfer laterally throughout the tree, analogous to
+horizontal gene transfer in biological contexts. In this paper, we only consider the case where no borrowing
+occurs, but interested readers can find further details in \cite{polymorphism_linguistic_phylogenetics}.
+
+For ease of notation, when the meaning is clear from context we typically conflate the multi-state $c(x)$ of 
+a given character at location $x \in \cT^*$ with $x$ itself.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+% ASTRAL
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{ASTRAL}
+
+To infer the underlying tree from many independently evolving characters, we adapt ideas from
+quartet-based species-tree estimation. In phylogenetic inference, one often wants to combine information from many sources, such as genetic information across
+a collection of genes or, in our case, linguistic characters. In \textit{consensus methods}, each source is
+used to generate an estimate $g_i$ of the true phylogenetic tree $\cT^*$, and then these estimates $\{g_i\}_{i=1}^n$
+are aggregated. In the phylogenetics literature, the trees $g_i$ are called the \textit{gene trees}, while $\cT^*$ is
+referred to as the \textit{species tree}. 
+
+ASTRAL~\cite{mirarab2014astral} is one commonly used aggregation procedure. It scores candidate 
+phylogenetic trees $\cT$ based on the number of quartets they share with the estimated trees $\{g_i\}$. Specifically,
+it solves the optimization problem
+%
+\begin{equation}
+    \hat{T} = \argmax_\cT  \sum_{q \in \cQ(\cT)} W(q).
+    \label{eqn:astral_quartet_support_optimization_problem}
+\end{equation}
+%
+\noindent where $W(q)$ is some meaure of the support for the quartet $q$. Commonly, it is just
+$W(q) = \sum_{i=1}^n 1 \{q \in g_i\}$, the number of times the quartet appears in the gene tree. Later on, we will introduce
+other measures of the quartet support specific to the Canby model.  
+    Since the set of phylogenetic trees is super-exponentially large, it is intractable to solve this 
+optimization problem exactly for trees with more than 20 or so leaves. For larger trees, a
+restricted search space is required. 
+
+One possible strategy is to limit the bipartitions of the leaves the candidate trees $\cT$ can induce. 
+A \textit{bipartition} of a set $S$ is a partition of $S = A \cup B$ into two nonempty, disjoint subsets. 
+Every edge $e \in E(\cT)$ of our tree induces a bipartition of the leaves by considering the two connected components
+of the graph $(V(\cT), E(\cT) \setminus \{e\})$. Moreover, Buneman's splits-equivalence theorem shows $\cT$
+is completely characterized by its set $\cX(\cT)$ of bipartitions. 
+
+Since each $g_i$ is a noisy estimate of $\cT^*$, we 
+might expect that $\cX(\cT^*) \subseteq \cX_g := \bigcup_i \cX(g_i)$, suggesting
+the restricted search space
+%
+\[\Big\{\cT \; : \; \cX(\cT) \subseteq \bigcup_{i=1}^n \cX(g_i)\Big\}.\]
+%
+\noindent More generally, given any set $\cX$ of bipartitions, we can solve
+%
+%
+\begin{equation}
+    \hat{T} = \argmax_{\cX(\cT) \subseteq \cX}  \sum_{q \in \cQ(\cT)} W(q).
+    \label{eqn:astral_heuristic_optimization_problem}
+\end{equation}
+%
+%
+Using a clever dynamic-programming principle, ASTRAL efficiently solves this bipartition-constrained 
+optimization problem. For polynomially-sized $\cX$, the optimization problem~\eqref{eqn:astral_heuristic_optimization_problem}
+can be feasibly solved for trees with thousands of leaves. Moreover, when the trees $g_i$ are generated under the 
+multispecies coalescent model \cite{rannala2020msc}, \cite{hill2020speciestreeestimationjoint}, its statistical properties 
+are well-understood. In particular, it is asymptotically consistent whenever $\cX_g \subseteq \cX$. 
+
+The paper~\cite{shekhar2018_how_many_genes_are_enough} showed for the exact version~\eqref{eqn:astral_quartet_support_optimization_problem}
+that $n = \Theta(f^{-2} \log(k))$ independent gene trees $g_i$ are required to recover $\cT^*$ with high probability, where $f$ is the minimum
+branch length in the tree. Nonetheless, it has been empirically observed that the relaxed version~\eqref{eqn:astral_heuristic_optimization_problem} requires
+significantly more data to obtain similar recovery rates~\cite{shekhar2018_how_many_genes_are_enough}. 
+
+As discussed in \cite{uricchio2016_bipartition_cover}, \cite{mcnulty2026improvedbipartitioncoverbound}, the main shortcoming of the relaxed problem
+is that it is quite unlikely that $\cX(T) \subseteq \cX_g$, since the bipartitions induced by edges near the root are very 
+difficult to recover. Several heuristics have been proposed to extend the set $\cX_g$ in an effort to improve its coverage 
+properties and the empirical performance of the relaxed problem~\cite{mirarab2015astral}, \cite{zhang2018astral}, \cite{dibaeinia2021fastral}. 
+Alternatively \cite{Zhang2022_weighted_ASTRAL} proposes a weighted version of~\eqref{eqn:astral_quartet_support_optimization_problem}
+which incorporates quartet-support information from the gene-tree estimation stage. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ASTRAL-Based Inference for Canby Model
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{ASTRAL-Based Inference in the Canby Model}
+
+For data generated under the Canby model, quartet support can be defined directly from the
+shared non-homoplastic states of the observed languages. Let $q = uv||xy$ denote the unrooted
+quartet topology that groups $u$ with $v$ and $x$ with $y$.
+
+\begin{center}
+\begin{tikzpicture}[scale=0.9, every node/.style={font=\small}]
+    \coordinate (a) at (-1, 0);
+    \coordinate (b) at (1, 0);
+    \coordinate (u) at (-2.5, 0.9);
+    \coordinate (v) at (-2.5, -0.9);
+    \coordinate (x) at (2.5, 0.9);
+    \coordinate (y) at (2.5, -0.9);
+
+    \draw (u) -- (a) -- (b) -- (x);
+    \draw (v) -- (a);
+    \draw (y) -- (b);
+
+    \node[left] at (u) {$u$};
+    \node[left] at (v) {$v$};
+    \node[right] at (x) {$x$};
+    \node[right] at (y) {$y$};
+\end{tikzpicture}
+\end{center}
+
+\noindent Given a character $c$, define the support $M^{(c)}_q$ of the quartet $q$ via
+%
+\begin{equation*}
+    M^{(c)}_{uv||xy}:= \Big\{(\alpha, \beta) \in \Sigma_N \times \Sigma_N \; : \; \alpha \neq \beta, \quad \alpha \in u \cap v \cap \bar{x} \cap \bar{y}, \quad \beta \in \bar{u} \cap \bar{v} \cap x \cap y\Big\}. 
+\end{equation*}
+%
+Namely, $M_q$ consists of the pairs of non-homoplastic states that are seemingly ``split'' across the quartet $q$.
+For the true quartet topology, this support is larger in expectation than the support assigned to
+the two alternatives:
+%
+\begin{lemma}
+    If $uv||xy$ is the quartet topology of the leaves $(u,v,x,y)$ in $\cT^*$ then
+    \[\E M_{uv || xy} > \E M_{ux || vy} = \E M_{uy || vx},\]
+    %
+    \noindent so the correct topology has the highest expected support.
+    \label{lem:correct_topo_max_expected_support}
+\end{lemma}
+%
+\noindent For each $S = \{u,v,x,y\} \in {[k] \choose 4}$ 
+they then let
+%
+\begin{equation}
+    q_S := \argmax_{q \in A_S} \frac{1}{n} \sum_{i=1}^n M_q^{(c_i)}, \quad A_S := \{uv||xy, ux||vy, uy||vx\}.
+    \label{eqn:astral_based_canby_inference_original}
+\end{equation}
+%
+\noindent By the law of large numbers, the correct topology becomes overwhelmingly likely for large $n$. 
+They then run ASTRAL on the quartet set $\{q_S\}$
+to generate an estimate $\hat{\cT}$ of $T^*$. 
+
+Although not directly mentioned in \red{Canby follow-up paper}, the proof of Lemma~\ref{lem:correct_topo_max_expected_support}
+directly implies the following. Recall, a phylogenetic tree (with branch lengths) is said to be \textit{ultrametric} if every leaf is
+the same distance from the root. When this holds, the supports for the two incorrect topologies are identically distributed. 
+
+\begin{corollary}
+    If $\cT^*$ is ultrametric, then $M_{ux|vy} \overset{d}{=}M_{uy|vx}.$
+    \label{corr:wrong_quartet_supports_identically_distributed}
+\end{corollary}
+
+
+
+
+%%%%%%%%%%%%
+% Summary of contributions
+%%%%%%%%%%%%
+\subsection{Contributions}
+
+We now outline the remainder of the chapter and summarize its main contributions.
+
+\begin{itemize}
+
+    \item We develop a set $\cX$ of bipartitions that can be used to restrict ASTRAL, 
+    and show that it can (i) be computed in polynomial time, (ii) preserve asymptotic consistency,
+    and (iii) remain small enough to be computationally useful. We propose a simple candidate, as well as
+    several heuristics for improving its empirical coverage. 
+
+    \item We develop sample-complexity bounds analogous to \cite{shekhar2018_how_many_genes_are_enough}
+          to quantify how many characters are required to recover the underlying phylogenetic tree
+          with high probability. 
+
+    \item We introduce an alternative ASTRAL-based inference procedure for Canby-model data.
+\end{itemize}
+
+
+%%%%%%%%%%%%
+% Notation
+%%%%%%%%%%%%
+\subsection{Notation}
+
+We briefly introduce some notation. Let $T^*$ denote the true species tree underlying our Canby model,
+which has $k$ leaves (species/languages). Given any phylogenetic tree $T$, let $\cQ_T$ denote its set of 
+\textit{quartets}, which are the subtrees induced by a collection of four leaves. Hence $|\cQ_T| = {k \choose 4}$.
+Unless stated otherwise, assume the observed characters are independent and identically distributed, and assume any
+states $\alpha, \beta$ referenced are non-homoplastic. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Basic Results
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Basic Results}
+
+%%%%%%%%%%%%%%%%%%%%%
+% Coupling to ID Process
+%%%%%%%%%%%%%%%%%%%%%
+\subsection{Coupling to Immigration-Death Processes}
+
+The constraint $\mu_1 = 0$ makes the Canby model hard to analyze, because it adds a certain
+dependence structure between the different states of a specific character. If we drop this condition, we 
+get a classical immigration death (ID) process, which is quite tractable to analyze. This approximation
+is reasonable in the parameter regime where the number of characters in a given branch is rarely one. 
+
+Our key tool will be a coupling of the Canby model to a standard immigration-death process (ID) run along the branches of our species tree $T^*$. It relies on two simple observations about how the set of nonhomoplastic states evolves over time:
+
+\begin{itemize}
+    \item Births always occur at rate at least $\lambda_N := \lambda \nu(\Sigma_N)$ and at most $\lambda$.
+
+    \item Deaths always occur at rate at most $\mu$ per individual.
+\end{itemize}
+%
+\noindent In particular, we can couple an ID process $(Y_s)_{s \in T^*}$ to our Canby $(X_s)_{s \in T^*}$ so that:
+%
+\[ Y_s \cap \Sigma_N \subseteq X_s \cap \Sigma_N, \quad \forall s \in T^*\]
+%
+\noindent In this way, we only reduce the number of nonhomoplastic states we observe in the leaves, which heuristically makes inference more challenging. 
+
+To produce this coupling, use a single $\tau \sim \mathrm{\Exp}(\lambda)$ clock for each branch of $T^*$ to determine possible births. If $\tau$ rings at location $s \in T^*$, sample a new state $\alpha \notin X_{s^-}$ for the Canby model as usual, namely according to the conditional distribution:
+%
+\[\frac{\nu(\cdot \cap (\Sigma \setminus X_{s^-}))}{\nu( \Sigma \setminus X_{s^-})}\]
+%
+\noindent Hence we let $X_s = X_{s^-} \cup \{\alpha\}$. We update our ID process $Y_s$ as follows: if $\alpha \notin \Sigma_N$, then let $Y_s = Y_{s^-}$. Namely, ignore the homoplastic states. Otherwise:
+%
+\[Y_s = \begin{cases}
+    Y_{s^-} \cup \{\alpha\} & \mathrm{w.p.}  \quad \nu(\Sigma \setminus X_{s^-})\\
+    Y_{s^-} & \mathrm{w.p.} \quad 1-\nu(\Sigma \setminus X_{s^-}) \\
+\end{cases}\]
+%
+\noindent This ensures that the birth rate in $(Y_s)$ along a given branch is always $\lambda_N$. 
+
+Similarly, when a new state $\alpha$ is born in $X_s$, assign it an independent $\tau_\alpha \sim \mathrm{Exp(\mu)}$ clock. If it rings at location $s \in T^*$, let:
+%
+\[X_s = \begin{cases}
+    X_{s^-} \setminus \{\alpha\} & X_{s-} \neq \{\alpha\}\\
+    \{\alpha\} & \mathrm{otherwise}
+\end{cases}\]
+%
+\noindent Then let $Y_s = Y_{s^-} \setminus \{\alpha\}$. Namely, $(X_s)$ simply ignores the deaths causing the state set to become empty, while $(Y_s)$ does not. 
+
+\red{I guess I am slightly worried that sometimes this faster death rate actually helps us. Like maybe sometimes we actually \textit{want} a state to die; e.g. $(\alpha, \beta) \in M_{uv||xy}$ if and only if $\alpha, \beta$ both survive on the proper branches and die on the proper branches.}
+
+Heuristically, this coupling well-approximates the non-homoplastic states of the Canby model in the high-polymorphism regime $\lambda \gg \mu$ where it is rare for there to be just a single 
+state, and when there is little homoplasy so the renormalization of $\nu$ does not drammatically affect the birth-rate of non-homoplastic states over time. 
+
+In Appendix~\red{ref appendix section}, we collect some properties of these immigration-death processes which will be useful for
+analyzing the Canby model. 
+
+%%%%%%%%%%%%%%%%%%%%%
+% Coupling to ID Process
+%%%%%%%%%%%%%%%%%%%%%
+\subsection{Properties of Canby Model}
+
+In this section, we derive some basic properties of the Canby model. The derivations often rely on the 
+coupling we introduced in the previous section. 
+
+Given a path $[0, \ell]$ from the root of $\cT^*$ to some leaf, let $S_t = |c(t)|$ be the number 
+of states in the multi-state. This is a simple birth-death process with birth rates 
+$\lambda_i \equiv \lambda$ and death rates $\mu_i = i\mu \cdot 1\{i > 1\}$. Hence
+
+% stationary distribution
+\begin{lemma}
+    The stationary distribution of $S_t$ is $ \pi = (Z | Z > 0)$ for $Z \sim \mathrm{Poisson}(\lambda/\mu)$. 
+    %
+    \[\pi_i = \frac{(\lambda/\mu)^i}{i!(e^{\lambda/\mu}-1)}, \quad \forall i \geq 1.\]
+    %
+    \label{lem:stationary_dist_state_cardinality_process}
+\end{lemma}
+
+\noindent The ergodic theorem tells us as $T \to \infty$ the fraction of the time $\{S_t\}_{t \in [0,T]}$ spends in state 1 
+converges almost surely to $\pi_1 = \frac{m}{e^m-1}$. Heuristically, over long-branches our effective death-rate then becomes:
+%
+\[\mu_{\text{eff}} = \mu \left(1-\pi_1\right) = \mu \cdot \frac{e^m-m-1}{e^m-1}\]
+%
+\noindent If $\lambda \ll \mu$, then $\mu_{\text{eff}} \approx \frac{\lambda}{2} $ which is significantly less than $\mu$ in this low-polymorphism regime. If $\lambda \gg \mu$, then $\pi_1$ is exponentially small in $m$, so the process is rarely in state $1$. Hence it becomes well-approximated by our ID process coupling. 
+
+
+For the following, we will also need two-sided bounds on the probability a given state $\alpha$ dies along a specific branch, which the next lemma provides.
+
+\begin{lemma}[Survival and Death Bounds]
+
+    Let $p_{n,T}$ be the probability that, starting with $n$ states, a given state $\alpha$ dies along a branch of length $T$ in the Canby model. Then
+    %
+    \[\frac{1}{2} (1-e^{-\lambda T/2}) (1-e^{-\mu T}) =:\xi_{T}\leq p_{n,T} \leq 1-\eta_{T} := 1-e^{-\mu T}\]
+    %
+    \label{lem:death_rate_prob_bounds}
+\end{lemma}
+
+\noindent We will often be interested in applying these bounds to a specific path in the tree. Given two vertices $i, j$ in the tree denote by $\ell_{ij}$ the length of the path $[i,j]$ in the tree and denote $\xi_{ij} := \xi_{\ell_{ij}}, \eta_{ij} := \eta_{\ell_{ij}}$ our corresponding lower bounds on death and survival. 
+
+
+\noindent Next, we aim to understand what our quartet supports 
+$M_{uv ||xy}$ look like under this model. Given vertices 
+$i,j \in T^*$, let $\ell_{ij}$ be the length of the path $[i,j]$ in 
+$T^*$ and $\eta_{ij} := e^{-\mu \ell_{ij}}$. Then $\eta_{ij}$ is the
+ probability a given state present at the most recent common ancestor 
+ of $i,j$ survives to both $i,j$ under the ID process. 
+
+The following shows that $|M_{uv||xy}|$ has tails $\P(|M| > t) \leq \exp(-O(\sqrt{t} \log t))$. 
+%
+\begin{lemma}
+    Suppose that $\theta < \frac{\lambda}{\mu}$. Then under $ID(\theta, \mu, \lambda)$ we have:
+    %
+    \[\P(|M_{uv||xy}| > t) \leq 2\exp\left(- \frac{\lambda}{\mu} \min\{\eta_{uv}, \eta_{xy}\}  \cdot h\left( \frac{\lambda}{\mu}\sqrt{\frac{t}{\eta_{uv} \eta_{xy}}}\right)\right)\]
+    %
+    \noindent where $h(t) := t\log(t) - t + 1.$
+    
+\end{lemma}
+%
+\noindent In particular, if we take a weighted average over
+ independent characters:
+%
+\[S_q := \sum_{i=1}^n w_i |M^{(c_i)}_q|\]
+%
+\noindent we get the following corollary:
+
+\begin{corollary}
+
+    \[\P(S_q > t) \leq \]
+\end{corollary}
+
+\noindent Namely, since we have heavy-tails, 
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Bipartition Covers
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage 
+\section{A Restricted Search-Space}
+
+\noindent As we discussed in the introduction, the exact version of ASTRAL~\eqref{eqn:astral_quartet_support_optimization_problem}
+becomes intractable to solve even for trees with a modest number of leaves. Instead, we must construct a 
+set $\cX$ of bipartitions which will limit the search space for the true tree $\cT$, which is the content of this section. 
+
+To this effect, one useful class of sets when it comes to building $\cX$ are the leaf sets:
+%
+\[L_\alpha := \{\text{leaves }\ell : \alpha \in c(\ell)\}\]
+%
+\noindent Say a subset $L \subseteq S$ of leaves is \textit{contained} within a given bipartition $\phi := (A|B)$ if:
+%
+\[L_\alpha \subseteq A \qquad \text{or} \qquad L_\alpha \subseteq B\]
+%
+It is easy to see for nonhomoplastic states $\alpha \in \Sigma_N $, if $\alpha$ is born
+ on the edge $e$ and $\phi_e = (A_e | S-A_e)$ is the bipartition this edge 
+ generates in $\cT^*$ then $L_\alpha$ is contained in $\phi_e$. Moreover, if no
+deaths of $\alpha$ occur after its born then in fact $L_\alpha \in \{A_e, S-A_e\}$. Hence 
+one choice for the candidate bipartitions is
+%
+\[\cX_1 := \{(L^{(c)}_\alpha|S-L_\alpha) : c \in C, \alpha \in \Sigma^{(c)}\}\]
+%
+\noindent At stationarity, we typically have around $\lambda \mu^{-1}$ states in each leaf,
+so roughly we can see $|\cX_1| \lesssim k |C| \lambda \mu^{-1}$ grows only linearly in $k$, so its often 
+much smaller than the total $2^k$ number of possible bipartitions. It is easy to see under mild 
+assumptions this alone is sufficient for ensuring statistical consistency, 
+since with positive probability a given non-homoplastic $\alpha$ is born 
+along an edge $e$ and does not die at all. More granullary
+
+% bipartition cover bound
+\begin{theorem}[Bipartition Cover Bounds for Canby With No Borrowing]
+Let $\cB$ be the set of bipartitions of a phylogenetic tree $\cT$ with $k$ leaves and minimum/maximum branch lengths $T_{min}, T_{max}$ respectively. Suppose further we have a Canby model $\left\{\Sigma^{(c)}, \lambda^{(c)}, \mu^{(c)}, \rho^{(c)}\right\}_{c \in C}$ on $\cT$ with no borrowing and whose rates follow an immigration-death process. Let:
+%
+\[C_N := \{c \in C \; : \; \nu^{(c)}(\Sigma_N^{(c)}) > 0\}\]
+%
+\noindent be the set of characters with positive chance of non-homoplasy. Furthermore, assume we have the following assumptions on the parameters of the Canby model:
+
+\begin{enumerate}
+    
+    \item[(i)] \textit{Nonvanishing Birth Rates:} Suppose that $\lambda^{(c)} \nu^{(c)}(\Sigma_N^{(c)}) \geq b > 0$ for all $c \in C_N$.
+
+    \item[(ii)] \textit{Bounded death rates}: Suppose $\mu^{(c)} \leq D < \infty$ for all $c \in C_N$. 
+\end{enumerate}
+%
+\noindent Then we have exponential convergence of the coverage probability:
+%
+\[\P(\cB \nsubseteq \cX_1)  \leq\sum_{\ell=2}^{k-2} q_\ell^{|C_N|} \leq (k-3)q_{k-2}^{|C_N|}\qquad q_\ell := \exp\left(-bT_{min} \exp\left[-2\ell DT_{max}\right]\right) \]
+%
+\noindent In particular, we have asymptotic consistency when $|C_N| \to \infty$:
+%
+\[\lim_{|C_N| \to \infty} \P(\cB \subseteq \cX_1) = 1,\]
+%
+\label{thm:canby_bipartition_cover_bounds_no_borrowing}
+\end{theorem}
+%
+In particular, this implies if we run the ASTRAL as proposed in \red{identifiability canby paper},
+restricted to the bipartition set $\cX_1$, this is a statistically consistent estimate 
+of the true underlying phylogenetic tree $T$, and that we require $\exp(\Theta(k))$ characters to
+achieve a bipartition cover with high probability. 
+
+However, it is clear that $\cX_1$ is bad at generating large bipartitions.
+ Namely, if $\phi_e = (A|B)$ the probability a 
+  character born in edge $e$ has no deaths is exponentially
+   small in $|A|$. To rectify this, we propose a few heuristics for expanding the size
+    of $\cX_1$ so it has better coverage probabilities. A natural solution
+     is to allow multiple states $\alpha$ to contribute:
+%
+\[\cX_m := \left\{\bigcup_{i=1}^r L_{\alpha_i}^{(c)}  \;: \; c \in C, \alpha_i \in \Sigma^{(c)}, r \leq m\right\}\]
+%
+\noindent It is easy to see that $\cX_n \subseteq \cX_m$ for $n \leq m$, so in
+ particular $\cX_1 \subseteq \cX_m$. Hence asymptotic consistency using $\cX_m$ follows 
+ from that of $\cX_1$. To avoid combining leaf sets from 
+ completely different regions in the tree, we can also consider some sort of compatibility condition like
+ $L_{\alpha_i}^{(c)} \cap L_{\alpha_j}^{(c)} \neq \emptyset$.
+
+Alternatively, we can look for sets $A$ so that $L_\alpha$ takes up ``most''
+ of $A$. Formally, defining some threshold $\tau$ we let
+%
+\[\cX_\tau := \left\{(A|S-A) \; : \; \exists \alpha \; \left(\frac{|A \setminus L_\alpha|}{|A|} < \tau\right)\right\}\]
+%
+\noindent Since $|A| < k$, this allows at most $\tau k$ additions. 
+Hence if we choose $\tau = r/k$ for $r < k$, we limit ourselves to at most $r$ 
+additions. \red{In Section BLANK, we do some empirical analysis to analyze the behavior of these two heuristics;
+we are interested in the sizes of the bipartition sets, and their coverage probabilities.}
+
+
+% Formalizing Heuristic
+\subsection{Formalizing Our Heuristic}
+
+\noindent In this section, we propose various settings in which we can explicitly analyze the performance of our heuristic $X_\tau$
+
+
+\subsubsection{Using Yule Trees}
+\noindent Suppose a given state $\alpha \in \Sigma_N$ is born along an edge $e$. As we progress down the tree, every time we reach a branching point the number times $\alpha$ occurs in the current generation increases by one. When $\alpha$ dies in some branch, it decreases by one. 
+
+Of course, this birth mechanism is completely deterministic and depends on the topology of the unknown species tree. But if we assume the underlying tree is itself generated via some random birth-process, we can explicitly analyze the expected fraction of leaves $\alpha$ reaches.
+
+In particular, if we assume the underlying tree is a Yule tree with $\mathrm{Exp}(\gamma)$ branch lengths, then the number $A_t$ of $\alpha$ alive at a given point in time $t$ below the edge $e$ follows a birth-death process with birth and death rates $\gamma, \mu$ per individual respectively. It is easy to see:
+%
+\[\E A_t = e^{(\gamma - \mu)t}\]
+%
+\noindent If we let $N_t$ be the number of lineages in our yule tree, it is also easy to see:
+%
+\[E N_t = e^{\gamma t}\]
+%
+\noindent so it takes roughly $t_k := \gamma^{-1} \log(k)$ time to reach $k$ lineages. At this time, $\alpha$ occupies a fraction:
+%
+\[\frac{\E M_{t_k}}{\E N_{t_k}} = e^{-\mu t_k} = k^{-\mu/\gamma}\]
+%
+\noindent of the leaves approximately. This suggests choosing $\tau(k) \asymp 1- k^{-\mu/\gamma}$ if we hope to recover the given bipartition with decent probability. 
+
+
+\subsubsection{Worst-Case Topologies}
+Like my previous bipartition paper, we can aim to study the worst-case topologies when it comes to survival and use this as a lower bound for $\tau$. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Alternative ASTRAL procedure
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage 
+\section{Alternative ASTRAL Procedure}
+
+Another inference method, closer in spirit to the original ASTRAL framework, is to let each
+character independently vote on the topology of each quartet. These character-level quartet
+votes then play the role of the quartet information induced by individual gene trees in the
+traditional MSC setting.
+
+More formally, for each character $c_i$ and each quartet
+$q=\{u,v,x,y\}\in\mathcal Q$, define
+\[
+    \tau_q^{(c_i)}
+    :=
+    \arg\max_{t\in\mathcal T_q} |M_t^{(c_i)}|,
+\]
+with ties broken uniformly at random. We then solve~\eqref{eqn:astral_quartet_support_optimization_problem} with 
+quartet supports
+%
+    \[W(q) = \sum_{i=1}^n 1\{\tau_q^{(c_i)} = q\}\]
+%
+This inference scheme is only really reasonable if for 
+each quartet $q \in \cQ$, the correct topology is the most likely one. Namely
+
+\begin{equation}
+    \P(\tau_q^{(c)} = \cT_q^*) > \P(\tau_q^{(c)} = t) \qquad t \neq T_q^*.
+    \label{eqn:anomaly_free_property}
+\end{equation}
+
+\noindent If property~\eqref{eqn:anomaly_free_property} holds for every quartet $q \in \cQ(\cT^*)$,
+we say the Canby model is in the \textit{anomaly-free zone}. When this occurs, the above 
+ASTRAL-based procedure is asymptotically consistent and sample-complexity
+
+\begin{theorem}[Sample Complexity Separate Characters]
+    Suppose we have a collection of $n$ iid characters $\{c_i\}$ in the anomaly-free zone. If
+        \[n > \frac{9}{2\Delta^2} \log\left(\frac{4\binom{k}{4}}{\varepsilon}\right),\]
+        %
+        \noindent where
+        %
+        \[\Delta := \min_{q \in \cQ(\cT^*)} \min_{t \neq \cT_q^*} \left[\P(\tau_q^{(c)} = \cT_q^*) - \P(\tau_q^{(c)} \neq t) \right],\]
+        %
+    \noindent then the above ASTRAL-based procedure recovers $\cT^*$ with probability at least $1-\epsilon$. 
+    \label{thm:sample_complexity_separate_characters}
+\end{theorem}
+
+\noindent The proof is analogous to the proof of Theorem 2.1 in~\cite{shekhar2018_how_many_genes_are_enough}, which union bounds over quartets and
+utilizes simple concentration bounds for the multinomial distribution. 
+
+
+\red{It is natural then to wonder when the anomaly free-zone occurs. The following gives one sufficient condition.}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Sample Complexity
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Sample-Complexity Bounds}
+
+% ave across characters
+\subsection{Averaging Across Characters}
+
+The Canby identifiability paper proposes the following inference scheme:
+
+\begin{enumerate}[label=(\roman*)]
+    \item For each of the $N$ possible quartets $q := (u,v,x,y)$ generate a score for each possible topology:
+    %
+    \[S^q_t := \frac{1}{n} \sum_{i=1}^n |M_{t}^{(c_i)}| \quad for \quad t \in \cT_q := \{uv||xy, ux||vy, uy||vx\} \]
+    %
+
+    \item Let $\tau_q = \arg\max_{t \in \cT_q} S_t^q$ be the topology maximizing the score. Take the collection of quartets $\{\tau_q\}_{q \in \cQ}$. Run ASTRAL on this collection of $N$ quartet topologies. 
+\end{enumerate}
+
+\noindent Note this procedure always generates and runs ASTRAL on $|\cQ| = {k \choose 4}$ quartets, which is independent of the number of characters $n$. First, we show that our individual character scores $M_t^{(c)}$ are nicely concentrated:
+
+\begin{lemma}[Concentration of Scores]
+The counts $M_t^{(c)}$ are \red{todo}
+
+\label{lem:canby_concentration_of_scores}
+\end{lemma}
+
+\begin{proof}[Proof of Lemma \ref{lem:canby_concentration_of_scores}]
+
+\noindent  \red{todo}
+\end{proof}
+
+This easily extends to a concentration for our scores $S_t^q$ \red{todo}.
+
+One potential issue with these scores is that the characters can exist on different scales: some characters may tend to have a lot more nonhomoplastic characters appearing than others. Moreover, some characters may have a much stronger signal than others, which we would somehow like to take advantage of. Namely, we would like to instead take some sort of weighted average score:
+%
+\[\tilde{S}_t^q := \sum_{i=1}^n w_i|M_t^{(c_i)}|, \qquad w_i \geq 0, ||w||_1=1\]
+%
+ To start, we need to develop some control over the expected margin between the species tree topology and the other topologies:
+    %
+    \[\Delta^{(c)}_q := \E |M^{(c)}_{T^*_q}| - \E |M_{t}^{(c)}|, \quad t \in \cT_q \setminus \{T^*_q\}\]
+    %
+
+\begin{lemma}[Expected Margin Lower Bound] \red{Assume the Canby model has immigration-death weights}. Then if $q$ induces a balanced tree in $T^*$: 
+    \[\Delta^{(c)}_q \geq \left(\frac{\lambda_N}{\mu} \right)^2(1-e^{-\mu \ell_{ij}})(1-e^{-\mu \ell_{ik}}) \eta_{ju} \eta_{jv} \eta_{kx} \eta_{ky}   \]
+
+\noindent If $q$ induces a caterpillar tree, then:
+%
+\[\Delta^{(c)}_q \geq  := \eta_{ij} \xi_{jk}\left[\rho_N \cdot \eta_{ri} + \frac{\lambda_N}{\mu}(1-e^{-\mu \ell_{ri}})\right] \cdot \left[\frac{\lambda_N}{\mu} (1-e^{-\mu \ell_{jk}})\right] \cdot \eta_{ju} \eta_{jv} \eta_{kx} \eta_{ky} \]
+
+    \label{lem:canby_expected_margin}
+\end{lemma}
+
+\noindent Namely, the above highlights exactly the quartets that are hard to recover: those where $u,v$ and $x,y$ are far from their respective most recent common ancestors $j,k,$ and where these common ancestors $j,k$ are close to their least common ancestor $i$. 
+
+\red{I think we have to find some way of lower bounding the death probability rather than just upper bounding it, as this is what will allow us to incorporate the lineage being born above the most recent common ancestor $i$}
+
+\begin{proof}[Proof of Lemma \ref{lem:canby_expected_margin}]
+
+Suppose first that the quartet $q = uv || xy$ induces a balanced tree in $T^*$. Let $i, j, k$ denote the internal vertices of this subtree like so:
+
+\begin{center}
+\begin{tikzpicture}[
+  level distance=12mm,
+  level 1/.style={sibling distance=24mm},
+  level 2/.style={sibling distance=14mm},
+  every node/.style={font=\small},
+  edge from parent/.style={draw,-},
+]
+\node (i) {$i$}
+  child { node (j) {$j$}
+    child { node (u) {$u$} }
+    child { node (v) {$v$} }
+  }
+  child { node (k) {$k$}
+    child { node (x) {$x$} }
+    child { node (y) {$y$} }
+  };
+\end{tikzpicture}
+\end{center}
+
+\noindent Let $I := c(i)$ be the set of micro-states at vertex $i$, and likewise for $J,K$. Then:
+%
+\[\E [\Delta_q^{(c)} \mid J, K] = \sum_{(\alpha, \beta) \in \cA(J, K)} \E(I_{uv||xy}(\alpha, \beta) \mid J, K) \]
+%
+\noindent where:
+%
+\[\cA(J, K) = \{(\alpha, \beta) : \alpha\neq\beta \in \Sigma_N, \alpha \in J , \beta \in K, \{\alpha, \beta\} \nsubseteq J \cap K\}\]
+%
+\noindent We see that:
+%
+\[ \cB(J, K) := \{(\alpha, \beta) : \alpha \in J \setminus K, \beta \in K \setminus J \}  \subseteq \cA(J, K)\]
+%
+\noindent For $(\alpha, \beta) \in \cB(J, K)$, by Lemma \ref{lem:death_rate_prob_bounds} we see: 
+%
+\[\E(I_{uv||xy}(\alpha, \beta) \mid J, K) \geq \eta_{ju} \eta_{jv} \eta_{kx} \eta_{ky}\]
+%
+\noindent where $\ell_{ju}$ denotes the length of the branch $(j, u]$, and likewise for $\ell_{jv}, \ell_{kx}, \ell_{ky}$. Again, this is follows from our coupling. Hence:
+%
+\[\E \Delta_q^{(c)} \geq \E |\cB(J, K)| \cdot\eta_{ju} \eta_{jv} \eta_{kx} \eta_{ky}\]
+%
+\noindent Note $(\alpha, \beta) \in \cB(J, K)$ can occur if:
+%
+\begin{enumerate}[label=(\roman*)]
+    \item State $\alpha$ is born along the branch $(i, j]$ and does not die. State $\beta$ is born along the branch $(i, k]$ and does not die. 
+
+    \item State $\alpha$ is born before $i$, dies along $(i,k]$, and survives along $(i, j]$. State $\beta$ is born along the branch $(i, k]$ and does not die. 
+
+    \item State $\beta$ is born before $i$, dies along $(i,j]$, and survives along $(i, k]$. State $\alpha$ is born along the branch $(i, j]$ and does not die. 
+
+    \item  State $\alpha$ is born before $i$, dies along $(i,k]$, and survives along $(i, j]$. State $\beta$ is born before $i$, dies along $(i,j]$, and survives along $(i, k]$.
+\end{enumerate}
+%
+\noindent First, we handle $(i)$. By Lemma \ref{lem:pop_sizes_in_ID_processes}, the number of such $\alpha$ and $\beta$ are at least $\mathrm{Poisson(m_0(\ell_{ij}))}$ and $\mathrm{Poisson(m_0(\ell_{ij}))}$ respectively, and these are clearly independent. This produces on average $m_0(\ell_{ij}) \cdot m_0(\ell_{ik})$ pairs $(\alpha, \beta)$. 
+
+For \red{(ii), (iii), (iv) these require lower bounding the death rate somehow}
+
+\noindent Hence when the subtree induced by the quartet is balanced:
+%
+\[\E |\cB(J, K)| \geq  m_0(\ell_{ij}) \cdot m_0(\ell_{ik}) + \red{\text{other terms}}\]
+%
+\noindent With our above work, this gives the desired bound on $\E \Delta_q^{(c)}$ when the induced subtree is balanced.
+
+If the subtree induced by $q$ is a caterpillar tree like so:
+
+\begin{center}
+\begin{tikzpicture}[
+  level distance=12mm,
+  level 1/.style={sibling distance=24mm},
+  level 2/.style={sibling distance=14mm},
+  every node/.style={font=\small},
+  edge from parent/.style={draw,-},
+]
+\node (i) {$i$}
+  child { node (u) {$u$}}
+  child { node (j) {$j$}
+    child { node (v) {$v$} }
+    child { node (k) {$k$} 
+        child { node (x) {$x$} }
+        child { node (y) {$y$} }
+    }
+  };
+\end{tikzpicture}
+\end{center}
+
+\noindent Then we saw:
+%
+\[\E [\Delta_q^{(c)} \mid I, J, K] = \sum_{(\alpha, \beta) \in \tilde{\cA}(I, J, K)} \E(I_{uv||xy}(\alpha, \beta) \mid I, J, K) \]
+%
+\noindent where:
+\[\tilde{\cA}(I, J, K) = \{(\alpha, \beta) : \alpha\neq\beta \in \Sigma_N, \alpha \in I \cap J , \beta \in K, \{\alpha, \beta\} \nsubseteq J \cap K\}\]
+%
+\noindent Again, we see this set contains:
+%
+\[ \tilde{\cB}(I, J, K) := \{(\alpha, \beta) : \alpha \in (I \cap J) \setminus K, \beta \in K \setminus J \} \]
+%
+For $(\alpha, \beta) \in \tilde{\cB}(I, J, K)$ we see $(\alpha,\beta) \in M_{uv||xy}$ if and only if:
+
+\begin{itemize}
+    \item $\alpha$ survives on $(i, u]$ and $(j, v]$.
+    \item $\beta$ survives on $(k,x]$ and $(k,y]$
+\end{itemize}
+
+\noindent so again by Lemma \ref{lem:death_rate_prob_bounds}:
+%
+\[\E(I_{uv||xy}(\alpha, \beta) \mid I, J, K) \geq \eta_{iu}\eta_{jv} \eta_{kx} \eta_{ky}\]
+%
+\noindent Note $(\alpha, \beta) \in \tilde{B}(I,J,K)$ can occur if:
+%
+\begin{enumerate}[label=(\roman*)]
+    \item $\alpha$ is born before $i$, survives along $(i, j]$ and dies on $(j,k]$. $\beta$ is born on $(j,k]$ and survives until $k$. 
+
+   \item \red{idk if others are worth exploring}
+\end{enumerate}
+
+\noindent Let $r$ denote the root of the tree. Note for $\alpha$, any non-homoplastic state born at the root survives to $i$ with probability at least $\eta_{ri}$. Independently from this, we have at least $\mathrm{Poisson(m_0(\ell_{ri})})$. Of these, at least a $\eta_{ij}\xi_{jk}$ fraction survive until the reach $j$ but die before reaching $k$. Independently of this, at least $\mathrm{Poisson(m_0(\ell_{jk}))}$ non-homoplastic states $\beta$ are born along $(j,k]$ and do not die on this branch. Hence if we let $\rho_N := \E |c(r) \cap \Sigma_N|$ be the expected number of non-homoplastic states present at the root:
+%
+\[\E |\tilde{B}(I,J,K)| \geq \eta_{ij} \xi_{jk}\left[\rho_N \cdot \eta_{ri} + \frac{\lambda_N}{\mu}(1-e^{-\mu \ell_{ri}})\right] \cdot \left[\frac{\lambda_N}{\mu} (1-e^{-\mu \ell_{jk}})\right]\]
+%
+
+
+
+\end{proof}
+% END PROOFFFFFF
+
+
+\noindent Using this, we can develop our first sample complexity bound.
+
+\begin{lemma}[Sample Complexity Averaging Characters]
+    Suppose our relative gaps $L_{c} / \sigma_c \geq \alpha$. Then if we have at least:
+    %
+    \[n \geq 2\alpha^2 \log\left(\frac{2{k\choose 4}}{\delta}\right) = O(\alpha^2 \log(k))\]
+    %
+    \noindent independent characters sampled under the Canby model with \red{immigration-death rates}, we recover the true species tree with probability at least $\delta$. 
+    \label{lem:sample_complexity_averaging_across_characters}
+\end{lemma}
+
+\begin{proof}[Proof of Lemma \ref{lem:sample_complexity_averaging_across_characters}]
+    If for each quartet $q$ the topology maximizing the score $\tilde{S}_t^q$ is the correct topology, then ASTRAL will trivially return the correct species tree $T^*$, as the set of topologies $\{\tau_q\}_{q \in \cQ}$ will exactly match those generated by the species tree $T^*$. Hence if $\hat{T}$ is the output of this inference procedure, by union bound:
+    %
+     \[\P(\hat{T} = T^*) \geq 1 - \sum_{q \in \cQ} \P(\tilde{\tau}_q \neq T^*_q)\]   
+    %
+    \noindent where $T^*_q$ is the topology of the given quartet occurring in the actual species tree. Hence it suffices to upper bound $p_q := \P(\tilde{\tau}_q \neq T^*_q)$. Define our average margin as:
+    %
+    \[\overline{\Delta^w_q} := \E(\tilde{S}_{T_q^*}^q - \tilde{S}^q_t) = \sum_{i=1}^{n} w_i\Delta_q^{(c_i)}\]
+    %
+    
+     \noindent Then the subgaussianity of Lemma \ref{lem:canby_concentration_of_scores} implies for $t \in \cT_q \setminus \{T_q^*\}$ we have:
+    %
+    \[\P(\tilde{S}_t^q > \tilde{S}_{T^*_q}^q) = \P((\tilde{S}_t^q - \tilde{S}_{T^*_q}^q) - \E(\tilde{S}_t^q - \tilde{S}_{T^*_q}^q) > \overline{\Delta}_q) \leq \exp\left(-\frac{\overline{\Delta}_q^2}{2\sum_{i=1}^n w_i^2\sigma_{c_i}^2}\right) \]
+    %
+    \noindent Using our margin bounds from Lemma \ref{lem:canby_expected_margin}:
+    %
+    \[ \leq \exp\left(-\frac{\left(\sum_{i=1}^n w_i L_{(c_i)}\right)^2}{2\sum_{i=1}^n w_i^2\sigma_{c_i}^2}\right)\]
+    %
+    \noindent By Cauchy-Schwarz, the choice of $w$ which minimizes this is precisely $w^*_i \propto \frac{L_{(c_i)}}{\sigma_{(c_i)}^2}$. Hence we see:
+    %
+    \[\leq \exp\left(-\frac{1}{2} \sum_{i=1}^n [L_{(c_i)}/\sigma_{(c_i)}]^2 \right)\]
+    %
+    \noindent From here, by union bounding over the two incorrect topologies and all quartets $q \in \cQ$:
+    %
+    \[\P(\hat{T} = T) \geq 1 - 2 |\cQ|\exp\left(-\frac{1}{2}\sum_{i=1}^n [L_{(c_i)}/\sigma_{(c_i)}]^2\right)\]
+    %
+    \noindent Since $|\cQ| = {k \choose 4}$, inverting gives the desired result. 
+\end{proof}
+
+\red{In fact we can maybe say something slightly stronger. We know that there is no different tree which disagrees on less than $k-3$ quartets with $T^*$. Hence we can make some errors on the quartets here. But this is a pretty small fraction of the total $O(k^4)$ so I doubt it matters}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Appendix
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Appendix}
+
+%%%%%%%%%%%%%%%%%%%%%
+% Properties of Immigration-Death Processes
+%%%%%%%%%%%%%%%%%%%%%
+\subsection{Properties of Immigration-Death Processes}
+
+Let $\mathrm{ID}(\theta, \mu, \lambda)$ denote an immigration-death process $Y_t$ with $|Y_0| \sim \mathrm{Poisson}(\theta)$, birth rate $\lambda$, and death rate $\mu$ per individual. We start by understanding the population size in such a process. 
+
+\begin{lemma}[Population Sizes in ID Processes]
+    If $(Y_t)_{t \geq 0} \sim \mathrm{ID}(\theta, \mu, \lambda)$ then: 
+    %
+    \[|Y_t| \sim \mathrm{Poisson}(m(t)), \quad m(t) = \theta e^{-\mu t} + \frac{\lambda}{\mu}(1-e^{-\mu t}).\]
+    %
+    \noindent In particular, its stationary distribution is $\mathrm{Poisson}(\lambda/\mu)$. Moreover for $s < t$:
+    %
+    \[\E|Y_t \cap Y_s| = m(s) \cdot  e^{-\mu (t-s)}\]
+    %
+    \label{lem:pop_sizes_in_ID_processes}
+\end{lemma}
+
+\begin{proof}
+    Kolmogorov's forward equations tell us:
+    %
+    \[\frac{d}{dt}p_k = \lambda p_{k-1} + \mu (k+1) p_{k+1} - (k\mu + \lambda) p_{k}, \quad p_k(0) = \frac{e^{-\alpha} \alpha^k}{k!}\]
+    %
+\noindent It is easy to see the Poisson probabilities $p_k(t) =  \frac{e^{-m(t)}m(t)^k}{k!}$ satisfy these equations, and hence $X(t) \sim \mathrm{Poisson}(m(t))$. The covariance formula follows from the fact:
+\[Y_t = \mathrm{Binomial}(X_s, e^{-\mu (t-s)}) + Z, \quad |Z| \sim \mathrm{Poisson}(m_0(t-s))\]
+\noindent where these two terms are independent. The formula follows from the law of total covariance. 
+\end{proof}
+
+\noindent It will be important to know how much time the Canby model spends with just a single state. For this purpose, it will be important to know how long it takes to go down from $n$ states to one. Since the dynamics of the ID process and Canby model essentially agree when there are more than one state, this reduces to studying the hitting times of our ID process. 
+
+\begin{lemma}[Hitting Times in ID Process] Let:
+%
+\[\tau_n := \inf\{t > 0 : |Y_t| = 1\}\]
+%
+\noindent conditional on $|Y_0| = n$. Then: 
+    %
+    \[\E \tau_2 = \frac{\mu}{\lambda^2}(e^{\lambda / \mu} - 1 - \lambda/\mu)\]
+    %
+\noindent Moreover, its Laplace transform satisfies:
+%
+\[\frac{2\mu}{\lambda + 2\mu + s}\leq \E e^{-s\tau_2} \leq \frac{\lambda + 2\mu}{\lambda + 2\mu + s}\]
+%
+\end{lemma}
+
+\red{cite the book Birth and Death BDP process with Applications.}
+
+\begin{proof}
+    Let $w_n := \E \tau_n$. Note by conditioning on the time of the first event we see:
+    %
+    \[w_n = \frac{1}{\lambda + n\mu} \left[1 + \lambda w_{n+1} + n\mu w_{n-1}\right], \quad w_1 = 0\]
+    %
+    \noindent 
+
+    Next control the Laplace transform $\phi_n(s) := \E e^{-s \tau_n}$. We will rely on the classical relation between the Laplace transform of birth-death processes and continued fractions \red{cite something}. Conditioning on the first event time (either a birth or a death) we see:
+    %
+    \[\phi_n = \frac{\lambda}{\lambda + n \mu} \cdot \phi_{n+1} + \frac{n\mu}{\lambda + n \mu} \cdot \phi_{n-1}, \qquad \phi_1 \equiv 1\]
+    %
+    \noindent Noting that $\phi_3 \in [0,1]$ gives the desired bound on $\phi_2$. More generally, this gives an upwards recurrence for the ratios $r_n := \frac{\phi_n}{\phi_{n-1}}$ where $r_2 := \phi_2$:
+    %
+    \[r_n = \frac{n\mu}{\lambda + n\mu + s - \lambda r_{n+1}} \]
+    %
+    \noindent Iterating gives the continued fraction expansion:
+    %
+    \[r_{n} = \frac{n\mu}{\lambda + n\mu + s - \frac{\lambda(n+1)\mu}{\lambda + (n+1)\mu + s - ...}} \]
+    %
+    \noindent We can truncate this at even or odd convergents to get lower and upper bounds respectively on $r_n$. From these, we can bound $\phi_n(s) = \prod_{k=2}^n r_k$. 
+\end{proof}
+
+\noindent Note that the above implies in the low-polymorphism regime $\lambda \ll \mu$, we get $\E \tau_2 = \frac{1}{2\mu} + O(\lambda/\mu^2)$. 
+
+\red{todo}
+
+
+%%%%%%%%%%%%%%%%%%%%
+% Proof Appendix
+%%%%%%%%%%%%%%%%%%%%
+\subsection{Proof Appendix}
+\label{app:canby_model_proofs}
+
+%%%%%%%%%%%%%%%
+% Stationarity distribution Canby Cardinality Process
+%%%%%%%%%%%%%%%
+\begin{proof}[Proof of Lemma \ref{lem:stationary_dist_state_cardinality_process}]
+    This process is reversible, so by detailed balanced:
+    %
+        \[\pi_{i+1}(i+1)\mu = \lambda \pi_i, \quad \forall i \geq 1\]
+    %
+    \noindent Recursively applying this shows $\pi_i \propto \frac{(\lambda/\mu)^i}{i!}$ as desired.
+\end{proof}
+
+%%%%%%%%%%%%%%%
+% Canby Death Rate Bounds
+%%%%%%%%%%%%%%%
+\begin{proof}[Proof of Lemma \ref{lem:death_rate_prob_bounds}]
+    Suppose along the given branch we spent a fraction $\tau \in [0,1]$ of the time with at least two states, whose distribution implicitly depends on $n,T$. Then if $\alpha$ is a state present at time zero:
+    %
+    \[\P(\alpha \text{ survives along branch} \mid \tau) = e^{-\mu T \cdot  \tau}\]
+    %
+    \noindent Hence the survival probability depends only on the Laplace transform $\phi$ of $\tau$:
+    %
+        \[\P(\alpha \text{ survives along branch}) = \phi(\mu T)\]
+    %
+    \red{For now we add two simple bounds, hopefully to improve later.} Trivially $\tau \leq 1$, which gives the upper bound. For the lower bound, note that $p_{n,T}$ is increasing in $n$ by a simple coupling argument. Hence WLOG we assume $n=1$. One way for $\alpha$ to die in this setting is for another state $\beta$ to be born at time $\gamma \sim \mathrm{Exp}(\lambda)$. The first of these two states dies by time $T$ with probability $1-e^{-2\mu(T-\gamma)}$ and the death is equally likely to be $\alpha$ or $\beta$. Hence:
+    %
+    \[p_{n,T} \geq \frac{1}{2} \cdot \int_0^T (1-e^{-2\mu (T-\gamma)}) \lambda e^{-\lambda \gamma} d\gamma = \frac{1}{2}\left[(1-e^{-\lambda T}) -  \frac{\lambda(e^{- \lambda T} - e^{-2\mu T})}{2\mu - \lambda}\right] \]
+    %
+    \noindent An even simpler bound is:
+    %
+    \[p_{n,T} \geq \frac{1}{2} (1-e^{-\lambda T/2}) (1-e^{-\mu T})\]
+    %
+    \noindent which is the probability we have a birth of some state $\beta$ by time $T/2$, a death of either $\alpha, \beta$ in the remaining time $T/2$, and that this death is $\alpha$. 
+\end{proof}
+
+%%%%%%%%%%%%%%%
+% M_{uv|xy} tail bound
+%%%%%%%%%%%%%%%
+\begin{proof}[Proof of the quartet-support tail bound]
+    Note that:
+    %
+        \[M_{uv||xy} \subseteq \{(\alpha, \beta) : \alpha \in  U \cap V, \beta \in X \cap Y\} = (U \cap V) \times (X \cap Y)\]
+    %
+    \noindent Suppose that $w, z$ are the most recent common ancestors of $u,v$ and $x,y$ respectively. Since $\theta < \frac{\lambda}{\mu}$, Lemma \ref{lem:pop_sizes_in_ID_processes} implies that $|Z|, |W| \leq_{st} \mathrm{Poisson}(\frac{\lambda}{\mu})$. Poisson-thinning and a coupling argument imply:
+    %
+    \[|U \cap V| \leq_{st} \mathrm{Poisson}\left(m_{uv}\right), \quad  m_{uv} := \frac{\lambda}{\mu} \cdot \eta_{uv},\]
+    %
+    \noindent and analogously for $|X \cap Y|$. Chernoff's implies:
+    %
+    \[\P(\mathrm{Poisson}(m) \geq mt) \leq \exp(-m h(t)), \]
+    %
+    \noindent By union bound, for any $\gamma > 0$:
+    %
+    \[\P(|M_{uv||xy}| > t) \leq \P(|U \cap V| \geq \gamma\sqrt{t}) + \P(|X \cap Y| \geq \gamma^{-1}\sqrt{t}).\]
+    %
+    \noindent Setting $\gamma = \sqrt{m_{uv} /m_{xy}}$ weights the two terms according to their means, giving:
+    %
+    \[\leq \exp\left(-m_{uv} h \left(\sqrt{\frac{t}{m_{uv} m_{xy}}}\right)\right) + \exp\left(-m_{xy} h \left(\sqrt{\frac{t}{m_{uv} m_{xy}}}\right)\right)\]
+    %
+    \noindent from which the desired bound directly follows. 
+\end{proof}
+
+\begin{proof}[Proof of the weighted-score corollary]
+    Note that $S_q \leq n \max_i (w_i |M_q^{(c_i)}|)$. Thus independence implies:
+
+    \[\P(S_q \leq t) > \prod_{i=1}^n\]
+\end{proof}
+
+
+%%%%%%%%%%%%%%%
+% Bipartition Cover Bounds
+%%%%%%%%%%%%%%%
+\begin{proof}[Proof of Theorem \ref{thm:canby_bipartition_cover_bounds_no_borrowing}]
+
+Fix an edge $e \in E(\cT)$ with $k_e$ descendants and a given character $c$. For ease of notation, we drop all the $(c)$ superscripts for now. If $\phi_e$ is the corresponding bipartition, we will lower bound the probability that $\phi_e = (L_\alpha|S-L_\alpha)$ for some $\alpha \in \Sigma$.
+
+First, note that as the birth-rate is constant the number $N_e$ of non-homoplastic states born along the edge $e$ satisfies:
+%
+\[N_e \sim \mathrm{Poisson}(\lambda T_e \cdot \nu(\Sigma_N)) \succeq_{st} Poisson(\eta) \qquad \eta := \lambda T_{min} \nu(\Sigma_N)\]
+%
+\noindent where $T_e$ is the length of the branch $e$ and $T_{min}$ the minimum branch length in the tree. 
+
+For a given non-homoplastic $\alpha$ born along the edge $e$, we can lower bound the probability it has no deaths below $e$. By Lemma \ref{lem:death_rate_prob_bounds} the probability $\alpha$ survives along a branch of length $T$ is at least $\exp(-\mu T)$. There are $2k_e - 1 \leq 2k_e$ edges (including $e$) that $\alpha$ can die on. Each is at most length $T_{max}$, so we can lower bound the probability $\alpha$ has no deaths at all by:
+%
+\[\P(\alpha \text{ has no deaths} \; |\alpha \in \Sigma_N, \alpha \text{ born on e}) \geq \exp(- \tau_{k_e}) \qquad \tau_{k_e} := 2\mu k_e T_{max}\]
+%
+\noindent Using this result followed by $N_e \succeq_{st} \mathrm{Poisson}(\eta)$ we see:
+%
+\[\P(\exists\alpha \; \phi_e = (L_\alpha, S-L_\alpha)) \geq \E_{n \sim N_e} \left(1-(1-\exp(-\tau))^n\right) \geq 1-\exp(-\eta e^{-\tau})\]
+%
+ From here, we can essentially piggy-back off my bipartition cover paper for the multispecies coalescent model. Namely, the caterpillar bound applied to our $|C|$ characters implies:
+%
+\[\P(\cB \subseteq \cX_1) \geq 1 - \sum_{\ell=2}^{k-2} \prod_{c \in C}\exp\left(-\eta^{(c)} e^{-\tau_{\ell}^{(c)}}\right) =  1 - \sum_{\ell=2}^{k-2} \exp\left(-\sum_{c \in C}\eta^{(c)} e^{-\tau_{\ell}^{(c)}}\right)\]
+%
+\noindent Note none of the above uses our boundedness assumptions on the birth or death rates $\lambda^{(c)}, \mu^{(c)}$. Using these assumptions on the birth and death rates, we see:
+%
+\[\P(\cB \subseteq \cX_1) \geq 1 - \sum_{\ell=2}^{k-2}q_\ell^{|C_N|} \geq 1-(k-3)q_{k-2}^{|C_N|} \qquad q_\ell := \exp\left(-bT_{min} \exp\left[-2\ell DT_{max}\right]\right)\]
+%
+\noindent Hence we get the desired exponential convergence of the converge probability.
+\end{proof}
+% endproof
+
+%%%%%%%%%%%%%%%
+% Sample complexity bounds for new ASTRAL procedure
+%%%%%%%%%%%%%%%
+\begin{proof}[Proof of Theorem~\ref{thm:sample_complexity_separate_characters}]
+    We mimic the proof of Theorem 2.1 in~\cite{shekhar2018_how_many_genes_are_enough}. First, if for every quartet $q\in\cQ$ the modal topology among
+    $\{\tau_q^{(c_i)}\}_{i=1}^n$ is the true topology $\cT_q^*$, then exact ASTRAL returns
+    the true tree $\cT^*$. Hence it suffices to union bound over quartets. Let $E_q$ denote
+    the event that the true topology is not modal for quartet $q$.
+
+    Fix a quartet $q$, and let $t_1,t_2$ denote the two incorrect topologies. Set
+    \[
+        p_q := \P(\tau_q^{(c)}=\cT_q^*),
+        \qquad
+        r_{t_i} := \P(\tau_q^{(c)}=t_i),
+    \]
+    \noindent By the anomaly-free property,
+    $p_q>r_{t_i}$. Let
+    \[
+        \Delta_q := p_q-r_q,
+        \qquad
+        \Delta := \min_{q\in\cQ}\Delta_q >0.
+    \]
+    For this fixed quartet, let
+    \[
+        (N_*,N_1,N_2)\sim \mathrm{Mult}(n;p_q,r_q,r_q)
+    \]
+    count the number of characters assigning the true topology and the two incorrect
+    topologies.
+
+    Fix any $w<\Delta_q/3$, and define
+    \[
+        A_q := \left\{\frac{N_*}{n}\in(p_q-w,p_q+w)\right\},
+    \]
+    and
+    \[
+        B_{q,j}:=\left\{\frac{N_j}{n}\in(r_q-w,r_q+w)\right\},
+        \qquad j=1,2.
+    \]
+    If $A_q\cap(B_{q,1}\cup B_{q,2})$ occurs, then the true topology is modal.
+    Hence, by a union bound and Hoeffding's inequality,
+    \[
+        \P(E_q)
+        \leq
+        \P(A_q^c)+\P(B_{q,1}^c)
+        \leq
+        4\exp(-2nw^2).
+    \]
+    Taking $w$ arbitrarily close to $\Delta_q/3$ gives
+    \[
+        \P(E_q)
+        \leq
+        4\exp\left(-\frac{2n\Delta_q^2}{9}\right)
+        \leq
+        4\exp\left(-\frac{2n\Delta^2}{9}\right).
+    \]
+
+    \noindent Finally, union bounding over all $\binom{k}{4}$ quartets,
+    \[
+        \P(\widehat{\cT}\neq \cT^*)
+        \leq
+        4\binom{k}{4}
+        \exp\left(-\frac{2n\Delta^2}{9}\right).
+    \]
+    Thus, to recover $\cT^*$ with probability at least $1-\varepsilon$, it suffices that
+    \[
+        n
+        >
+        \frac{9}{2\Delta^2}
+        \log\left(
+            \frac{4\binom{k}{4}}{\varepsilon}
+        \right).
+    \]
+\end{proof}

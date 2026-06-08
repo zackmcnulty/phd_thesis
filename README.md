@@ -39,6 +39,7 @@ make self-balancing-sampling
 make sym-max-fair-values
 make entropy-regularized-opt-control
 make exch-array-processes
+make canby
 ```
 
 To remove generated build files:
@@ -46,4 +47,3 @@ To remove generated build files:
 ```sh
 make clean
 ```
-

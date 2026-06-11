@@ -730,6 +730,7 @@ by\par
 \usetikzlibrary{shapes.geometric}
 \RequirePackage{subcaption}
 \RequirePackage{caption}
+\RequirePackage{appendix}
 \RequirePackage{enumitem}
 \RequirePackage[natbib=true]{biblatex}
 \AtBeginBibliography{\sloppy}

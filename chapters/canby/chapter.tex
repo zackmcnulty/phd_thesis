@@ -847,9 +847,56 @@ Let $\mathrm{ID}(\theta, \mu, \lambda)$ denote an immigration-death process $Y_t
 % Quartet Supports under ID(theta, lam, mu)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{lemma}
-    
+\noindent The following shows that our quartet supports $|M_{uv||xy}|$ take a particularly simple form
+under the ID process coupling. 
+
+\begin{lemma}[Quartet Supports under ID Process]
+    Suppose $Y_t \sim ID(\theta, \lambda, \mu)$ on the underlying tree $\cT^*$. For any subset $\cL$
+    of the leaves of $\cT^*$, for each $A \subseteq \cL$ define
+    %
+        \[N_A^\cL := \left|\left(\bigcap_{\ell \in A} \{\alpha \in Y_\ell\}\right) \cap \left(\bigcap_{\ell \notin A} \{\alpha \notin Y_\ell\}\right) \right|\]
+    %
+    \noindent the number of states $\alpha$ which appear exactly in the set of leaves $A$, among 
+    those in $\cL$. Then $\{N_A^{\cL}\}_{A \subseteq \cL}$ are mutually independent Poisson random 
+    variables. In particular, for $s = \{u,v,x,y\}$ this implies
+    %
+        \[|M_{uv||xy}| = N^{(s)}_{uv} \cdot N^{(s)}_{xy},\]
+    %
+    \noindent is the product of two independent Poisson random variables.
+    \label{lem:quartet_supports_under_ID_process}
 \end{lemma}
+
+\noindent In particular, \red{analyze}. This Lemma makes analyzing the expected margin
+%
+    \[\Delta_t := \E |M_{\cT^*_s}| - \E |M_t|, \quad t \in A_s \setminus \{\cT_s^*\},\]
+%
+\noindent particularly easy under the $ID(\theta, \lambda, \mu)$ process: we just must try to 
+understand the means $m^{(s)}_{uv}$ of these Poisson random variables $N^{(s)}_{uv}$. Calculating these exactly 
+can be challenging, but Lemma~\ref{lem:pop_sizes_in_ID_processes} gives a simple upper bound
+%
+    \[m_{uv}^{(s)} \leq \theta \vee \frac{\lambda}{\mu}.\]
+%
+\noindent In Lemma~\ref{lem:canby_concentration_of_scores} below, we provide a slightly more granular bound.
+
+
+\begin{proof}[Proof of Lemma \ref{lem:quartet_supports_under_ID_process}]
+    Fix a point $x \in cT^*$. For any states $\alpha$ born at $x$, we see that
+    $\alpha \in N_A^{\cL}$ for some $A \subseteq \cL$. For fixed tree topology $\cT^*$ and model
+    parameters $\theta, \lambda, \mu$, the probability $p_x(\alpha \in N_A^{\cL})$
+    it lands in a particular one of these sets depends only on the location $x$, and is 
+    independent of the birth-process itself and any other states. 
+
+    The number of states born along the tree form a Poisson point process
+    with intensity
+    %
+        \[\nu(dz) := \theta \delta_r(dz) + \lambda dz,\]
+    %
+    where $r$ is the root and \(dz\) denotes length measure on the branches of \(\cT^*\).
+    Kingman's marking theorem then implies that the marked process forms a Poisson
+    point process on $\cT^* \times \{A : A \subseteq \cL\}$ with intensity $\nu(dz) p_x(dm)$. See, 
+    for example, the chapter on marked Poisson processes in \cite{Kingman_poisson_processes}.
+    The desired result then follows immediately.
+\end{proof}
 
 %%%%%%%%%%%%%%%
 % M_{uv|xy} tail bound

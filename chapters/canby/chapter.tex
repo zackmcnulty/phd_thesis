@@ -357,7 +357,20 @@ Heuristically, this coupling well-approximates the non-homoplastic states of the
 state, and when there is little homoplasy so the renormalization of $\nu$ does not drammatically affect the birth-rate of non-homoplastic states over time. 
 
 In Appendix~\ref{app:canby_id_proofs}, we collect some properties of these immigration-death processes which will be useful for
-analyzing the Canby model. 
+analyzing the Canby model. In particular, the following corollary of Lemma~\ref{lem:quartet_supports_under_ID_process}
+will be particularly useful.
+
+\begin{corollary}
+    Under the coupled $ID(\theta, \mu, \lambda)$ process, the quartet supports
+    %
+        \[|M_{uv||xy}| = N_{uv} \cdot N_{xy}\]
+    %
+    \noindent equals the product of two independent Poisson random variables.
+\end{corollary}
+
+\noindent Hence, bounding the supports reduces to understanding
+these Poisson random variables.
+
 
 %%%%%%%%%%%%%%%%%%%%%
 % properties of Canby Model
@@ -663,11 +676,11 @@ bound~\ref{lem:canby_concentration_of_scores}.
 
 \begin{lemma}[Sample Complexity PCH-ASTRAL under ID Process]
     Suppose we have a collection $\{c_i\}_{i=1}^n$ of iid characters whose multi-states are distributed according to the 
-    $ID(\theta, \mu, \lambda)$ process we discussed above ran on the tree $\cT^*$. Let
+    $ID(\theta, \mu, \lambda)$ process we discussed above ran on the tree $\cT^*$. Let $\zeta = \theta \vee \frac{\lambda}{\mu}$ and
     %
-    \[\kappa := \max_{s\in {[k]\choose 4}} \max_{uv\|xy\in A_s}\left(1+\frac{\lambda}{\mu}\eta_{uv}\right)\left(1+\frac{\lambda}{\mu}\eta_{xy}\right),\]
+    \[\kappa := \max_{s\in {[k]\choose 4}} \max_{uv\|xy\in A_s}\left(1+\zeta\eta_{uv}\right)\left(1+\zeta\eta_{xy}\right),\]
     %
-    \noindent and our worst-case margin
+    \noindent and define our worst-case margin
         \[
             L:=\min_{s\in {[k]\choose 4}}\min_{t\in A_s\setminus\{\cT_s^*\}}\E\left[|M_{\cT_s^*}|-|M_t|\right].
         \]
@@ -680,10 +693,13 @@ bound~\ref{lem:canby_concentration_of_scores}.
 \end{lemma}
 
 \noindent As discussed in the proof, the parameter $\kappa$ in a sense measures how heavy-tailed the support sizes $|M_{uv||xy}|$ are. 
-It has the trivial upper bound $\kappa \leq (1 + \lambda \mu^{-1})^2$, which is a function merely of the expected number of
+It has the trivial upper bound $\kappa \leq (1 + \zeta)^2$, which is a function merely of the expected number of
 states in a leaf of the $ID(\theta, \lambda, \mu)$ process. Hence the worst-case margin $L$ is the main parameter
 of interest. Analogous to Lemma~\ref{lem:canby_expected_margin}, under $ID(\theta, \mu, \lambda)$ we can lower bound $L$ 
 purely in terms of the underlying model parameters. 
+
+
+\red{Improve this section below.}\\
 
 The worst-case margin $L$ certainly depends on the topology of $\cT^*$, although we can roughly analyze
 Lemma~\ref{lem:canby_expected_margin} to generate a heuristic topology-free bound. If $f$ is the minimal branch
@@ -720,6 +736,7 @@ Future Directions
           the example provided in \cite{shekhar2018_how_many_genes_are_enough} to see if something similar
           can be used to see if this bound is at all tight. 
     \item Extend some of the results from the $ID(\theta, \lambda, \mu)$ coupled process to the full chain. 
+    \item Use the Laplace transform of the hitting times to get more granular bounds on survival/death probabilities.
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -866,7 +883,7 @@ under the ID process coupling.
     \label{lem:quartet_supports_under_ID_process}
 \end{lemma}
 
-\noindent In particular, \red{analyze}. This Lemma makes analyzing the expected margin
+\noindent This Lemma makes analyzing the expected margin
 %
     \[\Delta_t := \E |M_{\cT^*_s}| - \E |M_t|, \quad t \in A_s \setminus \{\cT_s^*\},\]
 %
@@ -874,13 +891,13 @@ under the ID process coupling.
 understand the means $m^{(s)}_{uv}$ of these Poisson random variables $N^{(s)}_{uv}$. Calculating these exactly 
 can be challenging, but Lemma~\ref{lem:pop_sizes_in_ID_processes} gives a simple upper bound
 %
-    \[m_{uv}^{(s)} \leq \theta \vee \frac{\lambda}{\mu}.\]
+    \[m_{uv}^{(s)} \leq \left(\theta \vee \frac{\lambda}{\mu}\right)\eta_{uv}.\]
 %
-\noindent In Lemma~\ref{lem:canby_concentration_of_scores} below, we provide a slightly more granular bound.
-
+\noindent The first term accounts for the number of states reaching the most recent common ancestor of $u,v$, and
+the second term thins these to only those reaching both $u,v$. 
 
 \begin{proof}[Proof of Lemma \ref{lem:quartet_supports_under_ID_process}]
-    Fix a point $x \in cT^*$. For any states $\alpha$ born at $x$, we see that
+    Fix a point $x \in \cT^*$. For any states $\alpha$ born at $x$, we see that
     $\alpha \in N_A^{\cL}$ for some $A \subseteq \cL$. For fixed tree topology $\cT^*$ and model
     parameters $\theta, \lambda, \mu$, the probability $p_x(\alpha \in N_A^{\cL})$
     it lands in a particular one of these sets depends only on the location $x$, and is 
@@ -889,11 +906,11 @@ can be challenging, but Lemma~\ref{lem:pop_sizes_in_ID_processes} gives a simple
     The number of states born along the tree form a Poisson point process
     with intensity
     %
-        \[\nu(dz) := \theta \delta_r(dz) + \lambda dz,\]
+        \[\nu(dx) := \theta \delta_r(dz) + \lambda dz,\]
     %
     where $r$ is the root and \(dz\) denotes length measure on the branches of \(\cT^*\).
     Kingman's marking theorem then implies that the marked process forms a Poisson
-    point process on $\cT^* \times \{A : A \subseteq \cL\}$ with intensity $\nu(dz) p_x(dm)$. See, 
+    point process on $\cT^* \times \{A : A \subseteq \cL\}$ with intensity $\nu(dz) p_x(dA)$. See, 
     for example, the chapter on marked Poisson processes in \cite{Kingman_poisson_processes}.
     The desired result then follows immediately.
 \end{proof}
@@ -903,14 +920,14 @@ can be challenging, but Lemma~\ref{lem:pop_sizes_in_ID_processes} gives a simple
 %%%%%%%%%%%%%%%
 
 \begin{lemma}[Tail Bounds for Quartet Supports]
-    Suppose that $\theta < \frac{\lambda}{\mu}$. Then under $ID(\theta, \mu, \lambda)$ we have:
+    Let $\zeta = \theta \vee \frac{\lambda}{\mu}$. Under $ID(\theta, \mu, \lambda)$
     %
-    \[\P(|M_{uv||xy}| > t) \leq 2\exp\left(- \frac{\lambda}{\mu} \min\{\eta_{uv}, \eta_{xy}\}  \cdot h\left( \frac{\mu}{\lambda}\sqrt{\frac{t}{\eta_{uv} \eta_{xy}}}\right)\right)\]
+    \[\P(|M_{uv||xy}| > t) \leq 2\exp\left(- \zeta \min\{\eta_{uv}, \eta_{xy}\}  \cdot h\left(\zeta^{-1}\sqrt{\frac{t}{\eta_{uv} \eta_{xy}}}\right)\right)\]
     %
     \noindent where $h(t) := (t\log(t) - t + 1) 1\{t \geq 1\}.$ Moreover, $M_{uv||xy}$ is sub-Weibull$(1/2)$
     with Orcliz pseudo-norm associated to $\Phi_{\alpha}(x) = \exp(x^\alpha) - 1$ given by
     %
-    \[||M_{uv||xy}||_{\Psi_{1/2}} \lesssim \left(1 + \frac{\lambda}{\mu} \cdot \eta_{uv} \right) \left(1 + \frac{\lambda}{\mu} \cdot \eta_{xy} \right).\]
+    \[||M_{uv||xy}||_{\Psi_{1/2}} \lesssim \left(1 + \zeta \cdot \eta_{uv} \right) \left(1 + \zeta \cdot \eta_{xy} \right).\]
     %
     \label{lem:canby_concentration_of_scores}
 \end{lemma}
@@ -920,9 +937,10 @@ can be challenging, but Lemma~\ref{lem:pop_sizes_in_ID_processes} gives a simple
     %
         \[M_{uv||xy} \subseteq \{(\alpha, \beta) : \alpha \in  U \cap V, \beta \in X \cap Y\} = (U \cap V) \times (X \cap Y)\]
     %
-    \noindent Suppose that $w, z$ are the most recent common ancestors of $u,v$ and $x,y$ respectively. Since $\theta < \frac{\lambda}{\mu}$, Lemma \ref{lem:pop_sizes_in_ID_processes} implies that $|Z|, |W| \leq_{st} \mathrm{Poisson}(\frac{\lambda}{\mu})$. Poisson-thinning and a coupling argument imply:
+    \noindent Suppose that $w, z$ are the most recent common ancestors of $u,v$ and $x,y$ respectively. Lemma~\ref{lem:pop_sizes_in_ID_processes} 
+    implies that $|Z|, |W| \leq_{st} \mathrm{Poisson}(\zeta)$. Then Poisson-thinning implies
     %
-    \[|U \cap V| \leq_{st} \mathrm{Poisson}\left(m_{uv}\right), \quad  m_{uv} := \frac{\lambda}{\mu} \cdot \eta_{uv},\]
+    \[|U \cap V| \leq_{st} \mathrm{Poisson}\left(m_{uv}\right), \quad  m_{uv} := \zeta \eta_{uv},\]
     %
     \noindent and analogously for $|X \cap Y|$. Chernoff's implies:
     %

@@ -699,8 +699,6 @@ of interest. Analogous to Lemma~\ref{lem:canby_expected_margin}, under $ID(\thet
 purely in terms of the underlying model parameters. 
 
 
-\red{Improve this section below.}\\
-
 The worst-case margin $L$ certainly depends on the topology of $\cT^*$, although we can roughly analyze
 Lemma~\ref{lem:canby_expected_margin} to generate a heuristic topology-free bound. If $f$ is the minimal branch
 length in $\cT^*$ and
@@ -716,11 +714,14 @@ then the margin bounds in Lemma~\ref{lem:canby_expected_margin} roughly become
 %
         \[\Delta_q \gtrsim \lambda^2 \mu f^3 e^{-2\mu d} \left(\rho_N \wedge \frac{\lambda}{\mu}\right), \]
 %
-\noindent when the induced subtree is a caterpillar. 
+\noindent when the induced subtree is a caterpillar. Thus the worst-case margins are dictated by its caterpillar trees,
+and for a tree of a fixed height the bound scales roughly like
 %
-\noindent As we mentioned before, the worst-case o
+    \[n \gtrsim \max\left\{f^{-6} \log(k), \; f^{-3} \log^2(k)\right\},\]
 %
-\red{Analyze the general behavior of the sample complexity I guess.}
+\noindent significantly worse than the $\Theta(f^{-2} \log(k))$ of ASTRAL under the multi-species coalescent model,
+as discussed in \cite{shekhar2018_how_many_genes_are_enough}. Of course, our bound is naturally quite loose, and future 
+improvements may significantly improve the rate.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -798,8 +799,6 @@ Let $\mathrm{ID}(\theta, \mu, \lambda)$ denote an immigration-death process $Y_t
 %
 \end{lemma}
 
-\red{cite the book Birth and Death BDP process with Applications.}
-
 \begin{proof}
     Let $w_n := \E \tau_n$. Note by conditioning on the time of the first event we see:
     %
@@ -807,7 +806,7 @@ Let $\mathrm{ID}(\theta, \mu, \lambda)$ denote an immigration-death process $Y_t
     %
     \noindent 
 
-    Next control the Laplace transform $\phi_n(s) := \E e^{-s \tau_n}$. We will rely on the classical relation between the Laplace transform of birth-death processes and continued fractions \red{cite something}. Conditioning on the first event time (either a birth or a death) we see:
+    Next control the Laplace transform $\phi_n(s) := \E e^{-s \tau_n}$. We will rely on the classical relation between the Laplace transform of birth-death processes and continued fractions. Conditioning on the first event time (either a birth or a death) we see:
     %
     \[\phi_n = \frac{\lambda}{\lambda + n \mu} \cdot \phi_{n+1} + \frac{n\mu}{\lambda + n \mu} \cdot \phi_{n-1}, \qquad \phi_1 \equiv 1\]
     %
@@ -1190,19 +1189,21 @@ Suppose first that the quartet $q = uv || xy$ induces a balanced tree in $\cT^*$
 %
 \noindent We focus solely on $(i)$, as in this case the roles of $J,K$ nicely decouple. By Lemma \ref{lem:pop_sizes_in_ID_processes}, the number of such $\alpha$ and $\beta$ 
 are at least $\mathrm{Poisson(m_0(\ell_{ij}))}$ and $\mathrm{Poisson(m_0(\ell_{ik}))}$ 
-respectively, where $m_0(t) = \frac{\lambda_N}{\mu} \cdot (1-\eta_t)$, and these are 
+respectively, where $m_\theta(t) = \theta e^{-\mu t} + \frac{\lambda_N}{\mu} \cdot (1-\eta_t)$, and these are 
 clearly independent. This produces on average $m_0(\ell_{ij}) \cdot m_0(\ell_{ik})$ pairs $(\alpha, \beta)$. 
 
-In principle, (ii), (iii), (iv) could similarly be calculated using the death-rate lower bound
-found in Lemma~\ref{lem:death_rate_prob_bounds}. The main obstacle is that they require knowledge
-about the number of states $|I|$ reaching the root of this quartet, which depends implicitly on the distribution
-$\rho$ of the macro-state $R$ at the root of $\cT^*$. If we assume $|R \cap \Sigma_N| \sim \mathrm{Poisson}(\theta)$,
-then by Poisson thinning we get contributions
+The contributions from (ii), (iii), (iv) can similarly be calculated using the death-rate lower bound
+found in Lemma~\ref{lem:death_rate_prob_bounds}. If we let $\theta = \E|R \cap \Sigma_N|$ be the expected
+number of non-homoplastic states at the root, then by Poisson thinning we get contributions
 %
 \begin{enumerate}
     \item[(ii)] $m_\theta(\ell_{ri}) \xi_{ik} \eta_{ij} \cdot m_0(\ell_{ik})$. 
     \item[(iii)] $m_0(\ell_{ij}) \cdot m_\theta(\ell_{ri}) \xi_{ij} \eta_{ik} $.
-    \item[(iv)] $m_\theta(\ell_{ri})^2 \xi_{ik} \eta_{ij} \xi_{ij} \eta_{ik}$.
+\end{enumerate}
+
+\noindent If we additionally assume $|R \cap \Sigma_N| \sim \mathrm{Poisson}(\theta)$, then
+\begin{enumerate}
+        \item[(iv)] $m_\theta(\ell_{ri})^2 \xi_{ik} \eta_{ij} \xi_{ij} \eta_{ik}$. 
 \end{enumerate}
 %
 \noindent Formula (iv) comes from the fact that $|I| \sim \mathrm{Poisson}(m_\theta(\ell_{ri}))$, and so there are $\E |I| (|I| - 1) = m_\theta(\ell_{ri})^2$ ordered pairs 
@@ -1268,18 +1269,17 @@ For $(\alpha, \beta) \in \tilde{\cB}(I, J, K)$ we see $(\alpha,\beta) \in M_{uv|
 %
 \[\E(I_{uv||xy}(\alpha, \beta) \mid I, J, K) \geq \eta_{iu}\eta_{jv} \eta_{kx} \eta_{ky}\]
 %
-\noindent Note $(\alpha, \beta) \in \tilde{B}(I,J,K)$ can occur if:
+\noindent Note $(\alpha, \beta) \in \tilde{B}(I,J,K)$ can occur only if $\alpha$ is born before $i$, survives along $(i, j]$ and dies on $(j,k]$,
+and $\beta$ is born on $(j,k]$ and survives until $k$. Let $r$ denote the root of the tree. Note for $\alpha$, any 
+non-homoplastic state born at the root survives to $i$ with probability at least $\eta_{ri}$. Independently from this, we have at 
+least $\mathrm{Poisson(m_0(\ell_{ri})})$ born along the path $[r, i]$. Of these, at least a $\eta_{ij}\xi_{jk}$ fraction survive until they
+ reach $j$ but die before reaching $k$. Independently of this, at least $\mathrm{Poisson(m_0(\ell_{jk}))}$ non-homoplastic states $\beta$ are born 
+ along $(j,k]$ and do not die on this branch. Hence if we let $\rho_N := \E |c(r) \cap \Sigma_N|$ be the expected number of
+  non-homoplastic states present at the root
 %
-\begin{enumerate}[label=(\roman*)]
-    \item $\alpha$ is born before $i$, survives along $(i, j]$ and dies on $(j,k]$. $\beta$ is born on $(j,k]$ and survives until $k$. 
-
-   \item \red{idk if others are worth exploring}
-\end{enumerate}
-
-\noindent Let $r$ denote the root of the tree. Note for $\alpha$, any non-homoplastic state born at the root survives to $i$ with probability at least $\eta_{ri}$. Independently from this, we have at least $\mathrm{Poisson(m_0(\ell_{ri})})$. Of these, at least a $\eta_{ij}\xi_{jk}$ fraction survive until the reach $j$ but die before reaching $k$. Independently of this, at least $\mathrm{Poisson(m_0(\ell_{jk}))}$ non-homoplastic states $\beta$ are born along $(j,k]$ and do not die on this branch. Hence if we let $\rho_N := \E |c(r) \cap \Sigma_N|$ be the expected number of non-homoplastic states present at the root:
+\[\E |\tilde{B}(I,J,K)| \geq \eta_{ij} \xi_{jk}\left[\rho_N \cdot \eta_{ri} + \frac{\lambda_N}{\mu}(1-e^{-\mu \ell_{ri}})\right] \cdot \left[\frac{\lambda_N}{\mu} (1-e^{-\mu \ell_{jk}})\right],\]
 %
-\[\E |\tilde{B}(I,J,K)| \geq \eta_{ij} \xi_{jk}\left[\rho_N \cdot \eta_{ri} + \frac{\lambda_N}{\mu}(1-e^{-\mu \ell_{ri}})\right] \cdot \left[\frac{\lambda_N}{\mu} (1-e^{-\mu \ell_{jk}})\right]\]
-%
+\noindent giving the desired bound. 
 \end{proof}
 % END PROOFFFFFF
 

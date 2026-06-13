@@ -254,8 +254,6 @@ the same distance from the root. When this holds, the supports for the two incor
 \end{corollary}
 
 
-
-
 %%%%%%%%%%%%
 % Summary of contributions
 %%%%%%%%%%%%
@@ -279,7 +277,8 @@ separate by converting each informative character-quartet pair into a single top
  may be more robust in heterogeneous or misspecified settings due to the heavy-tailed nature of the quartet-support 
  distributions.
 
-Lastly, in Section~\ref{sec:pch_astral_sample_complexity}, we develop rudimentary sample complexity bounds for the two ASTRAL-based procedures. 
+Lastly, in Section~\ref{sec:pch_astral_sample_complexity}, we develop rudimentary sample complexity bounds for the two ASTRAL-based procedures
+when characters are sampled under the simplified immigration-death process $ID(\theta, \lambda, \mu)$. 
 We show PCH-ASTRAL requires $O(L^{-2} \log(k) + L^{-1} \log^2(k))$ characters to recover $\cT^*$ with high probability, where
 %
     \[L := \min_{s \in {[k] \choose 4}} \min_{t \in A_s \setminus \{\cT_s^*\}} \E \left[|M_{\cT_s^*}| - |M_t|\right]\]
@@ -738,20 +737,53 @@ improvements may significantly improve the rate.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Discussion and Concluding Remarks 
+% Discussion and Concluding Remarks
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Discussion and Concluding Remarks}
 
-Future Directions
+In this chapter, we developed several potential candidates for bipartition covers which 
+substantially reduce the search space of the original PCH-ASTRAL inference procedure. 
+This modification plausibly expands the scope of PCH-ASTRAL from a few dozen languages 
+to hundreds of languages. Although restricting the search space reduces sample efficiency, 
+we proposed several heuristics designed to mitigate this loss in performance.
 
-\begin{itemize}
-    \item Keep better track of constants in Sample complexity lemma \ref{lem:sample_complexity_pch_astral},
-          and analyze how the sample complexity grows with the parameters of the Canby model. Additionally, explore
-          the example provided in \cite{shekhar2018_how_many_genes_are_enough} to see if something similar
-          can be used to see if this bound is at all tight. 
-    \item Extend some of the results from the $ID(\theta, \lambda, \mu)$ coupled process to the full chain. 
-    \item Use the Laplace transform of the hitting times to get more granular bounds on survival/death probabilities.
-\end{itemize}
+Beyond this, we derived preliminary sample-complexity bounds under the immigration-death 
+process model $ID(\theta,\lambda,\mu)$, both for the original PCH-ASTRAL procedure and for 
+the robustified procedure PCH-ASTRAL(sc). In both cases, the rates depend explicitly on a 
+quartet-level margin measuring the advantage of the correct quartet topology over the 
+incorrect ones. We further gave partial bounds relating these margins to the underlying 
+model parameters.
+
+There are several natural directions for future work. First, one would like to extend the
+ sample-complexity results from the simplified $ID(\theta,\lambda,\mu)$ process to the 
+ full Canby model. The main obstacle is concentration. The immigration-death coupling 
+ provides a convenient lower bound on non-homoplastic state counts, which is enough 
+ for expected-margin estimates, but the concentration argument also requires an 
+ upper bound on macro-state sizes at the leaves. Establishing such an upper bound 
+ for the full Canby process would therefore be an important first step toward extending
+  Lemma~\ref{lem:sample_complexity_pch_astral} beyond the ID approximation.
+
+Second, since the true tree $\cT^*$ is unknown at inference time, it would be useful 
+to develop topology-free sample-complexity bounds depending only on simple geometric
+ parameters of $\cT^*$, such as the minimum branch length, analogous to the results of 
+ \cite{shekhar2018_how_many_genes_are_enough}. Under the ID approximation, the Poisson 
+ means $m_{uv}=\E N_{uv}$ are explicit functions of the model parameters, so more careful
+bookkeeping in Lemma~\ref{lem:sample_complexity_pch_astral} may lead to relatively explicit 
+bounds. 
+
+Third, the anomaly-free condition for PCH-ASTRAL(sc) remains somewhat opaque. Under the ID 
+approximation, the condition reduces to a comparison of independent product-Poisson random 
+variables, and is therefore numerically checkable from the quartet-level means. However, 
+we do not currently have simple geometric sufficient conditions ensuring that the anomaly-free
+ property holds. 
+
+Finally, several refinements of the present analysis should be possible. The margin bounds 
+used here depend on coarse survival and death probability estimates from 
+Lemma~\ref{lem:death_rate_prob_bounds}; sharper estimates, for example using Laplace transforms
+ of hitting times, may yield more granular constants. More extensive empirical simulations 
+ would also be valuable, both to compare PCH-ASTRAL and PCH-ASTRAL(sc) under various 
+ model regimes and to assess how well the theoretical margins predict finite-sample behavior.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Appendix
@@ -835,8 +867,6 @@ Let $\mathrm{ID}(\theta, \mu, \lambda)$ denote an immigration-death process $Y_t
 \end{proof}
 
 \noindent Note that the above implies in the low-polymorphism regime $\lambda \ll \mu$, we get $\E \tau_2 = \frac{1}{2\mu} + O(\lambda/\mu^2)$. 
-
-\red{todo}
 
 %%%%%%%%%%%%%%%
 % Stationarity distribution Canby Cardinality Process

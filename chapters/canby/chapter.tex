@@ -226,7 +226,10 @@ the two alternatives:
 %
 \noindent For each quartet $q$, they define its (empirical) support via
 %
-\[S_q := \frac{1}{n} \sum_{i=1}^n M_q^{(c_i)}.\]
+\begin{equation}
+    S_q := \frac{1}{n} \sum_{i=1}^n |M_q^{(c_i)}|.
+    \label{eqn:quartet_support_averaged}
+\end{equation}
 %
 \noindent For each $s = \{u,v,x,y\} \in {[k] \choose 4}$ they then let
 %
@@ -256,23 +259,37 @@ the same distance from the root. When this holds, the supports for the two incor
 %%%%%%%%%%%%
 % Summary of contributions
 %%%%%%%%%%%%
-\subsection{Contributions}
+\subsection{Summary of Contributions}
 
-We now outline the remainder of the chapter and summarize its main contributions.
+In Section~\ref{sec:basic_results}, we construct a coupling of the Canby model to a simple immigration-death
+process which allows for many direct computatins and will be the basis of most of our rigorous analysis. 
+Using this, we develop some basic properties of both the original Canby model and of this coupled process.
 
-\begin{itemize}
 
-    \item We develop a set $\cX$ of bipartitions that can be used to restrict ASTRAL, 
-    and show that it can (i) be computed in polynomial time, (ii) preserve asymptotic consistency,
-    and (iii) remain small enough to be computationally useful. We propose a simple candidate, as well as
-    several heuristics for improving its empirical coverage. 
+Afterwords, in Section~\ref{sec:bipartition_covers_canby}, we show how the search-space for PCH-ASTRAL can be 
+significantly restricted while maintaining statistical consistency. This vastly improves the run-time of the underlying
+ASTRAL procedure, enabling phylogenetic analysis of hundreds of different languages simultaneously. While the 
+restriction reduces the algorithms sample efficiency, we further introduce two heuristics meant to mitigate this
+degradation in performance.
 
-    \item We develop sample-complexity bounds analogous to \cite{shekhar2018_how_many_genes_are_enough}
-          to quantify how many characters are required to recover the underlying phylogenetic tree
-          with high probability. 
+Following this, in Section~\ref{sec:canby_alternative_astral_procedure}, we explore an alternative ASTRAL-based 
+inference procedure, which we call \textit{PCH-ASTRAL(sc)}. This procedure keeps character-level quartet information 
+separate by converting each informative character-quartet pair into a single topology vote, rather than averaging
+ support magnitudes across characters. While likely less statistically efficient, we argue that PCH-ASTRAL(sc) 
+ may be more robust in heterogeneous or misspecified settings due to the heavy-tailed nature of the quartet-support 
+ distributions.
 
-    \item We introduce an alternative ASTRAL-based inference procedure for Canby-model data.
-\end{itemize}
+Lastly, in Section~\ref{sec:pch_astral_sample_complexity}, we develop rudimentary sample complexity bounds for the two ASTRAL-based procedures. 
+We show PCH-ASTRAL requires $O(L^{-2} \log(k) + L^{-1} \log^2(k))$ characters to recover $\cT^*$ with high probability, where
+%
+    \[L := \min_{s \in {[k] \choose 4}} \min_{t \in A_s \setminus \{\cT_s^*\}} \E \left[|M_{\cT_s^*}| - |M_t|\right]\]
+%
+is the minimal margin the correct quartet topology has over incorrect ones. Similarly, 
+PCH-ASTRAL(sc) requires $O(\Delta^{-2} \log(k))$ \textit{informative} characters, where
+%
+    \[\Delta := \min_{s \in {[k] \choose 4}} \min_{t \in A_s \setminus \{\cT_s^*\}} \left[\P_s(\cT_s^*) - \P_s(t)\right], \quad \P_s(t) := \P\left(t = \argmax_{t' \in A_s} |M_{t'}| \; \Big\vert \; I_s\right).\]
+%
+again gives some notion of the margin. 
 
 
 %%%%%%%%%%%%
@@ -280,9 +297,9 @@ We now outline the remainder of the chapter and summarize its main contributions
 %%%%%%%%%%%%
 \subsection{Notation}
 
-We briefly introduce some notation. Let $\cT^*$ denote the true species tree underlying our Canby model,
+Let $\cT^*$ denote the true species tree underlying our Canby model,
 which has $k$ leaves (species/languages). Given any phylogenetic tree $\cT$, let $\cQ_T$ denote its set of 
-\textit{quartets}, which are the subtrees induced by a collection of four leaves. Hence $|\cQ_T| = {k \choose 4}$.
+\textit{quartets}, which are the subtrees induced by a collection of four leaves. Hence $|\cQ_\cT| = {k \choose 4}$.
 
 We will always use $q = uv || xy$ to denote a quartet, which inherently comes with some (unrooted) topology, and $s = \{u,v,,x,y\}$ 
 to denote its underlying set of four leaves, which may not have a topology. Given a leaf set $s = \{u, v, x, y\}$, we will use 
@@ -304,6 +321,7 @@ In particular, we will use $I := c(i), J := c(j),$ and $K := c(k)$ down below.
 % Basic Results
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Basic Results}
+\label{sec:basic_results}
 
 %%%%%%%%%%%%%%%%%%%%%
 % Coupling to ID Process
@@ -358,19 +376,16 @@ state, and when there is little homoplasy so the renormalization of $\nu$ does n
 
 In Appendix~\ref{app:canby_id_proofs}, we collect some properties of these immigration-death processes which will be useful for
 analyzing the Canby model. In particular, the following corollary of Lemma~\ref{lem:quartet_supports_under_ID_process}
-will be particularly useful.
+shows bounding the quartet-supports reduces to understanding
+some Poisson random variables.
 
 \begin{corollary}
-    Under the coupled $ID(\theta, \mu, \lambda)$ process, the quartet supports
+    Under the coupled $ID(\theta, \mu, \lambda)$ process, the quartet-supports equal
     %
-        \[|M_{uv||xy}| = N_{uv} \cdot N_{xy}\]
+        \[|M_{uv||xy}| = N_{uv} \cdot N_{xy}, \quad |M_{ux||vy}| = N_{ux} \cdot N_{vy}, \quad |M_{uy||vx}| = N_{uy} \cdot N_{vx}, \]
     %
-    \noindent equals the product of two independent Poisson random variables.
+    \noindent for $N_{uv}, N_{xy}$ independent Poisson random variables.
 \end{corollary}
-
-\noindent Hence, bounding the supports reduces to understanding
-these Poisson random variables.
-
 
 %%%%%%%%%%%%%%%%%%%%%
 % properties of Canby Model
@@ -514,6 +529,7 @@ $j,k$ are close to their least common ancestor $i$.
 % Bipartition Covers
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{A Restricted Search-Space}
+\label{sec:bipartition_covers_canby}
 
 \noindent As we discussed in the introduction, the exact version of ASTRAL~\eqref{eqn:astral_quartet_support_optimization_problem}
 becomes intractable to solve even for trees with a modest number of leaves. Instead, we must construct a 
@@ -571,9 +587,13 @@ Let $\cB$ be the set of bipartitions of a phylogenetic tree $\cT$ with $k$ leave
 In particular, this implies if we run the ASTRAL as proposed in \cite{evans2026_canby_identifiability},
 restricted to the bipartition set $\cX_1$, this is a statistically consistent estimate 
 of the true underlying phylogenetic tree $T$, and that we require $\exp(\Theta(k))$ characters to
-achieve a bipartition cover with high probability. 
+achieve a bipartition cover with high probability. This is essentially the same rate
+bipartition-covers achieve under the standard multispecies-coalescent model to which
+ASTRAL is typically applied \cite{uricchio2016_bipartition_cover}, \cite{mcnulty2026improvedbipartitioncoverbound}.
 
-However, it is clear that $\cX_1$ is bad at generating large bipartitions.
+This result should be viewed as a baseline consistency guarantee rather 
+than a practical sample-complexity result. It is clear that $\cX_1$ is 
+bad at generating large bipartitions.
  Namely, if $\phi_e = (A|B)$ the probability a 
   character born in edge $e$ has no deaths is exponentially
    small in $|A|$. To rectify this, we propose a few heuristics for expanding the size
@@ -603,67 +623,60 @@ additions.
 % Alternative ASTRAL procedure
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Alternative ASTRAL Procedure}
+\label{sec:canby_alternative_astral_procedure}
 
 Another inference method, closer in spirit to the original ASTRAL framework, is to let each
 character independently vote on the topology of each quartet. These character-level quartet
 votes then play the role of the quartet information induced by individual gene trees in the
 traditional MSC setting.
 
-More formally, for each character $c_i$ and each quartet
-$q=\{u,v,x,y\}\in\mathcal Q$, define
+More formally, for each character $c_i$ and each leaf set
+$s=\{u,v,x,y\}$, define
 \[
-    \tau_q^{(c_i)}
+    \tau_s^{(c_i)}
     :=
-    \arg\max_{t\in\mathcal T_q} |M_t^{(c_i)}|,
+    \arg\max_{q\in\mathcal A_s} |M_q^{(c_i)}|, \quad I^{(c_i)}_s := \left\{\max_{q\in\mathcal A_s} |M_q^{(c_i)}| > 0\right\},
 \]
-with ties broken uniformly at random. We then solve~\eqref{eqn:astral_quartet_support_optimization_problem} with 
+\noindent with ties broken uniformly. We then solve~\eqref{eqn:astral_quartet_support_optimization_problem} with 
 quartet supports
 %
-    \[W(q) = \sum_{i=1}^n 1\{\tau_q^{(c_i)} = q\}\]
+    \[W(q) = \sum_{i=1}^n 1\{\tau_s^{(c_i)} = q\} \cdot 1\{I_s^{(c_i)}\}.\]
 %
+The indicator $1\{I_s^{(c_i)}\}$ essentially just tells us to ignore characters which provide no information
+about the given quartet. We call this procedure \textit{PCH-ASTRAL(sc)} for ``separate characters''. 
 This inference scheme is only really reasonable if for 
-each quartet $q \in \cQ$, the correct topology is the most likely one. Namely
+each quartet $q \in \cQ(\cT^*)$, the correct topology is the most likely one. Namely
 
 \begin{equation}
-    \P(\tau_q^{(c)} = \cT_q^*) > \P(\tau_q^{(c)} = t) \qquad t \neq T_q^*.
+    \P(\tau_s^{(c)} = \cT_s^*) > \P(\tau_s^{(c)} = t) \qquad t \neq T_s^*.
     \label{eqn:anomaly_free_property}
 \end{equation}
 
 \noindent If property~\eqref{eqn:anomaly_free_property} holds for every quartet $q \in \cQ(\cT^*)$,
 we say the Canby model is in the \textit{anomaly-free zone}. When this occurs, the above 
-ASTRAL-based procedure is asymptotically consistent and sample-complexity
+ASTRAL-based procedure is asymptotically consistent and has sample-complexity
 
-\begin{theorem}[Sample Complexity Separate Characters]
+\begin{theorem}[Sample Complexity PCH-ASTRAL(sc)]
     Suppose we have a collection of $n$ iid characters $\{c_i\}$ in the anomaly-free zone. If
-        \[n > \frac{9}{2\Delta^2} \log\left(\frac{4\binom{k}{4}}{\varepsilon}\right),\]
+        \[n > \frac{9}{p_{min}\Delta^2} \log\left(\frac{4\binom{k}{4}}{\varepsilon}\right),\]
         %
         \noindent where
         %
-        \[\Delta := \min_{q \in \cQ(\cT^*)} \min_{t \neq \cT_q^*} \left[\P(\tau_q^{(c)} = \cT_q^*) - \P(\tau_q^{(c)} = t) \right],\]
+        \[\Delta := \min_{s \in {[k] \choose 4}} \min_{t \neq \cT_s^*} \left[\P(\tau_s^{(c)} = \cT_s^* \mid I_s) - \P(\tau_s^{(c)} = t \mid I_s) \right], \quad p_{min} := \min_{s \in {[k] \choose 4}} \P(I_s),\]
         %
     \noindent then the above ASTRAL-based procedure recovers $\cT^*$ with probability at least $1-\epsilon$. 
     \label{thm:sample_complexity_separate_characters}
 \end{theorem}
 
 \noindent The proof is analogous to the proof of Theorem 2.1 in~\cite{shekhar2018_how_many_genes_are_enough}, which union bounds over quartets and
-utilizes simple concentration bounds for the multinomial distribution. It is natural then to wonder when the anomaly free-zone occurs. By 
-Lemma~\ref{lem:correct_topo_max_expected_support}, we know the correct topology has the most support in expectation. To show this translates 
-to winning most of the time, we just must control the variance of the support. Again, this is difficult to do directly under the Canby model,
-but we can prove an analogous statement for the ID coupling.
-
-\begin{lemma}
-    If \red{todo} then the Canby model is in the anomaly-free zone.
-    \label{lem:sufficient_conditions_anomaly_free}
-\end{lemma}
-
-
-
-
+utilizes simple concentration bounds for the multinomial distribution. In Appendix~\ref{app:anomaly-free_zone}, we briefly discuss the
+anomaly-free zone. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Sample Complexity
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Sample-Complexity Bounds}
+\label{sec:pch_astral_sample_complexity}
 
 % ave across characters
 \subsection{PCH-ASTRAL Sample-Complexity Bounds}
@@ -968,6 +981,45 @@ the second term thins these to only those reaching both $u,v$.
 \end{proof}
 
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Anomaly-free zone
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The Anomaly-Free Zone}
+    \label{app:anomaly-free_zone}
+
+    In this section, we briefly discuss the anomaly-free property~\eqref{eqn:anomaly_free_property}. 
+    Lemma~\ref{lem:correct_topo_max_expected_support} shows $\E |M_t|$ is maximized over $t \in A_s$
+    when $t = \cT_s^*$, but this does not imply $\cT^*$ maximizes
+    %
+        \[\P\left(t = \argmax_{t' \in A_s} |M_{t'}|\right), \] 
+    %
+    \noindent as it is possible $|M_{\cT_s^*}|$ is zero most of the time, but takes on large values
+    rarely. To avoid this, we must show the supports $|M_{\cT_q^*}|$ are reasonably concentrated.
+    We focus on the simpler $ID(\theta, \lambda, \mu)$ setting. 
+    
+    Lemma~\ref{lem:quartet_supports_under_ID_process} shows in this setting that the supports take the particular form
+    %
+        \[|M_{uv||xy}| = N_{uv}N_{xy}, \quad |M_{ux||vy}| = N_{ux} N_{vy}, \quad |M_{uy||vx}| = N_{uy} N_{vx},\]
+    %
+    \noindent where these six random variables $\{N_{uv}, ..., N_{vx}\}$ are mutually independent Poissons. Their means $m_{ab} := \E N_{ab}$ 
+    are reasonably simple to compute. For example, we know from Lemma~\ref{lem:pop_sizes_in_ID_processes} that $|I| \sim \mathrm{Poisson}(m_\theta(\ell_{ri}))$.
+    Hence if the true quartet topology is $q = uv||xy$, and it induces a balanced subtree then
+    %
+        \[m_{uv} = \eta_{uv} \left[m_0(\ell_{ij}) + m_\theta(\ell_{ri}) \eta_{ij}(1 - \eta_{ik} (\eta_{ky} + \eta_{kx} - \eta_{kx} \eta_{ky}))\right], \]
+        \[m_{ux} = m_\theta(\ell_{ri})\eta_{ux} \left[(1-\eta_{jv}) \cdot (1-\eta_{ky})\right], \]
+    %
+    \noindent The main difficultly is that these means depend on the underlying parameters $(\cT^*, \lambda, \mu, \theta)$ 
+    in complicated, inter-woven ways.
+
+    \red{finish}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Additional Proofs
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Additional Proofs}
 \label{app:canby_additional_proofs}
 
@@ -1007,9 +1059,28 @@ For a given non-homoplastic $\alpha$ born along the edge $e$, we can lower bound
 %%%%%%%%%%%%%%%
 % Sample complexity bounds for new ASTRAL procedure
 %%%%%%%%%%%%%%%
-\begin{proof}[Proof of Theorem~\ref{thm:sample_complexity_separate_characters} (Sample Complexity II)]
-    We mimic the proof of Theorem 2.1 in~\cite{shekhar2018_how_many_genes_are_enough}. First, if for every quartet $q\in\cQ$ the modal topology among
-    $\{\tau_q^{(c_i)}\}_{i=1}^n$ is the true topology $\cT_q^*$, then exact ASTRAL returns
+\begin{proof}[Proof of Theorem~\ref{thm:sample_complexity_separate_characters} (Sample Complexity PCH-ASTRAL(sc))]
+    Note for a specific leaf set $s$, we have $n_s \sim \mathrm{Binomial}(n, p_s)$ informative characters (characters where $I_s$ occurs).
+    Applying Chernoff's bound
+        \[
+            \P\left(n_s < \frac{np_s}{2}\right)
+            \leq \exp\left(-\frac{np_s}{8}\right)
+            \leq \exp\left(-\frac{np_m}{8}\right).
+        \]
+    Union bounding over all \(\binom{k}{4}\) quartets gives
+        \[
+            \P\left(\min_{s\in {[k]\choose 4}} n_s < \frac{np_m}{2}\right)
+            \leq
+            \binom{k}{4}\exp\left(-\frac{np_m}{8}\right).
+        \]
+    Thus, provided
+        \[
+            np_m \geq 8\log\left(\frac{\binom{k}{4}}{\varepsilon}\right),
+        \]
+    we have, with probability at least \(1-\varepsilon\), at least \(n'= np_m/2\) informative characters for every quartet.
+            
+    From here, we mimic the proof of Theorem 2.1 in~\cite{shekhar2018_how_many_genes_are_enough}. First, if for every quartet $q\in\cQ$ the modal topology among
+    $\{\tau_q^{(c_i)}\}_{i=1}^{n'}$ is the true topology $\cT_q^*$, then exact ASTRAL returns
     the true tree $\cT^*$. Hence it suffices to union bound over quartets. Let $E_q$ denote
     the event that the true topology is not modal for quartet $q$.
 
@@ -1028,18 +1099,18 @@ For a given non-homoplastic $\alpha$ born along the edge $e$, we can lower bound
     \]
     For this fixed quartet, let
     \[
-        (N_*,N_1,N_2)\sim \mathrm{Mult}(n;p_q,r_q,r_q)
+        (N_*,N_1,N_2)\sim \mathrm{Mult}(n';p_q,r_q,r_q)
     \]
     count the number of characters assigning the true topology and the two incorrect
     topologies.
 
     Fix any $w<\Delta_q/3$, and define
     \[
-        A_q := \left\{\frac{N_*}{n}\in(p_q-w,p_q+w)\right\},
+        A_q := \left\{\frac{N_*}{n'}\in(p_q-w,p_q+w)\right\},
     \]
     and
     \[
-        B_{q,j}:=\left\{\frac{N_j}{n}\in(r_q-w,r_q+w)\right\},
+        B_{q,j}:=\left\{\frac{N_j}{n'}\in(r_q-w,r_q+w)\right\},
         \qquad j=1,2.
     \]
     If $A_q\cap(B_{q,1}\cup B_{q,2})$ occurs, then the true topology is modal.
@@ -1049,15 +1120,15 @@ For a given non-homoplastic $\alpha$ born along the edge $e$, we can lower bound
         \leq
         \P(A_q^c)+\P(B_{q,1}^c)
         \leq
-        4\exp(-2nw^2).
+        4\exp(-2n'w^2).
     \]
     Taking $w$ arbitrarily close to $\Delta_q/3$ gives
     \[
         \P(E_q)
         \leq
-        4\exp\left(-\frac{2n\Delta_q^2}{9}\right)
+        4\exp\left(-\frac{2n'\Delta_q^2}{9}\right)
         \leq
-        4\exp\left(-\frac{2n\Delta^2}{9}\right).
+        4\exp\left(-\frac{2n'\Delta^2}{9}\right).
     \]
 
     \noindent Finally, union bounding over all $\binom{k}{4}$ quartets,
@@ -1065,11 +1136,11 @@ For a given non-homoplastic $\alpha$ born along the edge $e$, we can lower bound
         \P(\widehat{\cT}\neq \cT^*)
         \leq
         4\binom{k}{4}
-        \exp\left(-\frac{2n\Delta^2}{9}\right).
+        \exp\left(-\frac{2n'\Delta^2}{9}\right).
     \]
     Thus, to recover $\cT^*$ with probability at least $1-\varepsilon$, it suffices that
     \[
-        n
+        n'
         >
         \frac{9}{2\Delta^2}
         \log\left(
@@ -1077,56 +1148,6 @@ For a given non-homoplastic $\alpha$ born along the edge $e$, we can lower bound
         \right).
     \]
 \end{proof}
-
-
-%%%%%%%%%%%%
-% Anomaly-free zone
-%%%%%%%%%%%%%%%
-
-\begin{proof}[Proof of Lemma~\ref{lem:sufficient_conditions_anomaly_free} (Sufficient Conditions for Anomaly-Free Zone)]
-    As we already observed above, Lemma~\ref{lem:correct_topo_max_expected_support} already shows that $\E |M_t|$ is maximizes
-    when $t = \cT_q^*$ is the quartet topology coming from the underlying phylogenetic tree $\cT^*$. On its own, this does not imply
-    that $|M_{\cT_q^*}|$ is the largest most of the time, as its possible it is zero most of the time and takes on very large values
-    rarely. To show that this cannot occur, we just must control the variance of $|M_{\cT_q^*}|$, and show that it cannot be two large
-    relative to its mean. More formally, let
-    %
-    \[D_t := |M_{\cT_q^*}| - |M_t|.\]
-    %
-    \noindent Note it suffices to show $\P(\tau_q = t) < \frac{1}{3}$ for $t \neq \cT_q^*$, as union bound implies
-    %
-    \[\P(\tau_q = \cT_q^*) = 1 - \sum_{s \neq \cT_q^*} \P(\tau_q = s) > \frac{1}{3} > \P(\tau_q = t).\]
-    %
-    \noindent Further, note by Cantelli's inequality
-    %
-    \[\P(\tau_q = t) \leq \P(D_t \leq 0) \leq \left(1 + \frac{(\E D_t)^2}{\Var(D_t)}\right)^{-1},\]
-    %
-    \noindent so it suffices to show $\Var(D_t) < \frac{1}{2} (\E D_t)^2$. Note we already compute a lower bound
-    on $\E D_t$ in Lemma~\ref{lem:canby_expected_margin}. An analogous argument to the proof of this lemma
-    will let us upper bound $\Var(D_t)$. 
-
-    A crude upper bound follows from the same Poisson comparison we used in the proof of
-    Lemma~\ref{lem:canby_concentration_of_scores}. For a topology
-    $t = uv||xy$, we have
-    %
-    \[|M_t| \leq |X \cap Y| \cdot |C \cap D|.\]
-    %
-    \noindent \red{upper bound these guys.}
-    \noindent Hence the Poisson second moment gives the estimate
-    %
-    \[\E |M_t|^2
-        \leq (m_{ab}+m_{ab}^2)(m_{cd}+m_{cd}^2).\]
-    %
-    \noindent Therefore, without needing independence between the two competing topology scores,
-    %
-    \[\E D_t^2
-        \leq 2\E |M_{\cT_q^*}|^2 + 2\E |M_t|^2,\]
-    %
-    \noindent and each term on the right can be controlled by the preceding Poisson-product bound.
-    Combining this upper bound with the lower bound on $\E D_t$ from
-    Lemma~\ref{lem:canby_expected_margin} gives the desired sufficient conditions for the
-    anomaly-free property.
-\end{proof}
-
 
 %%%%%%%%%%%%%%%%%%%
 % Expected Margin

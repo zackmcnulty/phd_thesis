@@ -15,10 +15,14 @@ resulting estimator. We also discuss a rudimentary market-maker model which
 connects the symmetry objective to latent pairings between bids and asks.
 
 \section{Introduction}
-The \textit{central limit order book (CLOB)} is one of the most common mechanisms for pairing orders between buyers and sellers in electronic marketplaces, and is used by most of the worlds biggest financial exchanges (NYSE, NASDAQ, LSE).
-At any point of time, the CLOB keeps track of a list of prices and quantities that market
-participants are willing to buy (bid) or sell (ask/offer) a specific financialasset at. If there are any bids and asks that are overlapping, they are matched according to some matching rule and removed from the order book. What remains is a collection of bids and asks separated 
-by some distance called the \textit{spread}. The CLOB changes over time as orders are matched, added, modified, or canceled, and its dynamics provide rich source of information about market sentiment.
+The \textit{central limit order book (CLOB)} is one of the most common
+mechanisms for pairing buyers and sellers in electronic marketplaces, including
+major exchanges such as NYSE, NASDAQ, and LSE. At any point in time, the CLOB
+records the prices and quantities at which participants are willing to buy or
+sell an asset. Crossing orders are matched and removed, leaving bids and asks
+separated by a positive \textit{spread}. The book changes as orders are matched,
+added, modified, or canceled, and its dynamics provide a rich source of
+information about market sentiment.
 
 
 The bid side of the order book is typically encoded as list of prices $\{b_i\}$ at 
@@ -45,16 +49,12 @@ and quantities people are willing to buy at, and a range they are willing to
   the asset's \textit{fair value}: no reasonable person would place a bid higher
    than their fair value, nor an ask lower.
 
-Many approaches have been proposed for modeling the dynamics of the central limit order book (CLOB), ranging from classical
- point-process and stochastic differential equations to more recent deep-learning and agent-based methods. The paper \cite{jain2024limitorderbooksimulations} 
- provides a recent survey. Although these models differ substantially in methodology, a common goal is to extract useful information from the order 
-book, either by estimating the fair value of the underlying asset or by describing how the order book evolves over time. 
-In this sense, order book analysis is often less about computing a fundamental value directly 
-and more about inferring what other market participants appear to believe the fair value is. Since much of
- the activity in modern markets is driven by large participants with significant informational, technological,
-  and experiential advantages, this indirect approach can be more realistic than attempting to estimate fair 
-  value in isolation. Of course, such an order-book-based estimate can also be combined with fair-value estimates
-   obtained from other sources.
+Many approaches have been proposed for modeling CLOB dynamics, ranging from
+classical point-process and stochastic differential equation models to more
+recent deep-learning and agent-based methods; see
+\cite{jain2024limitorderbooksimulations} for a recent survey. Although these
+models differ substantially, they often share the goal of extracting fair-value
+information from displayed liquidity. This chapter proposes one such estimator.
 
 
 
@@ -69,42 +69,17 @@ which incorporates information about the imbalance in quantities available at th
  buying pressure to force the value of the asset upwards, and adjust our 
  fair value accordingly. 
 
-The main downside of these two fair value estimates is that they only utilize 
-information from the first price level. Some other heuristics like the 
-\textit{volume-weighted average price} or the \textit{market-impact model} 
-incorporate further price levels, but they too lack a rigorous motivation.
-The volume-weighted average price averages prices across several levels using
-the displayed quantities as weights, while a market-impact model estimates the
-average execution price of a hypothetical market order that walks through the
-book. 
-For example, one might use
-%
-\[
-    v_{\mathrm{VWAP}}(k)
-    :=
-    \frac{1}{2}
-    \left(
-        \frac{\sum_{i=0}^k b_i \beta_i}{\sum_{i=0}^k \beta_i}
-        +
-        \frac{\sum_{i=0}^k a_i \alpha_i}{\sum_{i=0}^k \alpha_i}
-    \right),
-\]
-%
-or, for a trade size $Q$, define $I_b(Q)$ and $I_a(Q)$ to be the average
-execution prices of selling or buying $Q$ units against the book, and set
-%
-\[
-    v_{\mathrm{impact}}(Q) := \frac{I_b(Q) + I_a(Q)}{2}.
-\]
+The main downside of these two fair-value estimates is that they only use the
+first price level. Other heuristics, such as volume-weighted averages across
+several levels or market-impact estimates based on walking the book, use more of
+the displayed depth but still lack a clear variational motivation.
 
-We aim to develop a new notion of the fair value that captures more nuanced 
-information about the \textit{shape} of the order book which is optimal in some probabilistic 
-sense, and which reduces to the above heuristics under natural assumptions.
- In this way, we provide a rigorous mathematical foundation for the aforementioned 
- heuristics while also developing a large class of potential alternatives. 
+We aim to develop a fair-value estimate that captures the \textit{shape} of the
+order book, has a clear variational characterization, and recovers familiar
+heuristics under natural assumptions.
 
-Our idea was to first view the bid side of the order book and the ask side of 
-the order book as two separate distributions $\mu_b, \mu_a$. One way of doing 
+We first view the bid side and ask side of the order book as two separate
+distributions $\mu_b, \mu_a$. One way of doing
 this is to view each quantity (or order) as a unit mass on the order book 
 (and then possibly normalize):
 %
@@ -114,7 +89,7 @@ this is to view each quantity (or order) as a unit mass on the order book
     \label{eqn:mua_mub_proportional}
 \end{equation}
 %
-\noindent Instead of treating each quantity identically, we could also choose to weight
+\noindent Instead of treating each quantity identically, we can also weight
  the orders according to some scheme. Since it seems likely that orders near the spread 
  are more informed, it is natural to weight these orders more. Namely, by introducing a 
  discount $\lambda \in (0,1]$, we could choose to add more mass to the larger bids and 
@@ -138,10 +113,10 @@ and asks books are perfect mirror images of each other, separated possibly by so
 
 %
 \noindent for any metric $d$ on a suitable space of probability distributions.
- In general, we will not have such nice symmetry, but we can still seek to 
+ In general, we will not have such symmetry, but we can still seek to
  solve \eqref{eqn:optimization_problem} for a fixed metric $d$. 
  We will call the solution $v_s$ the \textit{symmetry-maximizing value}, and 
- it implictly depends on $d$. A visualization of this procedure is given in Figure~\ref{fig:sym-fv-viz}.
+ it implicitly depends on $d$. A visualization of this procedure is given in Figure~\ref{fig:sym-fv-viz}.
 
  % fair value viz
 \begin{figure}[h!]
@@ -181,7 +156,7 @@ markets are inherently noisy, we want a metric that is more robust under such pe
 and which incorporates more of the \textit{geometry} of the order book than these pointwise
 comparisons. 
 
-The Wasserstien distance is the natural candidate. In this section, we aim to study
+The Wasserstein distance is the natural candidate. In this section, we aim to study
 how the symmetry-maximizing fair value behaves when the underlying metric $d$ is chosen to be this distance. 
 In Theorem~\ref{thm:wasserstein_solution}, we characterize the symmetry-maximizing fair value under the Wasserstein metric, 
 and in Lemma~\ref{lem:fv_continuity_w2} we quantify the stability of this fair-value with respect to small changes 
@@ -234,42 +209,27 @@ Now we are ready to relate these quantities to the symmetry-maximizing fair valu
 \end{remark}
 
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Modeling A Single Order Book 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newpage
 \section{A Simple Model For Market Makers}
 
-The following model is overly simplistic, and is not intended as a literal description of order-book
-formation. Rather, it is a stylized mechanism showing how a symmetry-based fair
-value arises when the two sides of the book are generated by agents placing bid
-and ask quotes around latent fair values. In this model, estimating the fair
-value becomes a problem of pairing bids and asks in a natural way, and then
-approximating the latent fair-value distribution by its empirical distribution.
-
-Market makers supply liquidity by placing buy and sell orders around their
-own estimates of an asset's fair value. If a market maker has no directional
-preference and current buying and selling pressures are balanced, it is natural
-to model their quotes as being placed symmetrically around some latent fair value
-$v$. Thus, a simple paired-order model takes bids and asks of the form
+The following model is not intended as a literal description of order-book
+formation. It is a stylized mechanism showing how a symmetry-based fair value
+can arise when market makers place bid and ask quotes around latent fair values.
+In the balanced case, a paired-order model takes bids and asks of the form
 %
 \[\bid = v - h, \qquad \ask = v + h,\]
 %
-where $h$ is a latent half-spread specific to that quote pair, reflecting the
-agent's uncertainty, inventory concerns, or required compensation for supplying
-liquidity. More generally, if buying and selling pressures are not balanced, we
-may expect market makers to shift their bids and asks asymmetrically around their
-fair values.
+where $h$ is a latent half-spread reflecting uncertainty, inventory concerns, or
+compensation for supplying liquidity. With imbalanced buying and selling
+pressure, we instead allow asymmetric quotes:
 %
 \[\bid = v - \theta^{-1}h, \qquad \ask = v + (1-\theta)^{-1}h,\]
 %
-where $\theta \in (0,1)$ is an exogenous imbalance parameter. Namely, as
-$\theta$ approaches zero, selling pressure is interpreted as increasing, and
-market makers move their bids farther away from the fair value to protect
-against adverse selection during future price movements. When $\theta$
-approaches one, the analogous effect occurs on the ask side.
-Formally, we study the following generative model:
+where $\theta \in (0,1)$ is an exogenous imbalance parameter. As $\theta$
+approaches zero, the bid is moved farther from the fair value; as $\theta$
+approaches one, the analogous effect occurs on the ask side. Formally, we study:
 %
 \begin{align*}
     v &\sim \mu \in \mathbb{P}(\mathbb{R})  && \text{(fair value distribution)} \\
@@ -368,12 +328,10 @@ outwards. Towards this end, we introduce the discrete differences
 %
 \[\Delta_r f(z) := f(z + r) - f(z).\]
 %
-\noindent A function $f$ is concave if and only if for any $r > 0$ then
- $\Delta_r f$ is nonincreasing. Thus in the case of concave functions,
-  the second discrete derivative $\Delta_t \Delta_r f$ is nonpositive, 
-  and its magnitude in a sense quantifies the level of concavity. The 
-  following identifies the optimal pairing in the case $\mu$ is 
-  sufficiently ``more log-concave" than $\nu$ or vice versa.
+\noindent Concavity of $f$ is equivalent to $\Delta_r f$ being nonincreasing for
+each $r > 0$, so the second discrete derivative $\Delta_t \Delta_r f$ is
+nonpositive. The following identifies the optimal pairing when one of the latent
+distributions is sufficiently more log-concave than the other.
 
 \begin{lemma}
     Suppose $\mu = N(0, \sigma^2)$ and $\nu = e^{f(x)}$. If for all $z \in \R$ 
@@ -440,12 +398,11 @@ condition is saying that our fair value distribution is more log-concave than ou
 \end{corollary}
 
 
-Above, we show that under this simple model of market-making, 
-the optimal pairing of bids and asks are the two naive ones: either 
-pairing from the ``inside-out" by pairing the best bid with the best offer, and so on, or pairing from 
-``left to right", pairing the worst bid with the best offer. In Section \ref{sec:stability_fv} below, 
-we will show such pairings naturally arise from our proposed symmetry-maximizing fair 
-value under a canonical choice of distance metric: the Wasserstein metric. 
+Under this simple model, the optimal pairing is one of two natural pairings:
+``inside-out," starting from the best bid and best offer, or ``left-to-right,"
+starting from the worst bid and best offer. The Wasserstein formulation in
+Section~\ref{sec:incorporating_order_book_shape} can be viewed as a continuous
+relaxation of this pairing problem.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -456,7 +413,7 @@ value under a canonical choice of distance metric: the Wasserstein metric.
 
 A natural criticism of our work in Section \ref{sec:incorporating_order_book_shape}
  is that we lose information about imbalance between the bid and ask
-  sides of the order book, imbalances which fair value estimates 
+  sides of the order book, imbalances which fair-value estimates
   like the weighted mid $v_w$ discussed earlier seek to exploit. 
   Thus, it may only be a decent estimate of the fair value in 
   situations when the total number of bids and total number asks
@@ -582,39 +539,27 @@ curvature of the objective near its minimum rather than just on the perturbation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Concluding Remarks and Future Directions}
 
-\noindent In this paper, we proposed a new model for the fair value of a financial
-asset  which seeks to maximize the symmetry of the central limit order book around it. This generalizes several
-commonly used heuristics and provides a natural variational characterization of the fair value. When symmetry is measured via the Wasserstein distance, we derive 
-explicit formulas for the fair value and show it is stable under small perturbations of the order 
-book. There are a few further research directions I think are worth exploring.
+\noindent In this paper, we proposed a fair-value estimate which maximizes the
+symmetry of the central limit order book around it. This generalizes several
+common heuristics and gives a variational characterization of fair value. Under
+the Wasserstein distance, we derive explicit formulas and show stability under
+small perturbations of the order book.
 
-Firstly, Corrollary~\ref{corr:w2_fv_is_mean_barycenter} suggests in the case of $W_2$ our symmetrized fair-value equals 
-the mean of the (weighted) barycenter of $\mu_a, \mu_b$, given by
+Corollary~\ref{corr:w2_fv_is_mean_barycenter} suggests a natural extension: in
+the $W_2$ case, the symmetrized fair value is the mean of the weighted
+barycenter of $\mu_a$ and $\mu_b$, given by
 %
     \[\overline{\mu_\theta} := \argmin_{\nu} \theta d_{W_2}(\nu, \mu_a) + (1-\theta) d_{W_2}(\nu, \mu_b).\]
 %
-This observation accomplishes two things: (i) gives another interpretation of the symmetrized fair-value from the theory of Wasserstein 
-barycenters and (ii) extends our fair value estimate from a point estimate
-of the typical fair value to an estimate of the \textit{full fair-value distribution.} 
-
- We could extend this idea even further to incorporate information from 
- several order books simultaneously. If the same financial asset is listed 
- across several different financial exchanges, each with their own bid and ask order books $\mu_i, \nu_i$,
- this might be more natural than merely aggregating all the books into a single ask book and bid book. 
- To do so, we might assume that there is some true fair-value distribution $\eta$, 
- and that each of these books are a noisy version of this true distribution, 
- which have been biased downwards and upwards respectively to account for market-makers desired edge.
-
-We would like to somehow aggregate these perturbed versions $\mu_i, \nu_i$
- to generate an estimate of $\eta$. One way of doing this is to first aggregate $\{\mu_i\}, \{\nu_i\}$
- into single order books by letting $\hat{\mu}, \hat{\nu}$ be their respective empirical $W_2$-barycenters.
- Corollary~\ref{corr:w2_fv_is_mean_barycenter} then suggests one 
- natural way of estimating $\eta$ is to reflect the ask estimate $\hat{\nu}$ about its mean to get 
- $\hat{\nu}'$, and then take the barycenter of $\hat{\mu}, \hat{\nu}'$ to get our estimate $\hat{\eta}$. 
- This is similar in spirit to the work of \cite{raban2024_aggregate_ratings}, which aggregates movie
- ratings in this way across many users in order to get a more faithful estimate
- of the true quality of a movie. Analogous to \cite{raban2024_aggregate_ratings}, it would be interesting to see
- if there is a natural generative model under which this procedure is optimal. 
+This identifies the fair value with a Wasserstein barycenter and suggests
+estimating a full fair-value distribution rather than only a point estimate. The
+same idea could also incorporate several order books for the same asset across
+different venues. Instead of merging all bids and asks directly, one could first
+form bid-side and ask-side barycenters across venues, reflect the ask-side
+barycenter, and then barycenter the two resulting distributions. This is similar
+in spirit to the aggregation procedure in \cite{raban2024_aggregate_ratings};
+it would be interesting to identify a market model under which such an estimator
+is optimal.
 
 Another natural direction is empirical. One could simulate order books under
 standard CLOB models, such as the point-process or agent-based models surveyed
@@ -624,13 +569,10 @@ benchmarks. Useful diagnostics would include the smoothness of the resulting
 time series, its visual reasonableness relative to the displayed book shape, and
 its usefulness as a feature for predicting short-term price movements.
 
- Lastly, the symmetrized fair value only utilizes a static picture of the order book at a given time.
-  It would be interesting to see if we can extend this to incorporate the dynamics of the order book as well. 
-  For example, we could try to find a fair value that maximizes the symmetry of the order book across time, 
-  rather than just at a single snapshot. This might be more robust to noise and provide a better estimate of 
-  the true underlying value of the asset. There are many existing models for order book dynamics, some of 
-  which are discussed in \cite{jain2024limitorderbooksimulations}. It would be interesting to study under what circumstances
-  symmetry naturally arises in any of these existing models.
+Finally, the estimator studied here uses a static snapshot of the order book. A
+dynamic version could instead maximize symmetry across time, which may be more
+robust to noise. It would be useful to understand when symmetry arises in
+standard CLOB dynamics and how the resulting estimator performs empirically.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Proof Appendix 

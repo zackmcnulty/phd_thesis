@@ -148,75 +148,45 @@ Combined with definition \ref{def:exchangeable_array_process}, this shows that t
     \noindent As we will see in Corollary~\ref{cor:classification_binary_array_processes} below, these are in a sense the only binary array processes. 
 \end{example}
 
-
-\begin{example}[Exchangeable Partitions on $\N$] 
-Kingman's paintbox theorem characterizes exchangeable partitions $\Pi$ of $\N$ in terms of sampling from a mass partition function $s$, a probability distribution on $\N \cup \{\infty\}$. Namely, given some distribution $\nu$ on mass partition functions, then define $Samp(\nu)$ by (i) sampling $s \sim \nu$ (ii) sampling $U_i \sim s$ iid and (iii) letting $i$ be a singleton if $U_i = \infty$ and otherwise $i \sim j$ if $U_i = U_j$. Then we see $(U_i)_{i \in \N}$ is an exchangeable sequence ($d=1$) with representation function similar to Example \ref{ex:polyas_urn} above. See \cite{Austin_arrays} for more details.
-
-Exchangeable partitions can also be encoded as 2-dimensional binary exchangeable arrays by letting $X_{ij} = \ind \{i, j \text{ are in the same part of }\Pi\}$. 
-
-\end{example}
-
-
-\begin{example}[Permutons]
-Given a permuton $\pi \in \cP([0,1]^2)$ we can generate a chain of permutations via sampling $(X_i, Y_i) \sim \pi$, ordering the $X_i$ and letting $\pi_n$ be the induced ordering of $rank(Y_1),..., rank(Y_n)$. For example, if it happens $X_1 > ... > X_n$ then in one-line notation $\pi_n$ is just $(rank(Y_n),...., rank(Y_1))$. Namely, given $\pi_n$ you generate $\pi_{n+1}$ by uniformly selecting an index to insert at, uniformly choosing a number $i \in \{1,..., n+1\}$ to insert there, and then send $i \mapsto i+1, ..., n \mapsto n+1$ before inserting $i$. The paper \cite{Grubel_2023_permutons} showed this can be encoded as a $2-$dimensional array by allowing entry $i, j$ to encode which of the possible relationships $(X_i, Y_i)$ and $(X_j, Y_j)$ share:
-%
-\[X_i < X_j, Y_i < Y_j \qquad X_i > X_j, Y_i < Y_j \qquad X_i < X_j, Y_i > Y_j \qquad X_i > X_j, Y_i > Y_j.\]
-%
-\noindent As the samples are iid, the array is trivially exchangeable. Thus we can view the limit as an exchangeable array with entries in $\{1,2,3,4\}$ encoding the relationship of each pair of sampled points. Its representation function would simply be:
-%
-\[f(q, x,y, u) = \red{todo}.\]
-%
-\end{example}
-
-\begin{example}[Remy's Chain]
-    In the case of $d=3$, \cite{DM_Remy} shows that planar full leaf-labeled binary trees are completely determined by the ancestral relationships of each triplet of leaves, and these relationships are preserved under the action of Remy's chain. Hence they extend to a projective limit, a \textit{didendritic system}, with leaves labeled by $\N$. Since, there are 12 isomorphism classes for such relationships,  we can view the limit as an exchangeable array with entries in $\{1,...,12\}$. This paper shows Remy's chain has a representation as sampling leaves from this didendritic system and looking at the induced finite combinatorial tree. \red{Actually I was rereading this paper and steve also uses a 2D binary encodoing $\ind\{i <_L <i,j>, j <_R <i,j>\}$}
-    
-\end{example}
-
-
-\begin{example}[Growing Words]
-In the paper \cite{choi2016doobmartincompactificationmarkovchain}, we construct total orders on $\mathbb{I}_0 := \bigcup_{n \in \N} \{a_n, b_n\}$. Here, such a total order is completely encoded by tracking the possible orderings between pairs $(a_i, b_i), (a_j, b_j)$ of letters. Namely, there are $24$ possible orderings of $\{a_i, b_i, a_j, b_j\}$, so we can encode this as an exchangeable array with 24 states.
-\end{example}
-
 \begin{example}[Ballot Sequences]
-In $d=2$, we can encode the ballot sequences in an analogous way to Remy's chain by encoding the possible relationships between two pairs $(a_i, b_i), (a_j,b_j)$ of letters. Namely, there are are 6 possible ``interweavings'' of the letters:
+Given some total ordering of $I_0 := \bigcup_{i \in \N} \{a_i, b_i\}$ so $a_i < b_i$ for each $i$, there 
+are are 6 possible ``interweavings'' of the letters:
 %
 \[a_ib_ia_jb_j \quad a_i a_j b_i b_j \quad a_i a_j b_j b_i \quad a_j a_i b_i b_j \quad a_j a_i b_j b_i \quad a_j b_j a_i b_i.\]
 
-\noindent so if we given a total order $\prec$ on $I_0 = \bigcup_{i \in \N} \{a_i, b_i\}$ we can form a 2-dimensional array $X_{ij}$ with values in $\{1,...,6\}$ encoding which of these interweaving relationships the pairs $(a_i, b_i), (a_j, b_j)$ share. Clearly this array is exchangeable/ergodic if and only if the total order $\prec$ is and every total order produces such an array, and vice versa. The labeled chain $L_n$ is the sequence of labeled ballot words, or equivalently total orders on $\bigcup_{i\leq n} \{a_i, b_i\}$. The unlabeled chain is the matching process $M_n$ defined in the ballot chain paper. If instead we first apply the equivalence $1 \sim 6, 2 \sim 3 \sim 4 \sim 5$ which equates the states $1,...,6$ above which have the $a's$ and $b's$ in the same locations, the unlabeled chain of this new exchangeable array corresponds to the ballot chain. \red{cite ballot chain paper...}
+\noindent This ordering can be encoded by a 2-dimensional array $X_{ij}$ with values in $\{1,...,6\}$ 
+describing which of these relationships the pairs $(a_i, b_i), (a_j, b_j)$ share. 
+If we equate the interweavings above which have the $a's$ and $b's$ in the same locations, 
+the unlabeled chain generates \textit{ballot sequences}: strings of $a's$ and $b's$ where every prefix
+has at least as many $a's$ as $b's$. In~\cite{ChoiEtAlGrowingBallotSequences}, the boundary is characterized through
+a pair of diffuse marginals $(\zeta, \mu)$ encoding the relative density of $a's$ and $b's$ in the limit. 
 \end{example}
 
-\zack{The ballot chain paper shows that for any probability measure $\eta$ on $\{0 \leq s \leq t \leq 1$\} with diffuse marginals. Then just use $U_i$ to generate iid samples from $\nu$ and apply the rule discussed in section 1.4 of the ballot chain paper.}
+\noindent Exchangeable array processes also arise naturally in the the theory of 
+exchangeable partitions through Kingman's paintbox theorem \cite{Austin_arrays}, random permutations through
+permutons~\cite{Grubel_2023_permutons}, planar binary trees through Remy's chain \cite{DM_Remy}, and growing 
+random strings~\cite{choi2016doobmartincompactificationmarkovchain}.
 
-\begin{remark}
-The last few examples gives a common strategy for embedding chains as exchangeable arrays. Namely, suppose a random structure consisting of certain ``parts'' (e.g. vertices of a graph or leaves of a tree) and is completely determined by the relationships within each subset of $k$ parts (e.g. which vertices are connected by an edge or ancestry relationships in trees). If there is only a finite number of possible relationships within each part and these relationships do not depend on the ordering of parts, then there is a natural way to encode this as a $k-dimensional$ array just by allowing each entry to encode the relationship of that specific subset of $k$ parts.
+These and the preceeding examples give a common strategy for embedding combinatorial processes as random arrays.
+If a random structure consists of certain ``parts'' (e.g. vertices of a graph) and is completely determined by the 
+relationships within each subset of $d$ parts (e.g. which vertices are connected by an edge), then it can be 
+encoded as a d-dimensional array whose entries encode the relationship. Exchangeability then enforces the
+constraint that the distribution of the structure is invariant under relabeling of the parts.
 
-
-
- For example, \cite{Marckert_generating_d-ary}
-\end{remark} 
-
-\red{Q: Is there any way we can structure the randomness so the generated object is uniform over all possible such objects?}
-
-\red{Of course, not all combinatorial structures are determined by a fixed $k$; sometimes the relatioship sizes grows with the size of the objects. Daniel gave the example of the hypergraph chain. We hope to make sense of a notion of 'infinite dimensional' exchangeable arrays to account for this. In fact, \cite{KallenbergProbabilisticSymmetries} already develops a theory for exchangeable arrays of unbounded dimension, with corresponding representation and uniqueness theorems. Hence this theory is already developed.}
-
-\zack{The key insight into why all these processes should be related is because in a sense they all have the same backwards dynamics: namely, you apply some sort of uniform labeling by $[n]$ and then delete the ``part correspodning to the label n''.}
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Doob-Martin Boundary Theory for Exchangeable array Processes %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newpage 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Doob-Martin Boundary of Exchangeable Array Processes}
 
-\noindent Note that the backwards dynamics of the labeled chain are deterministic: given $L_n$ you simply restrict to $e \in [n-1]^{(d)}$ to obtain $L_{n-1}$. This implies that array processes corresponding to deterministic arrays can be infinite bridges of $L_n$. Thus, the Doob-Martin boundary of this chain is almost trivial.
+\noindent The backwards dynamics of the labeled chain are deterministic: given $L_n$ you simply restrict 
+to $e \in [n-1]^{(d)}$ to obtain $L_{n-1}$. Thus, its Doob-Martin boundary is almost trivial.
 %
 \begin{lemma}[Boundary of the Labeled Chain]
-    The boundary of $L_n$ consists of the deterministic arrays \red{$x \in supp(X_e)$.}
+    The boundary of $L_n$ consists of the deterministic arrays $x \in \mathrm{supp}(X_e)$.
     \label{lem:boundary_labeled_chain}
 \end{lemma}
 
-
-In the previous chapters, we discussed two ways of generating new Markov processes from our labeled exchangeable array process: one by applying an equivalence relation entrywise on the array and one by applying an equivalence relation on the rows/columns/etc of the array. The aim of this chapter is to relate the boundary of the original labeled chain to these modifications. 
-
+\noindent Next, we discuss how state-space equivalence and unlabeling affect this boundary.
 %%% state equivalence
 \subsection{State Equivalence}
 
@@ -1319,4 +1289,7 @@ The proof is analogous to that of Lemmas \ref{lem:relating_different_notions_of_
     
     \red{similar to the distance function steve uses in his Remy chain paper. If we define a 3-dimensional binary array $X_{ijk} = \ind\{\text{k is below mrca(i,j)}\}$ then this basically corresponds to taking an average of the last coordinate. Maybe we could do the same in general for a 3D binary array, or maybe any binary array?}
 
+    \item Is there a way of encoding the randomness in exchangeable array processes to ensure the underlying combinatorial objects
+          are generated uniformly? For example, in the Remy chain, \cite{DM_Remy} the underlying algorithm generates trees uniformly 
+          in an iterative fashion, and \cite{Marckert_generating_d-ary} extends this to d-ary trees.
 \end{enumerate}

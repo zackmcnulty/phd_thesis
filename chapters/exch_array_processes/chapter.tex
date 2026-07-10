@@ -31,8 +31,6 @@ the suitable regularity to ensure such convergence often exists. A review of the
 % Exchangeable Array Processes %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Exchangeable Array Processes}
 
-The following details can be found in \cite{Austin_arrays} or Chapter 7 of \cite{KallenbergProbabilisticSymmetries}.
-
 Given a set $A$ let $A^{(d)}$ denote the set of all subsets of size $d$ of $A$.
  A \textit{d-dimensional (jointly) exchangeable array} is a collection of random variables 
  $(X_e)_{e \in \N^{(d)}}$ indexed by $d-subsets$ of $\N$ whose distribution is invariant under 
@@ -72,9 +70,11 @@ Given an exchangeable array $(X_e)_{e \in \N^{(d)}}$ with entries in some Borel 
 
 
 
-\noindent The above lemma is true for any initial distribution, but we are almost exclusively interested in the case $M_0$ is the empty array.  It is likely possible to extend this framework to more general equivalence relations, possibly under some constraints on the initial conditions.
-%
-\noindent The main benefit of this framework is the following theorem that shows all exchangeable arrays have a representation through sampling from some hypercube. 
+\noindent The above lemma is true for any initial distribution, but we 
+are almost exclusively interested in the case $M_0$ is the empty array.
+The main benefit of this framework is that exchangeable arrays share a
+strong structural property: they have 
+a representation through sampling from some hypercube. 
 
 
 \begin{theorem}[Representation Theorem]
@@ -91,7 +91,8 @@ Given an exchangeable array $(X_e)_{e \in \N^{(d)}}$ with entries in some Borel 
 %
     \[f\left(x_\emptyset, (x_i)_{i \in [d]}, (x_a)_{a \in [d]^{(2)}}, ..., x_{[d]})\right) = f\left(x_\emptyset, (x_{\sigma(i)})_{i \in [d]}, (x_{\sigma(a)})_{a \in [d]^{(2)}}, ...,  x_{[d]})\right).\]
 %
-In words, you are allowed to apply the same permutation to the indices ``at each level'' separately. 
+In words, you are allowed to apply the same permutation to the indices ``at each level'' 
+separately. More details can be found in \cite{Austin_arrays} or Chapter 7 of \cite{KallenbergProbabilisticSymmetries}.
 
 Throughout this paper, we will encounter many domains of the form $[0,1]^{2^k}$ for some $k$. For ease of notation, we will assume the coordinates are always indexed by subsets of $[k]$ as in the definition of a middle symmetric function above.
 
@@ -205,7 +206,7 @@ labeled array processes consists of deterministic arrays on the relevant state s
 \subsection{Boundary of the Unlabeled Chain}
 
 \noindent Now we seek to understand the boundary of the unlabeled chain $M_n$. 
-Recall the correspondence \eqref{eqn:doob_h_transform_correspondence} between infinite 
+Recall the correspondence \eqref{eqn:K(., alpha) processes characterize h processes} between infinite 
  bridges of a Markov chain and its nonnegative harmonic functions via the Doob 
  h-transform. 
 
@@ -222,17 +223,21 @@ unlabeled chain are in direct correspondence with the bridges of labeled chain w
 come from exchangeable arrays.
 
 \begin{corollary}[Bridges of the Unlabeled Chain]
-    If $M^{\tilde{h}}_n$ is an infinite bridge of the unlabeled chain $M_n$, then $M^{\tilde{h}}_n$ equals the unlabeled process associated to some exchangeable array $(X_e^h)$. In particular, if $\tilde{h}$ is the harmonic corresponding to the bridge $M^{\tilde{h}}_n$, then $h(x) := \tilde{h}([x])$ is the harmonic corresponding to the array $(X_e^h)$.
+    If $M^{\tilde{h}}_n$ is an infinite bridge of the unlabeled chain $M_n$, 
+    then $M^{\tilde{h}}_n$ equals the unlabeled process associated to some 
+    exchangeable array $(X_e^h)$. In particular, if $\tilde{h}$ is the harmonic 
+    corresponding to the bridge $M^{\tilde{h}}_n$, then $h(x) := \tilde{h}([x])$ 
+    is the harmonic corresponding to the array $(X_e^h)$.
 
     \label{cor:unlabeled_associated_to_exchangeable_array}
 \end{corollary}
 
 The relation $\sim$ extends to infinite $d-dimensional$ infinite arrays $x$ 
 in the obvious way: $x \sim y$ if there is $\sigma \in Sym(\N)$ so $x = \sigma(y)$.
- We say a measurable collection $I$ of arrays is \textit{$\nu-invariant$} if 
- permutations do not change up up to $\nu-null$ sets:
+ We say a measurable collection $I$ of arrays is \textit{$\nu$-invariant} if 
+ permutations do not change up up to $\nu$-null sets:
  %
-    \[ I \overset{\nu-a.s.}{=} \tau I \quad  \quad \forall \tau \in Sym(\N).\]
+    \[ I \overset{\nu-a.s.}{=} \tau I, \quad  \quad \forall \tau \in Sym(\N).\]
 %
 Say an exchangeable array with distribution $\nu$ is \textit{ergodic} if $\nu(I) \in \{0,1\}$ 
 for all $\nu-$invariant sets $I$, and say it is \textit{dissociated} if for any disjoint index 
@@ -283,30 +288,64 @@ let $g: [0,1] \to \overline{E}$ be a function so that $g(U)$ has distribution
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Embedding Density of the Representation Functions}
 
-\noindent The of embedding a smaller structure into a larger structure plays a pivotal role in the theory of combinatorial processes. \red{give a little more motivation}.
+\noindent The idea of embedding a smaller structure into a larger one plays a pivotal
+role in the theory of combinatorial processes. Two of our principal examples,
+graphons and permutons, already come equipped with natural notions of
+embedding: subgraphs and subpermutations respectively. Somehow these embeddings encode the ``local'' structure of the larger combinatorial 
+object. We can then compare two such objects by comparing these local structures at various
+different scales.
 
-Two of our main examples, graphons and permutons, already have natural notions of embeddings in their pre-existing theory. The aim of this section is to try to fit these notions of embeddings into the framework of exchangeable arrays, in particular binary arrays, expanding upon the work of \cite{borgs2007convergent}. First, we introduce some notation: for a finite binary array of d-dimensional array $F$ of size $k$ let:
+
+The aim of this section is to recast these notions in the language
+of exchangeable arrays, with particular emphasis on binary arrays, and to
+extend the framework developed in \cite{borgs2007convergent}. We begin by
+introducing some notation. 
+
+First, we introduce some notation. For a finite binary d-dimensional
+array $F$ of size $k$ let
 %
 \[\mathbf 1(F) := \{ S \in [k]^{(d)} :  F_S = 1 \}.\]
 %
-\noindent denote the collection of entries of our array which are one. Moreover, given a vector $x := (x_e)_{e \subseteq [n]} \in [0,1]^{2^n}$ and a subset $A \in [n]^{(d)}$ denote:
+\noindent denote the collection of entries of our array which are one. 
+Moreover, given a vector $x := (x_e)_{e \subseteq [n]} \in [0,1]^{2^n}$ 
+and a subset $A \in [n]^{(d)}$ denote
 %
-\[x_{(A)} := (x_\emptyset, (x_i)_{i \in A}, (x_{ij})_{ij \in A^{(2)}}, \;... \;, x_A) \in [0,1]^{2^d},\]
+\[x_{(A)} := (x_\emptyset, (x_i)_{i \in A}, (x_{ij})_{ij \in A^{(2)}}, \;... \;, x_A) \in [0,1]^{2^d}.\]
 %
-\noindent analogous to how the representation function $f$ is indexed in Theorem \ref{thm:representation_theorem_of_exchangeable_arrays}. Namely, if $x$ is indexed by all subsets of $[n]$ then $x_{(A)}$ restricts to only subsets of $A$. Lastly, for a finite $d-dimensional$ array of size $k$ let $|x| := k$ denote its size.
+\noindent Namely, 
+if $x$ is indexed by all subsets of $[n]$ then $x_{(A)}$ restricts to 
+only subsets of $A$. Lastly, for a finite $d$-dimensional array of size 
+$k$ let $|x| := k$ denote its size.
+
+%%%%%%%%%%%%
+% Embeddings of Labeled States
+%%%%%%%%%%%%
 
 \subsection{Embeddings of Labeled States}
 
-Suppose we have arrays $(x_e)_{e \in [n]^{(d)}}$ and $(y_e)_{e \in [n+m]^{(d)}}$. Then for the labeled chain we say \textit{x is embedded in y} if $y_e = x_e$ for all $e \in [n]^{(d)}$ and denote this by \red{$x \leq y$}. Namely, we obtain $x_e$ by looking at the ``top left corner'' of the array $y_e$. From the viewpoint of our Markov chain, this just means that the array $(y_e)$ is reachable starting in state $(x_e)$. This is an extension of the standard notion of an induced subgraph in the theory of graphs, and in fact makes sense beyond just binary arrays.
+Suppose we have arrays $(x_e)_{e \in [n]^{(d)}}$ and $(y_e)_{e \in [n+m]^{(d)}}$. 
+Then we say \textit{x is embedded in y} if $y_e = x_e$ for 
+all $e \in [n]^{(d)}$ and denote this by $x \leq y$. Namely, we obtain $x_e$ by 
+looking at the ``top left corner'' of the array $y_e$. From the viewpoint of our 
+labeled Markov chain $L_n$, this just means that the array $(y_e)$ is reachable starting in 
+state $(x_e)$. This extends the standard notion of an induced subgraphs beyond binary arrays.
 
-Likewise, the standard notion of graph embedding extends to the following notion for binary arrays: we say a binary array $x$ is \textit{weakly embedded} in binary array $y$, denoting this by $\red{x \lesssim y}$, if $y_e = 1$ whenever $x_e = 1$. This notion of embedding is the one which the theory of graphons is built on, but as we show below from a topological perspective the two notions are equivalent. In a sense, the former notion of embedding is more natural for exchangeable arrays because it makes sense for nonbinary arrays.
+We say a binary array $x$ is \textit{weakly embedded} in binary array $y$, denoting this 
+by $x \lesssim y$, if $y_e = 1$ whenever $x_e = 1$. This is the standard notion of a graph embedding.
 
-
+%%%%%%%%%%%%%%%%%%%%%
+% Embeddings of Unlabeled States
+%%%%%%%%%%%%%%%%%%%%%
 \subsection{Embeddings of Unlabeled States}
 
-\noindent Again suppose we have arrays $(x_e)_{e \in [n]^{(d)}}$ and $(y_e)_{e \in [n+m]^{(d)}}$. For the unlabeled chain, we want to incorporate the idea that the arrays are only defined up to a permutation of the indices. Thus say $[x]_\sim$ is (weakly) embedded in $[y]_\sim$ if there exists $\sigma \in Sym([n+m])$ so $(x_e)$ is (weakly) embedded in $(y_{\sigma(e)})$ in the sense of our labeled chain. Equivalently, if there exists an injective function $\phi:[n] \to [n+m]$ so $(x_{\phi(e)}) = (y_{e})$. 
+\noindent Again suppose we have arrays $(x_e)_{e \in [n]^{(d)}}$ and $(y_e)_{e \in [n+m]^{(d)}}$.
+Say $[x]_\sim$ is  embedded in $[y]_\sim$ if there exists $\sigma \in Sym([n+m])$ so $(x_e) \leq (y_{\sigma(e)})$. 
+Equivalently, there exists an injective function $\phi:[n] \to [n+m]$ so $(x_{\phi(e)}) = (y_{e})$. 
 
-In this case, there can be more than one embedding if there are several different choices of $\sigma$ that produce an embedding. For example, if both $x,y$ are arrays of all zeros of their respective sizes then any $\sigma \in Sym([n+m])$ will produce an embedding. This suggests a notion of \textit{embedding density} analogous to the theory of graphons and permutons.
+In this case, there can be more than one embedding if there are several 
+different choices of $\sigma$ that produce an embedding. 
+This suggests a notion of \textit{embedding density} analogous to the 
+theory of graphons and permutons.
 %
 \begin{align}
     emb(x,y) & := \frac{| \{\sigma \in Sym([n+m]) \; : \; (x_e) \leq (y_{\sigma(e)}) \}|}{(n+m)!} \notag\\[7pt]
@@ -314,7 +353,11 @@ In this case, there can be more than one embedding if there are several differen
     \label{def:embedding_density}
 \end{align}
 
-\noindent for $x \in E_n, y \in E_{n+m}$. Note that the embedding density is constant on each equivalence class of $x$ so this is well-defined as a function on these equivalence classes.  Likewise we can define the \textit{morphism density} by removing the injectivity constraint:
+\noindent for $x \in E_n, y \in E_{n+m}$. Note that the embedding 
+density is constant on each equivalence class of $x$ so this is 
+well-defined as a function on these equivalence classes.  
+Likewise we can define the \textit{morphism density} by removing 
+the injectivity constraint:
 %
 \begin{equation}
     mor(x,y) := \frac{| \{\phi:[n] \to [n+m] \; : \; (x_{e}) \leq (y_{\phi(e)}) \}|}{(n+m)^n}.
@@ -327,104 +370,117 @@ In this case, there can be more than one embedding if there are several differen
 
     \begin{enumerate}[label=(\roman*)]
         \item $emb(x,y) \leq emb^W(x,y)$. 
-        \item $emb^W(x,y) = \sum_{x' \geq x} emb(x,y)$
-        \item $emb(x,y) = \sum_{x' \geq x} (-1)^{|1_x| - |1_{x'}|} \cdot emb^W(x',y)$
+        \item $emb^W(x,y) = \sum_{x' \geq x} emb(x,y)$.
+        \item $emb(x,y) = \sum_{x' \geq x} (-1)^{|1_x| - |1_{x'}|} \cdot emb^W(x',y)$.
 
-        \item $|mor^W(x,y) - emb^W(x,y)| \leq \frac{1}{|y|} \cdot {\;|x|\; \choose 2}$ 
+        \item $|mor^W(x,y) - emb^W(x,y)| \leq \frac{1}{|y|} \cdot {\;|x|\; \choose 2}$.
         
-        \item  $|mor(x,y) - emb(x,y)| \leq \frac{1}{|y|} \cdot {\;|x|\; \choose 2}$
+        \item  $|mor(x,y) - emb(x,y)| \leq \frac{1}{|y|} \cdot {\;|x|\; \choose 2}$.
     \end{enumerate}   
 
     \label{lem:relating_different_notions_of_embedding}
 \end{lemma}
 
-
-
-\noindent The above in fact shows that from a topological perspective, all these notions of embedding are equivalent. Thus in formalizing a notion of convergence, either definition will suffice. Moreover, as the above observations may suggest, there is a relationship between such processes and the backwards exchangeable processes of \red{the other paper}.
+\noindent Given any notion $t(x,y)$ of the embedding density of $x$ into $y$, we can topologize our collection
+of combinatorial objects: we simply say a sequence $y_n$ converges if
+%
+    \[\lim_{n \to \infty} t(x, y_n) \text{ exists}\]
+%
+for every fixed $x$. Thus Lemma~\ref{lem:relating_different_notions_of_embedding} 
+shows that all these notions of embedding are essentially topologically equivalent. 
+In fact, such convergence is closely related to the Doob-Martin topology.
 
 \begin{lemma}[Doob-Martin Convergence and Embedding Densities]
-    The unlabeled chain $M_n$ of an exchangeable array process is uniformly backwards exchangeable with labels $\sigma \in Sym([n])$. Moreover, the following are equivalent:
+    The following are equivalent:
         \begin{enumerate}[label=(\roman*)]
             \item The sequence $y_N$ converges in the Doob-Martin topology.
             \item The embedding density $emb(x, y_N)$ converges for all $x$.
             \item The morphism density $mor(x, y_N)$ converges for all $x$. 
         \end{enumerate}
 
-    \noindent Furthermore, for binary arrays convergence of the weak embedding/morphism density is also equivalent.
+    \noindent For binary arrays, convergence of the weak embedding/morphism density is also equivalent.
 
     \label{lem:equivalence_of_dm_and_density_convergence}
 \end{lemma}
 
-
-
-\zack{We would like to say something stronger; that every backwards exchangeable chain, subject possibly to some constraints, can be encoded in such an array. But I think we are limited here to only chains that can be labeled by a single permutation, rather than our sort of more arbitrary labeling scheme discussed at the start of the paper.}\\
-
-
-
-\zack{The key idea for the below lemmas/proofs is that most of the fundamental results about the embedding densities only interact with graphs through bounding the number of injective maps $\phi : [k] \to [n]$ that appear in equation \eqref{def:embedding_density}. Hence these results extend almost verbatim to our more general results on exchangeable arrays, altough I suspect the concentration bounds could be improved to depend on the dimension $d$ of the array.}
-
-\noindent In the case of our graphon and permuton chains, the notion of embedding can be extended to the limiting object, graphons and permutons, via sampling. Namely, for a graphon $w$ its embedding density $t(\cdot, w)$ is essentially defined so that for each $n$ and finite graph $F$:
+\noindent In the case of our graphon and permuton chains, the notion of 
+embedding can be extended to the limiting object, graphons and permutons,
+ via sampling. Namely, for a graphon $w$ its embedding density $t(\cdot, w)$
+  is essentially defined so that for each $n$ and finite graph $F$
 %
 \[t(F, w) = \E t(F, G_n(w)),\]
 
-\noindent where $G_n(w)$ is the random graph generated by sampling $n$ uniforms $U_1,..., U_n$ and connecting vertices $i,j$ with probability $w(U_i, U_j)$.
+\noindent where $G_n(w)$ is the random graph generated by sampling
+ $n$ uniforms $U_1,..., U_n$ and connecting vertices $i,j$ with 
+ probability $w(U_i, U_j)$.
 
-Analogously, we would like to extend this notion of an embedding density to our limiting objects: the representation functions $f$ of our exchangeable arrays. This suggests the definitions:
+Analogously, we would like to extend this notion of an embedding density 
+to our limiting objects: the representation functions $f$ of our 
+exchangeable arrays. This suggests
 %
 \begin{equation}
     emb(x, f) := \E \; emb(x, X_n(f)), \qquad  emb^W(x, f) := \E \; emb^W(x, X_n(f)),
+    \label{eqn:def_embedding_density_representation_function_f}
 \end{equation}
 
 \noindent where $X_n(f)$ is the array indexed by $[n]^{(d)}$ generated by:
 %
 \[(X_n(f))_e := f(U_\emptyset, (U_i)_{i \in e},..., U_e).\]
 
-\noindent We will now show these expectations are independent of $n$ and have an integral representation analogous to the embedding density of graphons. The key insight is that many of the preliminary results in the theory of graphons rely purely on controlling the embedding densities by bounding the number of injective functions $\phi:[k] \to [n]$, and thus generalize immediately to exchangeable array processes.
+\noindent We will now show these expectations are independent of $n$ and 
+have an integral representation analogous to the embedding density of graphons.
 
 \begin{lemma}[Embedding Densities of Representation Functions]
-If $F$ is a size $k$ array $d-dimensional$ array an $f$ the representing function of an exchangeable array $X$ with $ k \geq d$ then for \red{$n \geq k$}:
+Suppose $d \leq k \leq n$. If $F$ is a size $k$ array $d$-dimensional array and $f$ the 
+representing function of an exchangeable array $X$ with then
 
 \begin{equation}
-    emb^W(F,f) := \E \; emb^W(F, X_n(f)) = \int_{[0,1]^{2^k}}  \prod_{S \in \ind(F)} f(x_{(S)}) \; d\lambda_{2^k} 
+    emb^W(F,f) = \int_{[0,1]^{2^k}}  \prod_{S \in \ind(F)} f(x_{(S)}) \; d\lambda_{2^k} 
     \label{eqn:integral_formula_for_embedding_density_of_representing_function}
 \end{equation}
 \begin{equation}
-    emb(F,f) := \E \; emb(F, X_n(f)) = \int_{[0,1]^{2^k}}  \prod_{S \in [k]^{(d)}} \ind \{f(x_{(S)}) = F_S\} \; d\lambda_{2^k}.
+    emb(F,f) = \int_{[0,1]^{2^k}}  \prod_{S \in [k]^{(d)}} \ind \{f(x_{(S)}) = F_S\} \; d\lambda_{2^k}.
 \end{equation}
 %
-\noindent In particular, it is independent of $n$. Moreover we have concentration:
+\noindent In particular, it is independent of $n$. Moreover we have
+ concentration
 %
 \begin{align*}
-    \P\left( |emb^W(F, X_n(f)) - emb^W(F, f)| > \epsilon \right) &  \leq 2 \exp \left(-\frac{\epsilon^2}{\red{2}k^2} n \right)\\
+    \P\left( |emb^W(F, X_n(f)) - emb^W(F, f)| > \epsilon \right) &  \leq 2 \exp \left(-\frac{\epsilon^2}{2k^2} n \right),\\
     % 
-	    \P\left( |emb(F, X_n(f)) - emb(F, f)| > \epsilon \right) & \leq 2 \exp \left(-\frac{\epsilon^2    }{\red{2}k^2} n \right).
+	    \P\left( |emb(F, X_n(f)) - emb(F, f)| > \epsilon \right) & \leq 2 \exp \left(-\frac{\epsilon^2    }{2k^2} n \right).
 \end{align*}
 %
 \noindent Thus,
 \[
-mor(F, X_n(f)), emb(F, X_n(f)) \xrightarrow{a.s.} emb(F,f)
+\lim_{n \to \infty}mor(F, X_n(f)) = \lim_{n \to \infty} emb(F, X_n(f)) \overset{a.s.}{=} emb(F,f),
 \]
 \noindent and
 \[
-mor^W(F, X_n(f)), emb^W(F,X_n(f)) \xrightarrow{a.s.} emb^W(F,f).
+    \lim_{n \to \infty} mor^W(F, X_n(f)) = \lim_{n \to \infty} emb^W(F, X_n(f)) \overset{a.s.}{=} emb^W(F,f).
 \]
-\noindent In particular, the results of Lemma \ref{lem:relating_different_notions_of_embedding} (i) - (iii) extend to $emb^W(F,f)$ and $emb(F,f)$.
+\noindent In particular, the results of Lemma~\ref{lem:relating_different_notions_of_embedding} (i) - (iii) extend to $emb^W(F,f)$ and $emb(F,f)$.
 
 
 \label{lem:integral_representations_of_embedding_densities}
 \end{lemma}
 
-\noindent This is perfectly analogous to the theory of graphons which shows:
+\noindent This is perfectly analogous to the theory of graphons which shows
 %
 \[\E (emb(F, G_n(w)) = \int_{[0,1]^k} \prod_{(i,j) \in E_F} w(x_i, x_j) \; dx.\]
 %
-\noindent To see why, note that in the case $d=2$:
+\noindent To see why, note when $d=2$
 %
 \[ \int_{[0,1]^{2^k}}  \prod_{S \in \ind(F)} f(x_{(S)}) \; d\lambda_{2^k} = \int_{[0,1]^{2^k}}  \prod_{(i,j) \in \ind(F)} f(x_\emptyset, x_i, x_j, x_{ij}) \; d\lambda_{2^k}. \]
 %
-\noindent Thus the integrand depends only on the $1 + k + {k \choose 2}$ coordinates $x_e$ for subset $e$ of $[k]$ of size at most two. For graphons the terms inside the product become $\ind\{x_{ij} \leq w(x_i, x_j)\}$ so we can integrate out the coordinate $x_\emptyset$ and the coordinates $x_{ij}$ (which only appear in one term of the product) to get the familiar formula from graphons. 
+\noindent For graphons the terms inside the product become $\ind\{x_{ij} \leq w(x_i, x_j)\}$ so 
+we can integrate out the coordinate $x_\emptyset$ and the coordinates $x_{ij}$ (which each only appear
+ in one term of the product) to get the familiar formula. 
 
-In general, we can see that the integral in \eqref{eqn:integral_formula_for_embedding_density_of_representing_function} only relies on the $\sum_{i=0}^d {k \choose d}$ coordinates corresponding to subsets $e \subseteq k$ of size at most $d$, so many of the coordinates in the integral are superfluous. We leave them in for simplicity of notation.  
+In general, we can see that the integral in 
+\eqref{eqn:integral_formula_for_embedding_density_of_representing_function} only relies 
+on the $\sum_{i=0}^d {k \choose d}$ coordinates corresponding to subsets $e \subseteq k$ of size at most $d$, 
+so many of the coordinates in the integral are superfluous. We leave them in for simplicity of notation.  
 
 
 % Metrizing Convergence of Exchangeable Array Processes %%%%%%%%%%%%%%

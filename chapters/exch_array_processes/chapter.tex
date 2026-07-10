@@ -109,7 +109,7 @@ Next, we now point out a simple way of generating new exchangeable arrays from o
 \end{lemma}
 
 \noindent Here we are essentially defining an equivalence relation on the entries of the array where we let $s \sim s'$ if $g(s) = g(s')$. 
-We call this the \textit{state space equivalence}. 
+We call this the \textit{state-space equivalence}. 
 
 Combined with definition \ref{def:exchangeable_array_process}, this shows that there are essentially three layers of Markov processes associated to a given exchangeable array: (i) the initial ``labeled'' exchangeable array process corresponding to ($X_e$), then (ii) the ``labeled'' array process corresponding to $(g(X_e))$ where we apply an equivalence to the state space and lastly (iii) the ``unlabeled'' chain where we apply an equivalence relation to the coordinates of the array. See the example below on ballot sequences for an example where all three layers are utilized.
 
@@ -187,28 +187,39 @@ to $e \in [n-1]^{(d)}$ to obtain $L_{n-1}$. Thus, its Doob-Martin boundary is al
 \end{lemma}
 
 \noindent Next, we discuss how state-space equivalence and unlabeling affect this boundary.
-%%% state equivalence
-\subsection{State Equivalence}
 
-\noindent As discussed earlier, given the exchangeable array $(X_e)$ we can generate a new exchangeable array $(g(X_e))$, and by lemma \ref{lem:boundary_labeled_chain} the boundary of the corresponding labeled array processes are just the deterministic arrays on the relevant state spaces.
+%%%%%%%%%%%%%%%%%%%%%%%%
+%%% State-Space Equivalence
+%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{State-Space Equivalence}
+
+\noindent Given the exchangeable array $(X_e)$ and measurable function $g: S \to S'$, we can generate a new exchangeable 
+array $(g(X_e))$. By Lemma~\ref{lem:boundary_labeled_chain} the boundary of the corresponding 
+labeled array processes consists of deterministic arrays on the relevant state spaces.
 
 \zack{We know from the previous section the boundary of $g(X_e)$ is again just the deterministic arrays $(y_e)$. But I want to relate this to the boundary of $X_e$ in a nice way. The preimage $g^{-1}((y_e))$ of a deterministic array includes random arrays $(X_e)$ so that $supp(X_e) \subseteq g^{-1}(y_e)$. Thus we get a whole collection of bridges of $(X_e)$, some of which are extremal and some of which are mixtures of these extremal ones. I should go back to the ballot chain example to see how to possibly interpret this as a measure on the boundary of the labeled chain. }
 
-
-%%% Labeled Chain
+%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Boundary Unlabeled Chain
+%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Boundary of the Unlabeled Chain}
 
-\noindent Now we seek to understand the boundary of the unlabeled chain $M_n$ obtained via our equivalence $\sim$. Recall that there is a correspondence between infinite bridges of a given Markov chain and its nonnegative harmonic functions with $h(x_0) = 1$ via the Doob h-transform. 
+\noindent Now we seek to understand the boundary of the unlabeled chain $M_n$. 
+Recall the correspondence \eqref{eqn:doob_h_transform_correspondence} between infinite 
+ bridges of a Markov chain and its nonnegative harmonic functions via the Doob 
+ h-transform. 
 
 \begin{lemma}[Exchangeable Bridges of the Labeled Chain]
-    Any infinite bridge of the labeled exchangeable array process is an array process, and it is exchangeable if and only if the corresponding harmonic function $h$ is constant on the equivalence classes of $\sim$. 
+    Any infinite bridge of the labeled exchangeable array process is an array 
+    process, and it is exchangeable if and only if the corresponding harmonic 
+    function $h$ is constant on the equivalence classes of $\sim$. 
 
     \label{lem:harmonic_functions_labeled}
 \end{lemma}
 
-
-
-An immediate consequence of this is that the harmonic functions of the unlabeled chain are in direct correspondence with the bridges of labeled chain which come from exchangeable arrays.
+\noindent An immediate consequence is that the harmonic functions of the 
+unlabeled chain are in direct correspondence with the bridges of labeled chain which
+come from exchangeable arrays.
 
 \begin{corollary}[Bridges of the Unlabeled Chain]
     If $M^{\tilde{h}}_n$ is an infinite bridge of the unlabeled chain $M_n$, then $M^{\tilde{h}}_n$ equals the unlabeled process associated to some exchangeable array $(X_e^h)$. In particular, if $\tilde{h}$ is the harmonic corresponding to the bridge $M^{\tilde{h}}_n$, then $h(x) := \tilde{h}([x])$ is the harmonic corresponding to the array $(X_e^h)$.
@@ -216,19 +227,20 @@ An immediate consequence of this is that the harmonic functions of the unlabeled
     \label{cor:unlabeled_associated_to_exchangeable_array}
 \end{corollary}
 
-\daniel{Should this corollary include a statement saying how $(X_e^h)$ and the array $(X_e)$ generating $M_n$ relate?}
-
-
-
-The relation $\sim$ extends to infinite $d-dimensional$ infinite arrays $x$ in the obvious way: $x \sim y$ if there is $\sigma \in Sym(\N)$ so $x = \sigma(y)$. We say a measurable collection $I$ of arrays is \textit{$\nu-invariant$} if permutations do not change up up to $\nu-null$ sets:
-\[ I \overset{\nu-a.s.}{=} \tau I \quad  \quad \forall \tau \in Sym(\N).\]
-
-
-We say an exchangeable array with distribution $\nu$ is \textit{ergodic} if $\nu(I) \in \{0,1\}$ for all $\nu-$invariant sets $I$. 
-
- We say an exchangeable array is \textit{dissociated} if for any disjoint index sets $I_1,...,I_m \subset \N$ the arrays $\{X^i_e\}_{e \in I_i^{(d)}}$ are independent. For example, the exchangeable array corresponding to a graphon is disassociated because in this setting, this condition just asserts that the random  graphs corresponding to disjoint collections of vertices are independent in the graphon model, which follows immediately from the fact that the presence of edges are determined independently.
-
- The following theorem shows that all these aforementioned properties characterize the Doob-Martin boundary of the unlabeled chain.
+The relation $\sim$ extends to infinite $d-dimensional$ infinite arrays $x$ 
+in the obvious way: $x \sim y$ if there is $\sigma \in Sym(\N)$ so $x = \sigma(y)$.
+ We say a measurable collection $I$ of arrays is \textit{$\nu-invariant$} if 
+ permutations do not change up up to $\nu-null$ sets:
+ %
+    \[ I \overset{\nu-a.s.}{=} \tau I \quad  \quad \forall \tau \in Sym(\N).\]
+%
+Say an exchangeable array with distribution $\nu$ is \textit{ergodic} if $\nu(I) \in \{0,1\}$ 
+for all $\nu-$invariant sets $I$, and say it is \textit{dissociated} if for any disjoint index 
+sets $I_1,...,I_m \subset \N$ the arrays $\{X^i_e\}_{e \in I_i^{(d)}}$ are independent. 
+For example, the exchangeable array corresponding to a graphon is disassociated because the random subgraphs corresponding 
+to disjoint collections of vertices are independent in the graphon model since edges are added independently
+between the selected vertices. The following shows these properties characterize the Doob-Martin boundary of 
+the unlabeled chain.
 
 \begin{theorem}[Extremal Bridges and Ergodic Arrays]
     For any infinite bridge of the unlabeled exchangeable array process $M_n$, the following are equivalent:
@@ -244,22 +256,31 @@ We say an exchangeable array with distribution $\nu$ is \textit{ergodic} if $\nu
 
 
 %
-
-
-This also shows that the representation function of a given unlabeled bridge can in a sense be written as a mixture of the extremal representation functions $f^{\tilde{K}(\cdot,\alpha)}$, which do not depend on the first coordinate by the previous theorem. More specifically, if we let $g: [0,1] \to \overline{E}$ be a function so that $g(U)$ has distribution $\mu_{\tilde{h}}$ this shows that $f^{\tilde{h}}(U, (U_i), ..., U_e) = f^{g(U)}((U_i), ..., U_e)$ and so our representation function is a ``mixture'' of the extremal representation functions.
-
-
 \begin{remark}
-    Our observation in \ref{example:graphon_chain} that the representation function $f(q,x,y,u) := \ind \{u \leq w(x,y)\}$ for our graphon $w$ does not depend on $q$ is then, according to the previous lemma, just the statement that graphons correspond to the extremal infinite bridges, and hence the minimal Doob-Martin boundary, of the graphon chain. \red{In fact I think for binary arrays the extremal representation functions will always look like $\ind\{u \leq f((x_i), (x_{ij}), ...)$ up to the Lebesgue isomorphisms in the uniqueness theorem. So the binary exchangeable array processes look exactly like the graphon chain but with edges between $d-subets$ of the graph! So like a hypergraph chain but where the edge degree is fixed to be $d$. So the hypergraph chain is just like an infinite collection of exchangeable array chains, one for each $d$. }
+    By Example~\ref{example:graphon_chain}, given a graphon $w$ the representation function
+    %
+        \[f(q,x,y,u) := \ind \{u \leq w(x,y)\},\]
+    %
+    \noindent of the associated binary exchangeable array process does not depend on $q$.
+    Hence, Theorem~\ref{thm:boundary_is_ergodic_arrays} implies
+    graphons correspond to the extremal infinite bridges, and hence the minimal 
+    Doob-Martin boundary, of the graphon chain, as noted in~\cite{Grubel_2015_graphons}.
 \end{remark}
 
-\daniel{Can we then say that the full boundary (not just minimal) comes from stochastic block models then?}
+As a consequence, the representation function of any unlabeled 
+bridge is a mixture of the extremal representation 
+functions $f^{\tilde{K}(\cdot,\alpha)}$, which do not depend on the first 
+coordinate by the previous theorem. More specifically, if we 
+let $g: [0,1] \to \overline{E}$ be a function so that $g(U)$ has distribution
+ $\mu_{\tilde{h}}$ this shows
+    %
+    \[f^{\tilde{h}}(U, (U_i), ..., U_e) = f^{g(U)}((U_i), ..., U_e)\]
+    %
 
-\noindent \red{Another interpretation of the above result is that the boundary of the unlabeled chain is in terms of measures on the labeled boundary.}
 
-
-% Embedding Density of Representation Functions %%%%%%%%%%%%%%%%%%%%
-\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Embedding Density of Representation Functions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Embedding Density of the Representation Functions}
 
 \noindent The of embedding a smaller structure into a larger structure plays a pivotal role in the theory of combinatorial processes. \red{give a little more motivation}.
@@ -707,112 +728,192 @@ Given an exchangeable array process $(X_e)$ represented by $f$, lemma \ref{lem:s
 \newpage
 \section{Background on Doob-Martin Boundary Theory}
 \label{sec:doob_martin_background_appendix}
-Here we aim to provide some of the essentials of Doob-Martin boundary theory. We restrict our attention to the case of discrete Markov chains relevant to this paper. The primary reference on this topic is \citep{Doob_original} but \citep{sawyerMB} and \citep{DM_Remy} also provide good overviews for the discrete case in more modern terminology.\\
+Here we aim to provide some of the essentials of Doob-Martin boundary theory.
+We restrict our attention to the case of discrete Markov chains relevant to this 
+paper. The primary reference on this topic is \citep{Doob_original} but 
+\citep{sawyerMB} and \citep{DM_Remy} also provide good overviews for the discrete 
+case in more modern terminology.\\
 %
-\indent Suppose $\Xn$ is a transient Markov chain with a countable state space $E$ and transition kernel $p$. Define the \textit{Green's kernel} or \textit{potential kernel} $g: E \times E \to \mathbb{R}_{\geq0}$ by:
+\indent Suppose $\Xn$ is a transient Markov chain with a countable state 
+space $E$ and transition kernel $p$. Define the \textit{Green's kernel} or 
+\textit{potential kernel} $g: E \times E \to \mathbb{R}_{\geq0}$ by
 %
 \begin{equation}
     g(x,y) := \sum_{n \geq 0} p^n(x,y) = \E_x (\text{number of times $X_n$ hits y}).
     \label{eqn:green's_kernel}
 \end{equation}
 %
-\noindent Assume further there exists a base state $x_0$ from which the chain is irreducible, namely $g(x_0,y) > 0$ for all $y \in S$. For this paper, $x_0$ will typically be the empty array. Note that transience implies that $g(x,y) < \infty$. In this paper, we will typically be interested in \textit{graded} chains in which the state space $E  =\bigcup E_n$ can be partitioned in such a way so that transitions exclusively occur from $E_n$ to $E_{n+1}$. In this case, we can think of $g(x,y)$ as $\P_x(X_n \text{ hits }y)$. Using this, define the \textit{Doob-Martin kernel} $K:E \times E \to \R_{\geq 0}$ with respect to base state $x_0$ to be:
+\noindent Transience implies $g(x,y) < \infty$. Assume further there exists a base state $x_0$ from which the chain is 
+irreducible, namely $g(x_0,y) > 0$ for all $y \in S$. For this paper, $x_0$ will 
+typically be the empty array.  
+Moreover, we will typically be interested in \textit{graded} chains. These are
+Markov chains in which the state space $E  =\bigsqcup E_n$ can be partitioned 
+so transitions occur only from $E_n$ to $E_{n+1}$. Here 
+%
+    \[g(x,y) = \P_x(X_n \text{ hits }y).\]
+%
+\noindent Define the \textit{Doob-Martin kernel} $K:E \times E \to \R_{\geq 0}$
+with respect to base state $x_0$ via
 %
 \begin{equation}
     K(x,y) := \frac{g(x,y)}{g(x_0,y)} = \frac{\P_x(X_n \text{ hits y})}{\P_{x_0}(X_n \text{ hits y})}. 
 \end{equation}
 
 %
-\noindent Our irreducibility assumption implies this is well-defined. Observe that for each fixed $y$ the function $K(\cdot, y)$ is ``almost harmonic'' in the sense that:
+\noindent Observe for each fixed $y$ the function $K(\cdot, y)$ is ``almost harmonic'' in the sense
 
 \begin{equation*}
     \sum_{z \in S} p(x,z)K(z, y) = K(x,y) \quad x \neq y. 
 \end{equation*}
 
 
-\noindent Intuition might suggest that if we can let $y$ ``go off to infinity'' we ought to get a truly harmonic function, and this suggests an investigation of sequences of states $\{y_n\}$ in $S$ so that the sequence of real numbers $\{K(x, y_n)\}$ converges for all $x\in S$. The Doob-Martin boundary will make this intuition precise. 
+\noindent This suggests if we let $y$ ``go off to infinity'' we ought to get a truly 
+harmonic function in the limit. The Doob-Martin boundary will make this intuition precise. 
 
-\indent Note that for each fixed $x$ that $K(x, y)$ is a bounded function of $y$. To see why, note irreducibility implies $p^m(x_0, x) > 0$ for some $m$ so that: 
+\indent Note for fixed $x$, the kernel $K(x, y)$ is a bounded function of $y$. To see why,
+ note irreducibility implies $p^m(x_0, x) > 0$ for some $m$ so 
 %
 \[0 \leq K(x,y) := \frac{g(x,y)}{g(x_0, y)} \leq \frac{g(x,y)}{p^m(x_0, x) g(x,y)} = \frac{1}{p^m(x_0,x)} =: C_x.\]
 
 %
-\noindent Hence we can view the collection of functions $\{K(\cdot, y) \}_{y \in E}$ as a subset of $\bigtimes_{x \in E} [0, C_x] \subseteq \R^E_{\geq0}$. As $\bigtimes_x [0,C_x]$ is compact under its standard product topology, then $\{K(\cdot, y) \}_{y \in E}$ is precompact. Moreover, as $K(\cdot, y) \neq K(\cdot, y')$ for $y \neq y'$ we can identify $E$ with $\{K(\cdot, y) \}_{y \in E}$. Its closure $\overline{E} \subseteq \R^E_{\geq 0}$ under this identification is thus compact. We call $\overline{E}$ the \textit{Doob-Martin compactification} of $E$ and its boundary $\partial E := \overline{E} - E$ the \textit{Doob-Martin boundary}. In summary, we have turned $E$ into a metric space by identifying it with a subset of $\R^{E}_{\geq 0}$ which already carries a natural metric structure, and used this identification to compactify $E$. In fact, this can be done with any class of functions $\cF$ that separates points. Here we just choose $\cF = \{K(\cdot, y)\}_{y \in E}$.
+\noindent Hence we can view the collection of functions $\{K(\cdot, y) \}_{y \in E}$ 
+as a Euclidean subset
+    %
+    \[\{K(\cdot, y) \}_{y \in E} \subseteq \bigtimes_{x \in E} [0, C_x] \subseteq \R^E_{\geq0},\] 
+    %
+\noindent so $\{K(\cdot, y) \}_{y \in E}$ is precompact under the product topology. 
+Moreover, as $K(\cdot, y) \neq K(\cdot, y')$ for $y \neq y'$ we can identify $E$ with
+$\{K(\cdot, y) \}_{y \in E}$. The closure $\overline{E} \subseteq \R^E_{\geq 0}$ under this 
+identification is compact. We call $\overline{E}$ the \textit{Doob-Martin compactification} 
+of $E$ and its boundary $\partial E := \overline{E} - E$ the \textit{Doob-Martin boundary}.
+
+In summary, we have turned $E$ into a metric space by identifying it with a subset of 
+$\R^{E}_{\geq 0}$ which carries a natural metric structure, and used this identification 
+to compactify $E$. 
 
 %
 \begin{remark}
-    By construction, a sequence $\{y_n\} \in E$ converges to a point $\alpha \in \overline{E}$ if and only if $\{K(\cdot, y_n)\}$ converges in $\R^E_{\geq 0}$, namely if and only if $K(x, y_n)$ converges in $\R_{\geq 0}$ for all $x \in E$. Moreover, for each fixed $x$ the function $K(x, \cdot) : E \to \R_{\geq 0}$ extends continuously to $\overline{E}$. 
+    By construction, a sequence $\{y_n\} \in E$ converges to a point 
+    $\alpha \in \overline{E}$ if and only if $\{K(\cdot, y_n)\}$ converges 
+    in $\R^E_{\geq 0}$, namely if and only if $K(x, y_n)$ converges in $\R_{\geq 0}$
+     for all $x \in E$. Thus for fixed $x$ the function 
+     $K(x, \cdot) : E \to \R_{\geq 0}$ extends continuously to $\overline{E}$. 
     \label{rmk:conv_in_dm}
 \end{remark}
 %
 %
-\noindent There is a close relationship between the Doob-Martin kernel $K$ and the backwards transition probabilities of the chain. Namely, for $x \in E_n, y_N \in E_{N}$ by applying Bayes rule:
+\noindent There is a close relationship between the Doob-Martin kernel $K$ and 
+the backwards transition probabilities of the chain. Namely, for 
+$x \in E_n, y_N \in E_{N}$ Bayes rule implies
 %
 \[K(x,y) = \frac{\P(X_{N} = y_N \; | \; X_n = x)}{\P(X_{N} = y_N)} = \frac{\P(X_n = x \; | \; X_{N} = y_N)}{\P(X_n = x)}.\]
 %
-\noindent Thus $K(x, y_N)$ converges as $N \to \infty$ for all $x$ if and only if the conditional probabilities $\P(X_n = x \; | \; X_N = y_N)$ converge for all $x$. 
+\noindent Thus $K(x, y_N)$ converges as $N \to \infty$ for all $x$ if and only
+ if the conditional probabilities $\P(X_n = x \; | \; X_N = y_N)$ converge for 
+ all $x$. 
 
-
-%%%%%%%%%%%%%%%%%% Minimal Boundary and representation of harmonics %%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Minimal Boundary and representation of harmonics 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Minimal Boundary and Representation of Harmonics}
 
-\noindent Essentially by construction we have $K(\cdot, \alpha)$ is harmonic for every $\alpha \in \partial E$. 
-\noindent A specific subset  $\partial_m E \subseteq \partial E$, the \textit{minimal boundary}, will play a crucial role in our understanding of harmonic functions and the Doob-Martin boundary. It is defined as:
-
-\begin{equation}
-    \partial_m E := \{ \alpha \in \partial E : K(\cdot, \alpha) \text{ is minimal harmonic}\}.
-\end{equation}
-
-\noindent Here, a \textit{minimal harmonic} function is a harmonic function $u \geq 0$ so that for any other harmonic $w$ satisfying $0 \leq w \leq u$ we must have $w = c u$ for some constant $c \geq 0$.
+\noindent Given a Markov chain $X_n$ on state-space $S$, we say a function $h: S \to \R$ is \textit{harmonic} if
 %
-Let $\Hn$ denote the set of nonnegative harmonics with $h(x_0) = 1$. Note that $\Hn$ is a compact, convex set whose extreme points are precisely the minimal harmonic functions, and again clearly $K(\cdot, \alpha) \in \Hn$. Thus the minimal boundary is precisely just the subset of $\alpha$ so that $K(\cdot, \alpha)$ is an extreme point of $\Hn$. Ideas from convex analysis suggest we can represent other harmonic functions as an integral over these extreme points, and the following representation theorem shows this is indeed true. For every $u \geq 0$ harmonic there exists a unique measure $\mu_u$ supported on $\partial_m E$ satisfying:
+    \[h(x) = \E [h(X_{n+1}) \; | \; X_n = x].\]
+%
+\noindent Note $K(\cdot, \alpha)$ is harmonic for every $\alpha \in \partial E$. The \textit{minimal boundary} is the subset
+%
+    \begin{equation}
+        \partial_m E := \{ \alpha \in \partial E : K(\cdot, \alpha) \text{ is minimal harmonic}\}.
+    \end{equation}
+%
+\noindent A \textit{minimal harmonic} function is a harmonic function $u \geq 0$ so
+ for any other harmonic $w$ satisfying $0 \leq w \leq u$ we must have $w = c u$ for 
+ some constant $c \geq 0$.
+
+The set $\Hn$ of nonnegative harmonics with $h(x_0) = 1$ is a compact, convex set whose 
+extreme points are precisely the minimal harmonics. Clearly $K(\cdot, \alpha) \in \Hn$, so 
+the Doob-Martin boundary can be thought of as a subset of $\Hn$, and 
+the minimal boundary is precisely just the elements of that subset which are extreme points of $\Hn$.  
+Any nonnegative harmonic function $u$ can be represented 
+as an integral over these extreme points:
 
 \begin{equation}
     u(x) = \int_{\partial_m E} K(x, \alpha) \mu_u(d\alpha).
     \label{eqn:harmonic_representation_theorem}
 \end{equation}
 
-\noindent Moreover, as $K(\cdot, \alpha)$ is a harmonic for $\alpha \in \partial_m E$ and $|K(x, \alpha)| \leq C_x$ then equation \eqref{eqn:harmonic_representation_theorem} defines a nonnegative harmonic function for any finite measure $\mu_u$ which satisfies $u(x_0) = 1$ if and only if $\mu_u$ is a probability measure. In words, as $K(\cdot, \alpha)$ can be thought of as points on the minimal boundary, nonnegative harmonic functions are characterized by their distribution on the boundary. For the special case of $u = K(\cdot, \alpha)$ for $\alpha \in \partial_m E$ clearly we have $\mu_{u} = \delta_\alpha$. A full proof of these facts can be found in \cite{sawyerMB}.\\
+\noindent Moreover, as $K(\cdot, \alpha)$ is a harmonic for $\alpha \in \partial_m E$ 
+and $|K(x, \alpha)| \leq C_x$, equation~\eqref{eqn:harmonic_representation_theorem}
+defines a nonnegative harmonic function $u$ for any finite measure $\mu_u$, and $u$ satisfies 
+$u(x_0) = 1$ if and only if $\mu_u$ is a probability measure. 
 
-\noindent In some cases such as the R\'emy chain studied in \cite{DM_Remy}, $\partial E = \partial_m E$, but in general this is not true for an arbitrary Markov chain.
+In words, nonnegative harmonic functions are characterized by their distribution on the minimal boundary $\partial_m E$.
+For the special case of $u = K(\cdot, \alpha)$ for $\alpha \in \partial_m E$ clearly we have $\mu_{u} = \delta_\alpha$. 
+In some cases such as the R\'emy chain studied in \cite{DM_Remy}, $\partial E = \partial_m E$, but in 
+general this is not always the case. A full proof of these facts can be found in \cite{sawyerMB}.
 
-
-%%%%%%%% h processes 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% h processes 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Using h-processes to Condition at Infinity} \label{sec:h_processes}
 
- Given a harmonic function $h \in \Hn$, irreducibility and harmonicity imply in fact that $h > 0$ and so we can define a new transition mechanism $p^h$ which ``tilts'' the dynamics using $h$:
+ Given a harmonic function $h \in \Hn$, irreducibility and harmonicity imply 
+ in fact that $h > 0$ and so we can define a new transition mechanism $p^h$
+  which ``tilts'' the dynamics using $h$:
 %
 \begin{equation}
-    p^h(x,y) := \frac{1}{h(x)} p(x,y) h(y), \quad x,y \in E.
+    p^h(x,y) := \frac{h(y)}{h(x)} p(x,y), \quad x,y \in E.
     \label{eqn:h-process}
 \end{equation}
 %
-\noindent In particular, $p^h(x_0, y) = p(x_0,y)h(y)$. Thus the new chain reweights transitions of the original chain by a factor of $h(y) / h(x)$, favoring transitions towards states where $h$ is large, and in the case $h \equiv 1$ we simply obtain the original transition mechanism. We call the new Markov chain $X^{(h)}_n$ with transition probabilities $p^h$ the \textit{Doob h-process} or \textit{Doob h-transform} of $X_n$ corresponding to $h(x)$.
-The $h$-processes $X_n^{(K(\cdot, \alpha))}$ are of natural interest because they characterize the distributions of all other $h$-processes, including the original chain:
+\noindent Thus the new chain reweights transitions of the original chain by a 
+factor of $h(y) / h(x)$, favoring transitions towards states where $h$ is large.
+When $h \equiv 1$ we recover the original chain. 
+
+We call the new Markov chain $X^{(h)}_n$ with transition probabilities $p^h$ the 
+\textit{Doob h-process} or \textit{Doob h-transform} of $X_n$ corresponding to 
+$h(x)$. The $h$-processes $X_n^{(K(\cdot, \alpha))}$ are of natural interest 
+because they characterize the distributions of all other $h$-processes, 
+including the original chain:
 %
 \begin{equation}
 \P_{x_0}^h( B) = \int_{\partial_m E} \P_{x_0}^{K(\cdot, \alpha)}(B) \; \mu_h(d\alpha). 
     \label{eqn:K(., alpha) processes characterize h processes}
 \end{equation}%
 %
-\noindent for some unique measure $\mu_h$ supported on the minimal boundary. In particular, these $h$-processes converge a.s. in the Doob-Martin topology to the minimal boundary and have limiting distributions:
+\noindent for the unique measure $\mu_h$ supported on the minimal boundary as given in 
+\eqref{eqn:harmonic_representation_theorem}. In particular, these $h$-processes converge a.s. in the Doob-Martin topology to the minimal boundary and have limiting distributions:
 %
 \begin{equation}
     \P_{x_0}(\lim X_n^{(h)} \in A) = \int_{A \cap \partial_m E} K(x, \alpha) \mu_h(d\alpha),
     \label{eqn:limit_distribution_h-process}
 \end{equation}
-\begin{equation}
-    \P_{x_0}(\lim X_n \in A) = \int_{A \cap \partial_m E} K(x, \alpha) \mu_1(d\alpha). 
-    \label{eqn:limit_distribution_original_chain}
-\end{equation}
+% \begin{equation}
+%     \P_{x_0}(\lim X_n \in A) = \int_{A \cap \partial_m E} K(x, \alpha) \mu_1(d\alpha). 
+%     \label{eqn:limit_distribution_original_chain}
+% \end{equation}
 %
-\noindent Here $\mu_1$ is the measure corresponding to $h \equiv 1$. Namely, in the setting of Doob-Martin boundaries an $h$-process is merely a chain conditioned to have distribution $\mu_h$ on the minimal boundary. Again, if $\alpha \in \partial_m E$ then $\mu_{K(\cdot, \alpha)} = \delta_\alpha$ so $\lim X_n^{K(\cdot, \alpha)} = \alpha$ almost surely. Thus we can truly think of the chain $X^{(K(\cdot, \alpha))}_n$ to be our original Markov chain conditioned to equal $\alpha \in \partial_m E$  ``at infinity''. Note we can extend the above to include measures on the full boundary, but then the measures $\mu_h$ are no longer necessarily unique. 
+\noindent Namely, an $h$-process is merely a chain
+conditioned to have distribution $\mu_h$ on the minimal boundary. Again, if $\alpha \in \partial_m E$ 
+then $\mu_{K(\cdot, \alpha)} = \delta_\alpha$ so $\lim X_n^{K(\cdot, \alpha)} = \alpha$ almost surely. 
+Thus we can think of the chain $X^{(K(\cdot, \alpha))}_n$ to be our original Markov chain 
+conditioned to equal $\alpha \in \partial_m E$  ``at infinity''. 
 
 
 % Bridges and its relationship to the Doob martin boundary 
 \subsection{Infinite Bridges} \label{sec:infinite_bridges}
 
- \indent A finite-step Markov process $(Y_n)_{n = 1}^N$ with $Y_0 = x_0$ which has the same backwards transition probabilities as $(X_n)_{n \in \N}$ is called a (finite) \textit{bridge} for $X_n$. Similarly, if the index set is $\N$ we call $(Y_n)_{n \in \N}$ an \textit{infinite bridge}. One key example of a bridge will be the following conditioned chain. Let $(X^{(y)}_0, X^{(y)}_1, ..., X^{(y)}_{N(y)})$ be the finite-step chain obtained from $X_n$ by conditioning on $X_{N(y)} = y$. Then we see:
+ \indent A finite-step Markov process $(Y_n)_{n = 1}^N$ with $Y_0 = x_0$ which 
+ has the same backwards transition probabilities as $(X_n)_{n \in \N}$ is called 
+ a (finite) \textit{bridge} for $X_n$:
+ %
+    \[\P(X_n = i \mid X_{n+1} = j) = \P(Y_n = i \mid Y_{n+1} = j), \quad \forall i,j \in S, n < N.\]
+ %
+ \noindent Similarly, if the index set is $\N$ we call
+  $(Y_n)_{n \in \N}$ an \textit{infinite bridge}. Let $(X^{(y)}_0, X^{(y)}_1, ..., X^{(y)}_{N(y)})$ 
+  be the finite-step chain obtained from $X_n$ by conditioning on 
+  $X_{N(y)} = y$. Then 
 %
  \begin{align*}
      \P(X^{(y)}_n = i | X^{(y)}_{n+1} = j) & =  \frac{\P_{x_0}(X_n = i, X_{n+1} = j, X_{N(y)} = y)}{\P_{x_0}( X_{n+1} = j, X_{N(y)} = y)} \\
@@ -832,37 +933,70 @@ The $h$-processes $X_n^{(K(\cdot, \alpha))}$ are of natural interest because the
      & = K(j,y)^{-1}\cdot p(j,i) \cdot K( i, y).
  \end{align*}
 
-\noindent Observe that this is essentially the definition of an $h$-process with $h = K(\cdot, y)$, except for the fact that $K(\cdot, y)$ is not harmonic for $y \in S$. However, as before, intuition suggests we ought to take the limit as $y$ ``goes to infinity'' to get a truly harmonic function $K(\cdot, \alpha)$. Namely, by Remark \ref{rmk:conv_in_dm} we know a sequence $(y_k)$ in $S$ converges to a point $\alpha \in \partial S$ if and only if $K(x, y_k)$ converges in $\R_{\geq 0}$ to $K(x, \alpha)$ for all $x \in S$ which of course implies:
-
-\[\P(X^{(y_k)}_{n+1} = i | X^{(y_k)}_n = j) \xrightarrow{k\to \infty} K(j,\alpha)^{-1}\cdot p(j,i) \cdot K( i, \alpha) =: p^{K(\cdot, \alpha)}(j,i).\]
-
-
-\noindent As observed in \cite{hans_bridges} such a sequence converges in the Doob Martin topology if and only if finite initial segments of the corresponding bridges converge in distribution, and two such sequences converge to same limits if and only if their finite initial segments converge to same limit as well. Namely, convergence of the corresponding bridges characterizes convergence in the Doob-Martin boundary, so if we can understand these bridges we can understand the Doob-Martin boundary. To be precise, by convergence of finite initial segments we mean for each finite $M$ we have: \\
+\noindent This is essentially the definition of an $h$-process 
+with $h = K(\cdot, y)$, except for the fact that $K(\cdot, y)$ is not harmonic for $y \in E$. 
+However, as before, intuition suggests we ought to take the limit as $y$ ``goes to infinity'' to get a truly 
+harmonic function $K(\cdot, \alpha)$. Namely, by Remark \ref{rmk:conv_in_dm} we know a 
+sequence $(y_k)$ in $E$ converges to a point $\alpha \in \partial E$ if and only if
+ $K(x, y_k)$ converges in $\R_{\geq 0}$ to $K(x, \alpha)$ for all $x \in E$ which 
+ of course implies
+ %
+    \[\P(X^{(y_k)}_{n+1} = i | X^{(y_k)}_n = j) \xrightarrow{k\to \infty} K(j,\alpha)^{-1}\cdot p(j,i) \cdot K( i, \alpha) =: p^{K(\cdot, \alpha)}(j,i).\]
 %
-\begin{equation}
+
+\noindent As observed in \cite{hans_bridges} such a sequence converges in the Doob 
+Martin topology if and only if finite initial segments of the corresponding bridges converge
+ in distribution, namely
+ %
+ \begin{equation}
     (X^{(y_k)}_0, X^{(y_k)}_1, ..., X^{(y_k)}_M) \Rightarrow (X^{K(\cdot, \alpha)}_0, X^{K(\cdot, \alpha)}_1, ..., X^{K(\cdot, \alpha)}_M)
     \label{eqn:2.3_initial_sections_finite_bridges}
 \end{equation}
-%
-\noindent as $k \to \infty$. The Doob h-transform provides a bijective correspondence between nonnegative harmonic functions with $h(x_0) = 1$ and infinite bridges. Namely, given such a harmonic $h$, the Doob h-transform of the original chain is certainly an infinite bridge as:
-%
-\begin{align*}
-  \P(X^h_n = x \; | \; X^h_{n+1} = y) & = \frac{\P(X^h_{n+1} = y \; | \; X^h_{n} = x) \cdot \P(X^h_n = x)}{\P(X^h_{n+1} = y)} \\
-  %
-  & = \frac{\frac{h(y)}{h(x)}\P(X_{n+1} = y \; | \; X_{n} = x) \cdot \frac{h(x)}{h(x_0)}\P(X_n = x)}{\frac{h(y)}{h(x_0)}\P(X^h_{n+1} = y)} \\
-  %
-  & = \P(X_n = x \; | \; X_{n+1} = y).
-\end{align*}
+ %
+   as $k \to \infty$, for every finite $M$. More generally, given any nonnegative harmonic
+   function with $h(x_0) = 1$, its Doob h-transform is an infinite bridge:
+   %
+        \begin{align*}
+        \P(X^h_n = x \; | \; X^h_{n+1} = y) & = \frac{\P(X^h_{n+1} = y \; | \; X^h_{n} = x) \cdot \P(X^h_n = x)}{\P(X^h_{n+1} = y)} \\
+        %
+        & = \frac{\frac{h(y)}{h(x)}\P(X_{n+1} = y \; | \; X_{n} = x) \cdot \frac{h(x)}{h(x_0)}\P(X_n = x)}{\frac{h(y)}{h(x_0)}\P(X^h_{n+1} = y)} \\
+        %
+        & = \P(X_n = x \; | \; X_{n+1} = y).
+        \end{align*}
+    %
 
 
-
-\noindent Likewise, given a bridge $X^\infty_n$ then $\eqref{eqn:K(., alpha) processes characterize h processes}$ tells us there exists a measure $\mu_h$ so that $X^\infty_n$ is a mixture of the extremal bridges $\P^{K(\cdot, \alpha)}$. Then the harmonic $h$ corresponding to $X^\infty_n$ is just a corresponding mixture of these extremal harmonics $K(\cdot, \alpha)$:
+\noindent Conveserly, given any infinite bridge $X^\infty_n$ then 
+\eqref{eqn:K(., alpha) processes characterize h processes} tells us there
+ exists a measure $\mu_h$ so that $X^\infty_n$ is a mixture of the extremal
+  bridges $\P^{K(\cdot, \alpha)}$ and the corresponding harmonic $h$ is given by
+  \eqref{eqn:harmonic_representation_theorem}. 
 %
-\[h(x) = \int_{\partial_m E} K(x, \alpha) \; \mu_h(d \alpha).\]
-%
-\indent Call an infinite bridge \textit{extremal} if it has a trivial tail $\sigma$-field, or equivalently if it cannot be written as a nondegenerate mixture of other infinite bridges. By \eqref{eqn:K(., alpha) processes characterize h processes} and the correspondence between bridges and harmonic functions, all infinite bridges are just mixtures of the extremal bridges. Hence characterizing the extremal bridges allows us to characterize all infinite bridges.
 
-Our observations from Section \ref{sec:h_processes} tell us that for $\alpha \in \partial_m S$ that the conditioned chain $X_n^{K(\cdot, \alpha)}$ is extremal as it converges almost surely to the constant $\alpha$. Moreover, the converse is true: $X^{K(\cdot, \alpha)}$ is extremal only if $\alpha \in \partial_m S$. Hence characterizing the extremal bridges will allow us to characterize the minimal boundary, and thus by \eqref{eqn:harmonic_representation_theorem} characterize all nonnegative harmonic functions for this chain. \red{But again unless $\partial S = \partial S_m$ we won't be able to characterize the full boundary this way. We will have to allow mixtures of extremal infinite bridges}
+Call an infinite bridge \textit{extremal} if it has a trivial tail 
+$\sigma$-field, or equivalently if it cannot be written as a nondegenerate 
+mixture of other infinite bridges. By \eqref{eqn:K(., alpha) processes 
+characterize h processes} and the correspondence between bridges and 
+harmonic functions, all infinite bridges are just mixtures of the extremal 
+bridges. Hence characterizing the extremal bridges allows us to 
+characterize all infinite bridges.
+
+Our observations from Section \ref{sec:h_processes} tell us that for $\alpha \in \partial_m E$
+ that the conditioned chain $X_n^{K(\cdot, \alpha)}$ is extremal as it converges almost 
+ surely to the constant $\alpha$. Moreover, the converse is true: $X^{K(\cdot, \alpha)}$ 
+ is extremal only if $\alpha \in \partial_m S$. Hence characterizing the extremal 
+ bridges will allow us to characterize the minimal boundary, and thus by 
+ \eqref{eqn:harmonic_representation_theorem} characterize all nonnegative
+  harmonic functions for this chain. 
+
+  In summary, we have several equivalent characterizations of the Doob-Martin boundary:
+
+  \begin{enumerate}[label=(\roman*)]
+      \item Limits of sequences in $E$ which converge in the Doob-Martin topology.
+      \item Sequences in $E$ whose conditional distributions converge in distribution, by \eqref{eqn:2.3_initial_sections_finite_bridges}.
+      \item Extremal infinite bridges.
+      \item Extremal nonnegative harmonic functions.
+  \end{enumerate}
 
 
 

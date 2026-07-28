@@ -482,12 +482,22 @@ In general, we can see that the integral in
 on the $\sum_{i=0}^d {k \choose d}$ coordinates corresponding to subsets $e \subseteq k$ of size at most $d$, 
 so many of the coordinates in the integral are superfluous. We leave them in for simplicity of notation.  
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Metrizing Convergence of Exchangeable Array Processes %%%%%%%%%%%%%%
-\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Metrizing Convergence of Exchangeable Array Proceses}
 
- The paper \cite{Grubel_2015_graphons} showed graphon convergence and its associated topology is equivalent to the one given by the Doob-Martin theory. While the Doob-Martin topology is trivially metrizable as it is essentially just a Euclidean space, this metric is sort of ad hoc and not typically useful. The real success of the theory of graphons was the introduction of a metric, the cut metric, which is reasonably interpretable and proves to be a valuable tool for explicit calculation of many interesting properties of their associated graphs.
+\zack{I should briefly summarize our results and the work of\cite{zhao2015hypergraph} discussing
+why our attempts at generalizing the cut metric seems to fail. Summarize our idea to extend to non-binary arrays
+via our projection method.  }
+
+ As Lemma~\ref{lem:equivalence_of_dm_and_density_convergence} and~\cite{Grubel_2015_graphons}
+show, graphons and the Doob-Martin theory are topologically equivalent. 
+While the latter is trivially metrizable as it is essentially just a Euclidean space, this 
+metric is not really interpretable in terms of the underlying combinatorial process. 
+The real success of the theory of graphons was the introduction of a metric, the cut metric, which 
+is reasonably interpretable, explicitly encodes graph-theoretic properties, and allows for exact
+computation of many quantites of interest.
 
  \red{Firstly we will develop a metric for binary arrays and latter we will discuss how it can be extended to any exchangeable array process.} As discussed above, d-dimensional binary arrays are essentially just d-uniform hypergraph chains. Thus we can view this first section as extending the cut metric to d-uniform hypergraphs and hypergraphons. 
  

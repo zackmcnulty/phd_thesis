@@ -5,50 +5,93 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
 
-The goal of this chapter is to provide a framework for constructing large combinatorial 
-objects in a consistent way and to attempt to extend the work of 
-\cite{aldous2010_more_uses_of_exchangeability} which sought, among other aims, to develop a 
-general theory of limits of combinatorial objects. In this work, we aim to unify three ideas: Doob-Martin boundaries, graphons and hypergraphons, and 
-classical theory of exchangeable arrays.
+The goal of this chapter is to develop a general framework for constructing and studying consistent 
+families of finite combinatorial structures, extending the program proposed in~\cite{aldous2010_more_uses_of_exchangeability}
+toward a general theory of combinatorial limit objects. We aim to unify three ideas: Doob-Martin boundaries, graphons and hypergraphons,
+and the classical theory of exchangeable arrays. By encoding the finite states of a growing combinatorial process as 
+restrictions of an exchangeable array, we simultaneously obtain a natural Markov chain and associated Martin boundary problem, 
+a sampling representation of its limiting objects, and a natural notion of finite-substructure embedding.
 
-The foundations for this goal were set in~\cite{doob1959_discrete_potential_theory_boundaries}, 
-where Martin boundary theory was first developed. Given a transient Markov chain $\Xn$ on some
+
+Exchangeability arises naturally when modeling random systems composed of many interchangeable parts. 
+The subject originates with de Finetti’s representation theorem for exchangeable binary sequences and was 
+subsequently extended to a wide variety of random combinatorial structures, including exchangeable 
+partitions and higher-dimensional arrays~\cite{kingman1978representation,austin2013_exchangeable_random_arrays,kallenberg2005_probabilistic_symmetries}. 
+A common feature of these theories is a representation theorem that generates an exchangeable 
+object by sampling independent latent random variables and applying an appropriate measurable function. 
+For the present chapter, the central result is the Aldous-Hoover-Kallenberg representation theorem for 
+exchangeable arrays, stated below as Theorem~\ref{thm:representation_theorem_of_exchangeable_arrays}. 
+This theorem places many random combinatorial structures within a common sampling framework and 
+reduces the construction of a corresponding limit theory to the problem of encoding their 
+finite substructures as entries of an exchangeable array.
+
+
+Martin boundary theory, whose foundations were set in~\cite{doob1959_discrete_potential_theory_boundaries}, 
+provides another perspective on this goal. Given a transient Markov chain $\Xn$ on some
 countable state space $E$, Martin boundary theory aims to complete $E$ into a compact metric space
 by adding ``points at $\infty$'' to which the Markov chain is converging. These boundary points 
-provide our first natural candidate for the desired limit objects. A review of 
-Martin boundary theory can be found in Appendix \red{todo}.
+provide our first natural candidate for the desired limit objects, and this theory
+provides a mechanism for tilting the underlying chain in a way that forces it to converge to
+a given boundary point, analogous to how one can generate a sequence of graphs converging to a given
+graphon via sampling. A short review of this topic and further references can be found 
+in Appendix~\ref{appendix:doob_martin_background_appendix}.
 
 More recently, a major step forward was the theory of \textit{graphons}, 
 a formalization for the limits of sequences of dense graphs. First developed in~\cite{lovasz2004_limits_dense_graph_sequences, borgs2007_convergent_dense_graph_sequences},
-the authors topologize the space of graphs by looking at a graphs finite substructure. In particular, two
+this theory topologizes the space of graphs by looking at a graphs finite substructure. In particular, two
 graphs $G,H$ are said to be close if for each ``test'' graph $F$, the density $t(F,G)$ of $F$ in $G$ is close to
 that of $H$, where
 %
     \[t(F,G) := \frac{|\mathrm{hom}(F,G)|}{|V(G)|^{|V(F)|}}\]
 %
-is the fraction of maps $\phi:V(F) \to V(G)$ which are graph homomorphisms. As opposed to other notions of graph limits, 
-several relevant combinatorial quantities are directly encoded by this topology. Moreso, since many other combinatorial objects have any analogous notion of embedding,
-this framework readily extends to other settings. A large body of work quickly followed, generalizing these results to hypergraphs~\cite{zhao2015_hypergraph_limits_regularity_approach, elek2012_measure_theoretic_dense_hypergraphs}
-, sparse graphs \red{TODO; cite}.  
+is the fraction of maps $\phi:V(F) \to V(G)$ which are graph homomorphisms. Since many other 
+combinatorial objects have an analogous notion of embedding,
+this framework readily extends to other settings. A large body of work quickly 
+followed, extending these results to hypergraphs~\cite{zhao2015_hypergraph_limits_regularity_approach, elek2012_measure_theoretic_dense_hypergraphs},
+ sparse graphs~\cite{borgs2019_sampling_sparse_exchangeable_graphs}, permutations \cite{HoppenEtAl2013PermutationLimits},
+and beyond.
 
-Lastly, \cite{austin2013_exchangeable_random_arrays} \red{say a bit more about the relationship between sampling
-and exchangeable arrays.} Exchangebale arrays are convenient because they give a natural way of sampling a large combinatorial
-object. \red{describe}
+Partial progress has already been made in connecting these strands of work. 
+The relationship between graphons and exchangeable arrays is well known: graphon 
+sampling produces a dissociated binary exchangeable array, the underlying adjacency matrix
+of the graph sequence, while the corresponding 
+exchangeable array representation recovers the graphon up to the usual measure-preserving 
+equivalence~\cite{austin2013_exchangeable_random_arrays,tao2007correspondence}. 
+Moreover, Gr\"ubel and collaborators have shown that the usual graphon and permuton topologies agree 
+with the Doob-Martin topologies of corresponding random growth 
+chains~\cite{grubel2015_persisting_randomness_graphs_search_trees,grubel2023_ranks_copulas_permutons}.
 
-Partial progress has already been made in connecting these veins of work. For one, 
-the relationship between exchangeable arrays and graphons has already been 
-well-studied~\cite{austin2013_exchangeable_random_arrays, austin2013_exchangeable_random_arrays}.
+These identifications, however, have generally been established separately for each
+class of combinatorial structures. One first identifies the relevant finite substructures, 
+constructs an appropriate growth chain, and then proves that its Doob-Martin topology agrees 
+with an independently defined limit topology. We aim to make this construction systematic. Once the 
+relationships among finite collections of components are encoded by an exchangeable array, 
+finite restrictions generate the labeled growth process, quotienting by relabeling generates the 
+corresponding unlabeled chain, and finite array patterns provide a natural notion of substructure density.\\
 
-Moreover, \cite{grubel2015_persisting_randomness_graphs_search_trees,grubel2023_ranks_copulas_permutons} has already
-pointed out that the topology generated by both graphons and permutons agree with the corresponding
-Doob-Martin topology for a closely related Markov chain.  
 
-The main challenges with these approaches is that they are quite specific to the scenario of interest:
-a class of combinatorial objects is selected, finite substructures are identified,
+\noindent \textbf{Outline.} In Section~\ref{sec:exchangeable_array_processes}, we start by
+associating two simple Markov processes associated to a given exchangeable array: a \textit{labeled}
+chain generated by successively revealing the ``top left corner'' of the given array, and an \textit{unlabeled}
+chain by quotienting the former up to relabeling the indices of the array. Furthermore, we discuss
+how several existing examples of exchangeable combinatorial growth processes can be embedded into this framework.
 
-We aim to simplify this construction by reducing the problem to embedding these combinatorial
-processes into an exchangeable array via these finite substructures.
+In Section~\ref{sec:exchangeable_array_boundary}, we characterize the Doob-Martin boundary of both
+our labeled and unlabeled exchangeable array process. In the former, we show the boundary is merely the set of
+deterministic arrays on which the exchangeable array is supported. In the latter, we show the boundary
+is characterized by the set of ergodic arrays.
 
+In Section~\ref{sec:embedding_density_representation_functions}, we define a few natural notions 
+of embedding a smaller (unlabeled) array into a larger one. As in the case of graphons, this provides 
+a way of topologizing the set of arrays: we say a sequence $y_n$ of arrays converge if the embedding density
+$t(x, y_n)$ converges for every finite array $x$. We show that these different notions of embedding 
+generate the same topology, and that this topology agrees with the Doob-Martin topology.
+
+Lastly, in Appendix~\ref{appendix:cut_metric_partial_progress}, we discuss some partial progress 
+on extending the cut metric from the theory of graphons to binary exchangeable array processes.
+We propose one metric which is strong enough to develop an analog of the classical counting lemma, but is
+strictly finer than the topology generated by our embedding densities. Furthermore, we discuss how one 
+might possibly extend a suitable metric from binary arrays to ones with more general state spaces.
 
 
 
@@ -612,7 +655,7 @@ topology for the unlabeled exchangeable array processes considered here. A
 natural next question is whether this topology can be metrized by a useful
 cut-type metric. For graph chains, the cut metric is one of the main reasons the
 limit theory is so effective. In higher dimensions and for nonbinary arrays,
-however, the analogous metric theory appears more delicate. Appendix~\ref{sec:cut_metric_appendix}
+however, the analogous metric theory appears more delicate. Appendix~\ref{appendix:cut_metric_partial_progress}
 records some preliminary directions, including candidate hypergraph cut norms
 and binary-projection approaches for nonbinary arrays.
 
@@ -622,7 +665,7 @@ and binary-projection approaches for nonbinary arrays.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{Candidate Cut Metrics for Exchangeable Array Processes}
-\label{sec:cut_metric_appendix}
+\label{appendix:cut_metric_partial_progress}
 
 As Lemma~\ref{lem:equivalence_of_dm_and_density_convergence} and~\cite{grubel2015_persisting_randomness_graphs_search_trees}
 show, graphons and the Doob-Martin theory are topologically equivalent.
@@ -800,7 +843,7 @@ the same state space $S$, it is natural to define
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{Background on Doob-Martin Boundary Theory}
-\label{sec:doob_martin_background_appendix}
+\label{appendix:doob_martin_background_appendix}
 Here we aim to provide some of the essentials of Doob-Martin boundary theory.
 We restrict our attention to the case of discrete Markov chains relevant to this
 paper. The primary reference on this topic is \citep{doob1959_discrete_potential_theory_boundaries} but
@@ -1337,7 +1380,7 @@ $\phi : [k] \to [n]$ be injective. Then
     The convergence then follows immediately from Borel-Cantelli. Lemma \ref{lem:relating_different_notions_of_embedding} (iv) and (v) allow the convergence to be extended to the morphism densities as well.
 \end{proof}
 
-\subsection{Proofs of Section~\ref{sec:cut_metric_appendix} (Candidate Cut Metrics)}
+\subsection{Proofs of Section~\ref{appendix:cut_metric_partial_progress} (Candidate Cut Metrics)}
 
 \noindent\textbf{Lemma~\ref{lem:counting_lemma} (Counting Lemma).}
 Let $F$ be a finite, binary $d$-array of size $k \geq d$, and let

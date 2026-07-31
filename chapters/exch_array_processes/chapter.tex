@@ -270,9 +270,9 @@ original chain that project to y are precisely the probability measures supporte
 \subsection{Boundary of the Unlabeled Chain}
 
 \noindent Now we seek to understand the boundary of the unlabeled chain $M_n$.
-Recall the correspondence \eqref{eqn:K(., alpha) processes characterize h processes} between infinite
+Recalling the correspondence \eqref{eqn:K(., alpha) processes characterize h processes} between infinite
  bridges of a Markov chain and its nonnegative harmonic functions via the Doob
- h-transform.
+ h-transform \eqref{eqn:h-process} discussed in Appendix \ref{appendix:doob_martin_background_appendix}, we see:
 
 \begin{lemma}[Exchangeable Bridges of the Labeled Chain]
     Any infinite bridge of the labeled exchangeable array process is an array
@@ -282,7 +282,7 @@ Recall the correspondence \eqref{eqn:K(., alpha) processes characterize h proces
     \label{lem:harmonic_functions_labeled}
 \end{lemma}
 
-\noindent An immediate consequence is that the harmonic functions of the
+\noindent An immediate consequence is that the harmonic functions $\tilde{h}$ of the
 unlabeled chain are in direct correspondence with the bridges of labeled chain which
 come from exchangeable arrays.
 
@@ -306,9 +306,9 @@ in the obvious way: $x \sim y$ if there is $\sigma \in Sym(\N)$ so $x = \sigma(y
 Say an exchangeable array with distribution $\nu$ is \textit{ergodic} if $\nu(I) \in \{0,1\}$
 for all $\nu-$invariant sets $I$, and say it is \textit{dissociated} if for any disjoint index
 sets $I_1,...,I_m \subset \N$ the arrays $\{X^i_e\}_{e \in I_i^{(d)}}$ are independent.
-For example, the exchangeable array corresponding to a graphon is disassociated because the random subgraphs corresponding
-to disjoint collections of vertices are independent in the graphon model since edges are added independently
-between the selected vertices. The following shows these properties characterize the Doob-Martin boundary of
+For example, the exchangeable array corresponding to a graphon is disassociated: since edges are added independently,
+the random subgraphs corresponding to disjoint collections of vertices are independent in the graphon model.
+The following shows these properties characterize the Doob-Martin boundary of
 the unlabeled chain.
 
 \begin{theorem}[Extremal Bridges and Ergodic Arrays]

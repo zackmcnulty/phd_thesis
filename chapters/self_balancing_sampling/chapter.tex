@@ -157,7 +157,7 @@ $$p_i = p_{i}(n) \coloneqq \frac{p_{i}(0) \cdot \alpha^{N_i(n)}}{\sum_{j=1}^d p_
 
 \noindent Hence we can see that this sampler interpolates the two naive sampling methods: when $\alpha = 1$ (and $p(0)$ is uniform), we recover the uniform sampler, and when $\alpha \downarrow 0$, we recover greedy least-count sampling with uniformly random tie-breaking; if ties are broken deterministically, we recover deterministic sampling.
 
-As we will later see, the same scheme works for non-uniform target distributions by replacing a uniform $\alpha$ by a suitable $\alpha_i$ for each $i$; more precisely, for a target distribution $p^*$, one can set $\alpha_i = e^{-c/p_i^*}$ for every $i$, where the choice of $c > 0$ determines the trade-off between balance and predictability. Perhaps most unexpectedly, this simple sampling rule admits three independent characterizations: as the essentially unique invariant potential-based sampler (Proposition~\ref{prop:charactizing_v_invariance}), as the Gibbs optimizer of an entropy-regularized count-imbalance objective (Theorem~\ref{thm:instantaneous_optimization}), and as an entropic stochastic mirror-descent algorithm (Theorem~\ref{thm:stochastic_mirror_descent}).
+As we will later see, the same scheme works for non-uniform target distributions by replacing a uniform $\alpha$ by a suitable $\alpha_i$ for each $i$; more precisely, for a target distribution $p^*$, one can set $\alpha_i = e^{-c/p_i^*}$ for every $i$, where the choice of $c > 0$ determines the trade-off between balance and predictability. Perhaps most unexpectedly, this simple sampling rule admits two complementary characterizations: as the essentially unique invariant potential-based sampler (Proposition~\ref{prop:charactizing_v_invariance}) and as the Gibbs optimizer of an entropy-regularized count-imbalance objective (Theorem~\ref{thm:instantaneous_optimization}).
 
 \paragraph*{Related Work.}
 Our sampling rule is related to several bodies of work on negatively dependent and history-dependent
@@ -215,8 +215,7 @@ In Section \ref{sec:optimization_problem}, we show that the self-balancing sampl
 interpretation through an entropy-regularized optimization problem, balancing minimization of the
 mean-squared imbalance in the counts with maximizing entropy. This formalizes the balance/convergence
  versus robustness/unpredictability trade off in terms of an explicit objective, a limitation of the
- classical procedure \cite{pocock1975_sequential_treatment_assignment}. We further show that the
- self-balancing sampler implements stochastic mirror descent on the space of sampling distributions.
+ classical procedure \cite{pocock1975_sequential_treatment_assignment}.
  Appendix Section~\ref{appendix:optimal_control} later shows that the sampler further fits within the broader
  framework of entropy-regularized optimal control.
 
@@ -237,10 +236,7 @@ Complementing this, the adversarial analysis in Section~\ref{sec:adversarial_int
 translates these fluctuations into prediction accuracy. In the $d=2$ case with uniform target law $p^*$,
 we show, through explicit analysis of the stationary law of the centered counts process, that an adversary
 can predict the next sample with accuracy $\frac{1}{2} + \Theta(\sqrt{\log(1/\alpha)})$ in the weak-bias regime
-$\alpha \uparrow 1$. In more general settings, through non-rigorous analysis we provide evidence of the following conjecture:
-if the asymptotic sampling distribution $p^*$ has a unique maximizer, then the optimal prediction accuracy
-is exponentially close to the baseline $\max_i p_i^*$, achieved by always guessing the most frequently
-sampled outcome. If the maximizer is not unique, the adversary can exploit fluctuations
+$\alpha \uparrow 1$. More generally, when several outcomes maximize $p^*$, our non-rigorous analysis suggests that the adversary can exploit fluctuations
 among the tied outcomes, and its excess prediction accuracy above $\max_i p_i^*$ is again of order
 $\sqrt{\log(1/\alpha)}$ as in the $d=2$ case.
 
@@ -390,7 +386,7 @@ have some stationary distribution. This is indeed the case.
     is irreducible and positive recurrent, and thus has a unique stationary
     distribution $\eta$ on
     \[
-        \left\{\left(v_d n_i-v_i n_d\right)_{i=1}^{d-1}:n\in\Z^d\right\}
+        \left\{\left(v_d n_i-v_i n_d\right)_{i=1}^{d-1}:n\in\N^d\right\}
         \subseteq\Z^{d-1}.
     \]
     \label{lem:projection_centered_has_stationarity}
@@ -405,7 +401,7 @@ Unsurprisingly, at stationarity the  sampler generates samples according to the 
 \begin{lemma}
 Suppose $\pi$ is $v$-invariant and the projection-centered chain
 %
-    \[\tilde{Y}^v(n) = (v_dN_i(n) - v_i N_d(n))_{i=1}^{d-1}\]
+    \[(v_dN_i(n) - v_i N_d(n))_{i=1}^{d-1}\]
 %
 has stationary distribution $\eta$ on $\Z^{d-1}$.
  If we sample $y \sim \eta$ and $X \mid y \sim \pi(y)$, then:
@@ -448,9 +444,10 @@ empirical distribution converges much faster than IID sampling. Theorem~\ref{thm
  of $\alpha_i \in (0,1)$.
 
  Such a rate commonly appears in such biased sampling procedures, and by specializing the classical
- Foster-Lyapunov drift condition (see e.g. \cite{meyn2009_markov_chains_stochastic_stability}) to the sequential sampling setting of interest, \cite{hu2016_generalized_efron_biased_coin}
- provides a sufficient drift condition for this to occur. However, by developing a more quantitative version of
- these drift conditions (Lemma~\ref{lem:drift_lemma}), we are able to get more explicit control on the leading order constants.
+ Foster-Lyapunov drift condition to the sequential sampling setting of interest, \cite{hu2016_generalized_efron_biased_coin}
+ provides a sufficient drift condition for this to occur. However, by developing a more quantitative version (Lemma~\ref{lem:drift_lemma}) of
+ the classical Foster-Lyapunov drift conditions, we are able to get more explicit control on the leading order constants. More details
+ on such drift conditions can be found in \cite{meyn2009_markov_chains_stochastic_stability}, for example.
 
 
 
@@ -514,53 +511,37 @@ allows the $\alpha_i$ (and hence the $\beta_i$) to be non-constant in $i$.
     is the $1/2$-offset self-balancing sampling method $p_i(n) \propto p_i(0)e^{-\beta_i (N_i(n)+1/2)}$, initialized at the distribution $p_i(0)$.
 \end{theorem}
 
-The entropy-regularized optimization problem found in Theorem \ref{thm:general_optimization_problem} appears naturally in the context of optimal control and reinforcement learning. In this setting, such regularization is used to quantify the classical exploration versus exploitation trade-off \cite{so2022_maximum_entropy_differential_dynamic_programming_arxiv}, \cite{wang2020_reinforcement_learning_stochastic_control}, \cite{haarnoja2018_soft_actor_critic_arxiv}. Moreover, as \cite{todorov2006_linearly_solvable_mdp} observes, such exponential reweighting naturally appears as a result of this entropy penalty. We briefly summarize some of the main results in discrete-time in Appendix Section~\ref{appendix:optimal_control}, and show that the self-balancing sampler and the above entropy-regularized optimization problem arise naturally in this framework when you penalize imbalance using mean-squared error.
+The entropy-regularized optimization problem found in 
+Theorem~\ref{thm:general_optimization_problem} appears naturally in the context of 
+optimal control and reinforcement learning. In this setting, such regularization is used 
+to quantify the classical exploration versus exploitation trade-off~\cite{so2022_maximum_entropy_differential_dynamic_programming_arxiv, wang2020_reinforcement_learning_stochastic_control, haarnoja2018_soft_actor_critic_arxiv}. 
+Moreover, as \cite{todorov2006_linearly_solvable_mdp} observes, such exponential reweighting naturally appears 
+as a result of this entropy penalty. We briefly summarize some of the main results in discrete-time 
+in Appendix~\ref{appendix:optimal_control}, and show that the self-balancing sampler 
+and the above entropy-regularized optimization problem arise naturally in this 
+framework when you penalize imbalance using mean-squared error.
 
-The curious offset of $1/2$ in the counts appears to be an effect of greedy optimization over \emph{discrete} time steps with a quadratic cost. Indeed, $\frac{\beta_i}{2}((x+1)^2 - x^2) = \beta_i x + \frac{\beta_i}{2}$. When all $\beta_i$ are equal, this factor is absorbed into the normalization of the density. Theorem~\ref{thm:instantaneous_optimization} gives an ``instantaneous'' optimization perspective, which does not include the $1/2$ offset.
-
-
-
-
-
-
+The curious offset of $1/2$ in the counts appears to be an effect of greedy optimization 
+over \emph{discrete} time steps with a quadratic cost. Indeed, 
+$\frac{\beta_i}{2}((x+1)^2 - x^2) = \beta_i x + \frac{\beta_i}{2}$. When all $\beta_i$ are equal, 
+this factor is absorbed into the normalization of the density. Theorem~\ref{thm:instantaneous_optimization} gives an ``instantaneous'' 
+optimization perspective, which does not include the $1/2$ offset.
 
 \begin{theorem} \label{thm:instantaneous_optimization}
     Let $L_\beta(x) \coloneqq \frac{1}{2} \sum_{i=1}^d \beta_i (x_i - n p_i^*)^2$ denote the weighted quadratic loss as a function of counts $x$. Then the unique solution to the optimization problem
     $$\argmin_{q \in \Delta^d} \left(\langle \nabla L_\beta(N(n)),q \rangle + \operatorname{KL}(q \|p(0)) \right)$$
     is the self-balancing sampling method $p_i \propto p_i(0)e^{-\beta_i N_i(n)}$, initialized at the distribution $p_i(0)$.
 
-    \label{thm:mirror_descent_optimization}
 \end{theorem}
 
-It is somewhat remarkable that the same sampling rule characterized by a global invariance rule (as in Proposition~\ref{prop:charactizing_v_invariance}) can also be uniquely characterized by a myopic, one-step optimization. However, Theorem~\ref{thm:instantaneous_optimization} can be viewed as an instance of the usual Gibbs variational principle \cite{donsker1975_markov_process_expectations_large_time}: a linear cost regularized by relative entropy has an exponentially weighted optimizer. The cost assigned to index $i$ is $\beta_i (N_i(n) - np_i^*)$, and since $\beta_i p_i^*$ is constant in $i$, the target-centering term does not affect the optimizer after normalization. The resulting policy therefore depends only on the weighted counts $\beta_i N_i(n)$.
-
-Finally, we provide a third interpretation of the sampler: we observe that the self-balancing sampler implements stochastic mirror descent \cite{nemirovski2009_robust_stochastic_approximation}. It minimizes the objective
-%
-\[
-    \ell_\beta(x) \coloneqq \frac{1}{2} \sum_{i=1}^d \beta_i (p_i - p_i^*)^2.
-\]
-%
-The sampler uses the stochastic gradient
-%
-\[
-    g_n := \beta_{X_n} e_{X_n} - \frac{1}{\sum_{j=1}^d \beta_j^{-1}} \mathbf 1,
-\]
-%
-where $e_1,\dots,e_d$ are the standard basis vectors. This gradient is unbiased, since
-%
-\[
-    \mathbb E[g_n \mid p(n)] = \sum_{i=1}^d \beta_i(p_i(n) - p_i^*) e_i = \nabla \ell_\beta(p(n)).
-\]
-
-\begin{theorem}[Stochastic mirror descent formulation]\label{thm:stochastic_mirror_descent}
-    Let $\ell_\beta(x) \coloneqq \frac{1}{2} \sum_{i=1}^d \beta_i (p_i - p_i^*)^2$ denote the weighted quadratic imbalance in the sampling probabilities. Then for fixed $h > 0$, the unique solution to the optimization problem
-    $$\argmin_{q \in \Delta^d} \left(h \left\langle \beta_{X_n} e_{X_n} - \tfrac{1}{\sum_{j=1}^d \beta_j^{-1}} \mathbf 1, q \right \rangle + \operatorname{KL}(q \| p(n)) \right)$$
-    is the self-balancing sampler $p_i(n) \propto p_i(0) e^{-h\beta_i N_i(n)}$.
-\end{theorem}
-
-Theorem~\ref{thm:stochastic_mirror_descent} shows that the elementary ``downweight the selected coordinate and renormalize'' operation is precisely an entropic mirror-descent step \cite{beck2003_mirror_descent_projected_subgradient}. In the standard mirror-descent identity, $q_i(n) \propto p_i(n) e^{-h g_i}$, where $g$ is a stochastic gradient. In our case, the stochastic gradient is supported only on the sampled coordinate $X_n$. Hence the mirror-descent update simply downweights the probability of the outcome which was just sampled and then renormalizes.
-
-From the usual optimization perspective, the constant step-size $h$ may seem strange, since it generally means that the stochastic mirror descent algorithm may not converge. In our case, this is expected, since the sequence $p(n)$ does not converge.
+It is somewhat remarkable that the same sampling rule characterized by a global invariance rule 
+(as in Proposition~\ref{prop:charactizing_v_invariance}) can also be uniquely characterized by a
+ myopic, one-step optimization. However, Theorem~\ref{thm:instantaneous_optimization} can be viewed as an 
+ instance of the usual Gibbs variational principle \cite{donsker1975_markov_process_expectations_large_time}: a 
+ linear cost regularized by relative entropy has an exponentially weighted optimizer. The 
+ cost assigned to index $i$ is $\beta_i (N_i(n) - np_i^*)$, and since $\beta_i p_i^*$ is constant in $i$, the 
+ target-centering term does not affect the optimizer after normalization. The resulting policy therefore 
+ depends only on the weighted counts $\beta_i N_i(n)$.
 
 The role of entropy here is also slightly different from its usual interpretation in reinforcement learning. There, entropy is often used to encourage exploration while learning an unknown environment \cite{haarnoja2018_soft_actor_critic_arxiv}. Here, the environment is known, and the entropy term instead prevents the sampling rule from becoming overly predictable. Thus the corresponding trade-off is between reducing the current imbalance and preserving randomness in the next sample.
 
@@ -585,7 +566,7 @@ For deterministic sampling, the number of steps to see all $d$ outcomes is $d$, 
 \end{theorem}
 
 For fixed $\beta_i$, the cover time is $\Theta(d \log \log d)$. Moreover, in the uniform case $\beta_i \equiv \beta$, the self-balancing sampler's behavior converges to the deterministic and IID behaviors under the respective limits $\beta \uparrow \infty$ and $\beta \downarrow 0$:
-$$\lim_{\beta \uparrow \infty} \E[C] = \Theta(d), \qquad \lim_{\beta \downarrow 0} \E[C] = \Theta(d \log d).$$
+$$\limsup_{\beta \uparrow \infty} \E[C] = \Theta(d), \qquad \liminf_{\beta \downarrow 0} \E[C] = \Theta(d \log d).$$
 
 \noindent Thus, for fixed bias, the self-balancing sampler has a cover time much closer to deterministic sampling than to IID sampling, but still larger than the deterministic cover time by a diverging $\log \log d$ factor.
 
@@ -593,7 +574,7 @@ $$\lim_{\beta \uparrow \infty} \E[C] = \Theta(d), \qquad \lim_{\beta \downarrow 
 % Diffusion Approximation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Diffusion Approximation}
+\section{Weak-Bias Diffusive Limits and the Balance--Predictability Trade-Off}
 \label{sec:diffusion_approximations}
 
 In this section, we explore a few different diffusion approximations of our self-balancing sampler, highlighting its mean-reversion and other asymptotic properties. We are primarily interested in the \textit{weak-biasing regime} where $\beta \downarrow 0$. Since for fixed $\beta$ the centered counts process is essentially bounded, this is the natural regime under which a diffusive limit can arise.
@@ -685,7 +666,7 @@ $$\{z : \langle z, p^* \rangle = 0\}.$$
 %%%%%%%%%%%%%%%%%%%
 % Interpreting Diffusive Limits %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%
-\subsection{Interpreting Diffusive Limits}
+\subsection{Interpretation of Diffusive Limits}
 
 Using our diffusion limits, we can study how our two centered-counts processes behave in this weak-biasing regime. This section is non-rigorous and mainly serves to provide some evidence the upper bounds appearing in Theorem~\ref{thm:average_case_conv_rate} are in a sense tight. We start with the projection-centered case. Moreover, by studying the process's autocorrelation we aim to provide an alternative measure of its predictability in contrast to the adversarial notion discussed in Section~\ref{sec:adversarial_interpretation}.
 
@@ -707,13 +688,13 @@ Below, we will rely on some basic facts about OU processes, details of which can
 %
 \noindent Since $\beta h$ was just our rescaled bias, this essentially says in the small $\beta$ regime at stationarity the process's auto-correlations decay exponentially at rate $O(\beta)$. Since $p^*(\beta) = p^*(c\beta)$ for any $c > 0$, scaling $\beta$ has no effect on the limiting distribution.
 
-For the mean-centered counts, the story is similar. Specifically, for arbitrary $d\times d$ matrices $\Theta, \Sigma$ the $d-$dimensional OU process
+For the mean-centered counts, the story is similar. Specifically, for an arbitrary $d\times d$ matrix $\Theta$ and positive-semidefinite covariance matrix $\Sigma$, the $d$-dimensional OU process
 %
-\[dZ_t = -\Theta Z_t dt + \Sigma dW_t,\]
+\[dZ_t = -\Theta Z_t dt + \Sigma^{1/2} dW_t,\]
 %
 \noindent has stationary distribution $N(0, \omega)$ for $\omega$ solving the Lyapunov equation
 %
-\[\Theta \omega + \omega \Theta^T = \Sigma \Sigma^T.\]
+\[\Theta \omega + \omega \Theta^T = \Sigma.\]
 %
 \noindent Moreover, stationary covariance is
 %
@@ -735,7 +716,7 @@ Hence the auto-correlation decay rate is $O(\beta)$.
 
 Note
 %
-\[\E ||\mu_n - p^*||_{TV} = \frac{1}{2n} \sum_i |N_i(n) - np_i^*| = \frac{\E ||Y(n)||}{2n}.  \]
+\[\E \|\mu_n - p^*\|_{TV} = \frac{1}{2n} \sum_i \E|N_i(n) - np_i^*| = \frac{\E \|Y(n)\|_1}{2n}.\]
 %
 
 \noindent Using the above stationary distribution, our diffusion approximation suggests
@@ -770,7 +751,7 @@ Note
 In order to develop a notion of how
 ``predictable'' such a sampler is, consider the case where an adversary attempts to guess the next sample given the current sample history. Then one way of quantifying the predictability of the sampler is to study how accurate such an adversary can be if they behave optimally. In this section, we formalize this idea. Proofs can be found in Appendix~\ref{appendix:3_3_adversarial_error_rate_proof}.
 
-Predictability criteria of this form have been studied extensively for restricted randomization designs, where selection bias is commonly measured by the probability that an observer can correctly guess the next treatment assignment \cite{efron1971_forcing_sequential_experiment_balanced,smith1984_sequential_treatment_allocation_biased_coin,atkinson2002_sequential_clinical_trials_covariate_information}. In the special $d=2$ uniform case, we prove below that the weak-bias correction to the baseline prediction accuracy is of order $\sqrt{\beta}$. In more general settings, the diffusion heuristics suggest that the prediction accuracy is of the order $\max_i p_i^* + O(\sqrt{\beta})$ when $p^*$ does not have a unique maximizer, while for a unique maximizer it is roughly of order $\max_i p_i^* + O(\exp(-\beta^{-1}))$.
+Predictability criteria of this form have been studied extensively for restricted randomization designs, where selection bias is commonly measured by the probability that an observer can correctly guess the next treatment assignment \cite{efron1971_forcing_sequential_experiment_balanced,smith1984_sequential_treatment_allocation_biased_coin,atkinson2002_sequential_clinical_trials_covariate_information}. In the special $d=2$ uniform case, we prove below that the weak-bias correction to the baseline prediction accuracy is of order $\sqrt{\beta}$. More generally, the diffusion heuristics suggest the same order of correction when several coordinates maximize $p^*$.
 
 
 Clearly, since the sampler exponentially favors under-sampled indices, the best strategy for the adversary is to just guess
@@ -833,11 +814,7 @@ We saw in Section \ref{sec:diffusion_approximations} that in the weak-biasing re
 %
 \[\E\left[\max_i p_i(n)\right] \approx \E\left[\max_i \left(p_i^* + \sqrt{h} G_i\right)\right], \quad G = J_\beta Z \sim N(0, J_\beta \omega J_\beta^T).\]
 %
-\noindent If the maximizer of $p^*$ (equivalently minimizer of $\beta$) is unique, then the max function is differentiable at $p^*$, and since $\E[G]=0$ the first-order correction vanishes:
-%
-\[\E\left[\max_i p_i(n)\right] = \max_i p_i^* + O(h).\]
-%
-\noindent In contrast, if several coordinates tie for the maximum of $p^*$, then the max is no longer differentiable and the first-order Gaussian fluctuation contributes. Writing $I^* = \{i : p_i^* = \max_j p_j^*\}$ for the set of maximizers, a first-order expansion gives
+\noindent If several coordinates tie for the maximum of $p^*$, then the max is not differentiable and the first-order Gaussian fluctuation contributes. Writing $I^* = \{i : p_i^* = \max_j p_j^*\}$ for the set of maximizers, a first-order expansion gives
 %
 \[\E\left[\max_i p_i(n)\right] = \max_i p_i^* + \sqrt{h}\,\E\left[\max_{i \in I^*} G_i\right] + O(h).\]
 %
@@ -849,7 +826,9 @@ We saw in Section \ref{sec:diffusion_approximations} that in the weak-biasing re
 %
 \[\E\left[\max_i p_i(n)\right] - \max_i p_i^* = \sqrt{\frac{h}{2\beta_{min} S_\beta^2}} \cdot \E \max_{i \leq |I^*|} B_i + O(h)  \leq \sqrt{\frac{h \log | I^*|}{\beta_{min} S_\beta^2}} + O(h).\]
 %
-\noindent for $B_i \overset{iid}{\sim} N(0,1)$. The second approximation comes from classical asymptotics for the maximum of iid Gaussians, and is approximately tight when $|I^*|$ is large. Hence
+\noindent for $B_i \overset{iid}{\sim} N(0,1)$. The second approximation comes from classical 
+asymptotics for the maximum of iid Gaussians (e.g. \cite{vershynin2026_high_dimensional_probability}), and is 
+approximately tight when $|I^*|$ is large. Hence
 %
 \[E_\beta \approx 1-\max_i p_i^* - \sqrt{\frac{h \log | I^*|}{\beta_{min} S_\beta^2}} + O(h).\]
 %
@@ -861,11 +840,7 @@ We saw in Section \ref{sec:diffusion_approximations} that in the weak-biasing re
 of the sampler is governed primarily by the maximum of $p^*$, and by the number of coordinates sharing this maximum value. Increasing either increases the predictability of the sampler. Moreover, for fixed $p^*$, it shows this
  predictability grows at rate $\Theta(\beta^{1/2})$ as $\beta \downarrow 0$, which matches the $d=2$ case from Lemma \ref{lem:small_beta_adversarial}.
 
-Somewhat interestingly, predictability can increase when several coordinates share the minimal value of \(\beta_i\), since the adversary can exploit the largest realized fluctuation among these tied coordinates. Lastly, we briefly return to the case where $p^*$ has a unique maximizer. Suppose $m := \arg\max_i p_i^*$ and let
-%
-    \[\Delta^* := p^*_m - \max_{j \neq m} p_i^* > 0,\]
-%
-\noindent be the gap between the two most likely outcomes. Then we see $m \neq \arg\max p(c_\beta + \sqrt{h}Z)$ essentially only when some coordinate $Z_i = O(\Delta^*/\sqrt{h})$ experiences a large deviation. Roughly, using $\P(N(0,1) > t) \asymp t^{-1}e^{-t^2/2}$, this has probability $O((ch)^{-1/2} \cdot e^{-1/2ch})$ exponentially small in $c^{-1}$. Hence in the case of a unique maximizer, when $c$ is small we are exponentially close to the naive baseline $p_{max}^*$.
+In particular, we see predictability tends to increase when several coordinates share the minimal value of \(\beta_i\), since the adversary can exploit the largest realized fluctuation among these tied coordinates.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 % Concluding Remarks
@@ -874,9 +849,9 @@ Somewhat interestingly, predictability can increase when several coordinates sha
 
 We introduced a family of self-balancing sequential samplers that adaptively downweight previously sampled outcomes. The resulting process interpolates between IID sampling, which is maximally random but poorly balanced, and deterministic sampling, which is optimally balanced but perfectly predictable. Despite retaining randomness at every step, the self-balancing sampler achieves empirical convergence at the deterministic scale \(O(n^{-1})\) in expectation and \(O(\log n/n)\) almost surely.
 
-A central theme of the paper is that this sampler is not merely a heuristic. It arises naturally from an invariance principle for potential-based Markovian samplers, is the unique solution to a one-step entropy-regularized imbalance minimization problem, implements a stochastic mirror descent on the space of next-step sampling distributions, and shows up informally in actual policy decisions. Together, these perspectives give complementary evidence that such exponential sampling rules arise naturally.
+A central theme of the chapter is that this sampler is not merely a heuristic. It arises naturally from an invariance principle for potential-based Markovian samplers, is the unique solution to a one-step entropy-regularized imbalance minimization problem, and shows up informally in actual policy decisions. Together, these perspectives give complementary evidence that such exponential sampling rules arise naturally.
 
-The weak-biasing regime makes the convergence--predictability tradeoff explicit. As the bias parameter decreases, the centered counts fluctuate on a larger scale and mix more slowly, preserving more unpredictability. As the bias parameter increases, the process becomes more tightly mean-reverting, improving balance but making the next sample easier to predict. The diffusion approximation helps quantify this tradeoff heuristically and suggests that the geometry of the target law matters: tied maximizers of \(p^*\) produce first-order Gaussian corrections to predictability, while unique maximizers with fixed gaps only contribute through rare crossing events.
+The weak-biasing regime makes the convergence--predictability tradeoff explicit. As the bias parameter decreases, the centered counts fluctuate on a larger scale and mix more slowly, preserving more unpredictability. As the bias parameter increases, the process becomes more tightly mean-reverting, improving balance but making the next sample easier to predict. The diffusion approximation helps quantify this tradeoff heuristically and suggests that tied maximizers of \(p^*\) produce first-order Gaussian corrections to predictability.
 
 Several extensions remain open. One natural direction is to replace categorical balance with covariate balance, sampling units according to their contribution to a cumulative covariate imbalance. Namely, suppose each unit $i \in [d]$ has some covariate vector $v_i$ assigned to it. If we have samples $X_1,..., X_n \in [d]$ define the cumulative (centered) covariate vector as:
 %
@@ -911,9 +886,9 @@ In the first few sections, we study the behavior of the self-balancing sampler u
 % Convergence Rate
 \subsubsection{Convergence Rate}
 
- For $d_n := \E ||\mu_n - p^*||_{TV}$, Theorem \ref{thm:average_case_conv_rate} and the preceding remarks imply
+For $d_n := \E \|\mu_n - p^*\|_{TV}$, Theorem~\ref{thm:average_case_conv_rate} implies that the following quantity is finite:
 
-\[\lim\sup_{m \geq n} md_m  = C(\beta).\]
+\[C(\beta) := \limsup_{n\to\infty} n d_n < \infty.\]
 
 \noindent The goal of this section is to determine how the bias parameter $\beta$ influences the coefficient of the leading $O(n^{-1})$ term. Theorem~\ref{thm:average_case_conv_rate} and our heuristic analysis in Section \ref{sec:diffusion_approximations} suggests
 %
@@ -958,7 +933,7 @@ For our simulation, we chose $M=1000$ and $N=10000$. The latter was chosen large
 % Predictability %%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Predictability}
 
-In this section, we explore how the parameter $\beta$ affects the predictability of the sampler, as described in Section \ref{sec:adversarial_interpretation}. There, we showed that the key factor was whether or not $p^*$ has a unique maximizer. If it does not, then the predictability scales like $\Theta(\sqrt{\beta})$ above the naive baseline $p_{max}^*$ of IID sampling. If the maximizer is unique, we saw this first order correction vanishes, and the gap is exponentially small. We compare it to our two naive baselines: IID sampling and deterministic sampling.
+In this section, we explore how the parameter $\beta$ affects the predictability of the sampler, as described in Section \ref{sec:adversarial_interpretation}. For tied maximizers, the analysis there suggests that predictability scales like $\Theta(\sqrt{\beta})$ above the naive baseline $p_{max}^*$ of IID sampling. We compare it to our two naive baselines: IID sampling and deterministic sampling.
 
 In IID sampling, the adversary will clearly always predict the index $i$ which maximizes $p_i^*$, and hence its long-term accuracy will be $p_{max}^*$. In greedy sampling, we can make the sampler a bit more unpredictable by sampling the next index uniformly from $\arg\max_{i} p_i(n)$, rather than deterministically. In the uniform case $\beta_i \equiv \beta$, this gives an accuracy of approximately $\frac{\log(d)}{d}$, compared to the $d^{-1}$ of IID sampling. In the non-uniform case, we estimate the error rate under the greedy model through a simple Monte Carlo simulation. Namely, assume at step $n$ the adversary has probability $m_n^{-1}$ of correctly guessing the next sample, where
 %
@@ -966,7 +941,7 @@ In IID sampling, the adversary will clearly always predict the index $i$ which m
 %
 is the number of outcomes that are maximally likely to be sampled. We generate samples until the average accuracy $N^{-1}\sum_{n=1}^N m_n^{-1}$ approximately converges. Similarly, we can likewise estimate the adversarial accuracy for the self-balancing sampler by averaging these estimates over many sampling trajectories.
 
-The results are shown in Figure \ref{fig:predictability_plots}. In the uniform $\beta$ case, prediction accuracy increases gradually as the bias scale (c) increases, and in the small-(c) regime the gap above the IID baseline roughly follows the predicted $\Theta(\sqrt{c})$ scaling. In the non-uniform, unique-maximizer case, prediction accuracy increases more sharply as (c) grows. Conversely, as $c\downarrow 0$, the gap above the IID baseline decays much faster than the $\sqrt c$ scaling observed in the uniform case.
+The results are shown in Figure \ref{fig:predictability_plots}. In the uniform $\beta$ case, prediction accuracy increases gradually as the bias scale (c) increases, and in the small-(c) regime the gap above the IID baseline roughly follows the predicted $\Theta(\sqrt{c})$ scaling. In the non-uniform case, prediction accuracy increases more sharply as (c) grows.
 
 
 
@@ -998,7 +973,7 @@ The results are shown in Figure \ref{fig:predictability_plots}. In the uniform $
 % Trade Off %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Trade-Off}
 
-Lastly, we study the trade-off between predictability and the convergence rate. As discussed in the previous two sections, we quantify the former using the adversary's prediction accuracy, and the latter using the limit $\lim_{n\to \infty} n d_n$. Figure \ref{fig:trade_off} highlights the results.
+Lastly, we study the trade-off between predictability and the convergence rate. As discussed in the previous two sections, we quantify the former using the adversary's prediction accuracy, and the latter using $C(\beta)=\limsup_{n\to\infty}n d_n$. Figure \ref{fig:trade_off} highlights the results.
 
 Note the predictability starts essentially at the baseline $p_{max}^*$, and increases as we increase the scaling $c$. It starts smaller in the uniform $\beta$ case merely because $p_{max}^*$ is smaller than in the non-uniform case. However, we see that in the latter the predictability is much slower to increase initially, but then quickly becomes more predictable as we scale $\beta$.
 
@@ -1144,7 +1119,7 @@ trajectory $(x_t)_{t \in \N}$. Namely we aim to solve
 %
 \[V(x) := \inf_{(u_t)} \left[\sum_{s=1}^\infty \gamma^s \cdot \ell(x^u_s, u_s) \right],\]
 %
-\noindent for some discount $\gamma \in (0,1)$ and where $x_0 = x$ is the initial state of the system. Here $(x^u_t)$ is the trajectory of the process when control sequence
+\noindent for some discount $\gamma \in (0,1)$, where $x_0 = x$ is the initial state of the system. Here $(x^u_t)$ is the trajectory of the process when control sequence
 $(u_t)$ is applied. The \textit{value function} $V$ and optimal control $(u^*_t)$ can be determined
 using the standard Bellman equation:
 %
@@ -1165,11 +1140,11 @@ We can generalize the above by allowing the control policy to select its control
 
     \item \textit{Adversarial or Strategic Environments}: In some settings, predictability can be exploited by an adversary or the environment. Entropy regularization encourages policies that remain sufficiently randomized, thereby mitigating worst-case or strategic responses to deterministic behavior \cite{husain2021_regularized_policies_reward_robust}.
 
-    \item \textit{Exploration Versus Exploitation}: In reinforcement learning, we often want to encourage the agent to explore the state space in order to learn about the environment and the corresponding reward process. Randomized policies explicitly encode this exploration into the objective function.
+    \item \textit{Exploration Versus Exploitation}: In reinforcement learning, we often want to encourage the agent to explore the state space in order to learn about the environment and the corresponding reward process. Randomized policies explicitly encode this exploration into the objective function (as discussed in e.g \cite{wang2020_reinforcement_learning_stochastic_control}).
 
     \item \textit{Robustness and Regularization}: Entropy regularization acts as a convex regularizer on the control problem, smoothing the optimization landscape and preventing degenerate (overly deterministic) solutions. This can significantly improve stability and sample efficiency in practice \cite{haarnoja2018_soft_actor_critic_arxiv}.
 
-    \item \textit{Information Constraints / Bounded Rationality}: Entropy regularization can also be interpreted as penalizing deviations from a reference policy via a Kullback--Leibler divergence. In this view, the controller faces a cost for using highly concentrated policies, reflecting limited information-processing capacity or a preference for staying close to a prior behavior (\cite{ortega2015_information_theoretic_bounded_rationality}).
+    \item \textit{Information Constraints / Bounded Rationality}: Entropy regularization can also be interpreted as penalizing deviations from a reference policy via a Kullback--Leibler divergence. In this view, the controller faces a cost for using highly concentrated policies, reflecting limited information-processing capacity or a preference for staying close to a prior behavior \cite{ortega2015_information_theoretic_bounded_rationality}.
 \end{enumerate}
 
  Let $U$ denote the set of available controls. Suppose there is some deterministic function $\pi(\cdot \mid x) : S \to \mathcal{P}(U)$ which maps the state-space $S$ into the set  $\cP(U)$ of probability distributions on the set of controls. Define dynamics
@@ -1193,9 +1168,10 @@ these solutions can be expressed implicitly as
 \end{equation}
 
 %
+A proof can be found in our chapter on diffusive limits of entropy-regularized optimal control problems.
 \noindent As we can see, the optimal policy is naturally a soft-min / Gibbs distribution with Hamiltonian $-Q_\gamma(x, \cdot ) / \tau$, and the value function
 is essentially the log-partition function of this distribution. Note how entropy-regularization essentially smooths out
-the strict minimization problem that occurs in equation \eqref{eqn:optimal_entropy_regularized_policy}. While equations \eqref{eqn:optimal_entropy_regularized_policy} only implicitly define the optimal policy, for certain choices of dynamics and loss functions we can be more explicit. Suppose we have some potential $\Phi:S \to \R$ and we define loss:
+the strict minimization problem that occurs in equation \eqref{eqn:optimal_unregularized_policy}. While equation \eqref{eqn:optimal_entropy_regularized_policy} only implicitly defines the optimal policy, for certain choices of dynamics and loss functions we can be more explicit. Suppose we have some potential $\Phi:S \to \R$ and we define loss:
 %
 \[\ell(x, u)  := \Phi(x) +  \tau \log \sum_{v \in U} \exp\left(-\frac{\gamma}{\tau} \cdot \Phi(b(x,v))\right),\]
 %
@@ -1211,7 +1187,7 @@ Alternatively, if we choose a linear loss $\ell(x,u) = \beta_u x_u$, and myopic 
 %
 \[V(x) := \inf_\pi \left\{\sum_{i=1}^d [\pi(i|x)  \beta_ix_i] - H(\pi(\cdot \mid x)) \right\},\]
 %
-\noindent Hence the self-balancing sampler can be viewed as an entropy-regularized greedy mechanism that favors actions having smaller weighted current counts $\beta_i x_i$, analogous to Theorem \ref{thm:mirror_descent_optimization}.
+\noindent Hence the self-balancing sampler can be viewed as an entropy-regularized greedy mechanism that favors actions having smaller weighted current counts $\beta_i x_i$, analogous to Theorem \ref{thm:instantaneous_optimization}.
 
 
 We showed above that the self-balancing sampler converges at rate $O(n^{-1})$ on average. The theory of entropy-regularized optimal control provides us a convenient framework for extending these ideas to a broader class of samplers. The following shows as long as under-sampled indices are at least exponentially favored, we get the same convergence rate.
@@ -1333,7 +1309,9 @@ $\mathrm{gcd}(v_1,..., v_d) = 1$ then $v_dN_i(n) - v_i N_d(n),$ is a Markov chai
         from index $d$. Conversely, we can go from $x$ to $0$ by sampling index $i \in [d-1]$ a total of $k v_i - a_i$ times, for some $k$ large enough so $k v_i \geq a_i$ for all $i \in [d - 1]$ and $kv_d \geq a_d$.
         Then sample coordinate $d$ a total of $k v_d - a_d$ times.
 
-        Lastly, we show the chain is positive recurrent by developing a suitable Lyapunov function and proving a Foster-Lyapunov drift condition. See, for example, \cite{meyn2009_markov_chains_stochastic_stability}, for more information about this technique.
+        Lastly, we show the chain is positive recurrent by developing a suitable Lyapunov function and 
+        proving a Foster-Lyapunov drift condition. See, for example, \cite{meyn2009_markov_chains_stochastic_stability}, 
+        for more information about this technique.
 
 
         Let $\beta_i = v_i^{-1}$ and define
@@ -1345,7 +1323,7 @@ $\mathrm{gcd}(v_1,..., v_d) = 1$ then $v_dN_i(n) - v_i N_d(n),$ is a Markov chai
         %
         \[p_i = \frac{p_i(0)e^{-\beta_i N_i}}{\sum_j p_j(0)e^{-\beta_j N_j}} = \frac{v_i e^{-Q_i}}{\sum_j v_j e^{-Q_j}},\]
         %
-        \noindent is a function of $Q$. Using this, define Lyapunov function
+        \noindent is a function of $Q$. Using this, define the Lyapunov function
         %
         \[V(Q) := \sum_{i=1}^{d} Z_i^2, \quad Z_i := Q_i - \overline{Q}.\]
         %
@@ -1434,7 +1412,9 @@ If the projection-centered count process is irreducible and positive recurrent, 
     Moreover, these martingales each have bounded differences $|M_i(n+1) - M_i(n)| \leq 1$, so the Azuma-Hoeffding inequality gives
     $$\P(|M_i(n)| \geq n\varepsilon) \leq 2 e^{-n \varepsilon^2/2}.$$
 
-    This yields exponential concentration for $\mu_i(n) - \frac{1}{n} \sum_{m=0}^{n-1} p_i(m) = M_i(n)/n$ around $0$, so by the Borel-Cantelli theorem, the difference converges almost surely. And if the count process for a sequential sampling rule is irreducible and positive recurrent, then the ergodic theorem for irreducible positive-recurrent countable-state Markov chains, applied to the projection-centered count process, guarantees almost sure convergence of $\frac{1}{n} \sum_{m=0}^{n-1} p_i(m)$.
+    This yields exponential concentration for $\mu_i(n) - \frac{1}{n} \sum_{m=0}^{n-1} p_i(m) = M_i(n)/n$ around $0$, so by the Borel-Cantelli theorem, 
+    the difference converges almost surely. And if the count process for a sequential sampling rule is irreducible and positive recurrent, then the ergodic theorem 
+    (e.g. \cite[Theorem~1.10.2]{norris1997_markov_chains}) for irreducible positive-recurrent countable-state Markov chains, applied to the projection-centered count process, guarantees almost sure convergence of $\frac{1}{n} \sum_{m=0}^{n-1} p_i(m)$.
 
     For the expectation bound, first, a union bound gives
     $$\P \left(\max_{1 \leq i  \leq d} \left |\mu_{i}(n) - \frac{1}{n} \sum_{m=0}^{n-1} p_{i}(m) \right| \geq \varepsilon \right) \leq 2d e^{-n\varepsilon^2/2}.$$
@@ -1464,7 +1444,7 @@ If the projection-centered count process is irreducible and positive recurrent, 
 
 \noindent The key idea is that
 %
-    \[\E ||\mu_{n} - p^*||_{TV} = \frac{1}{2n} \sum_i |N_i(n) - np_i^*|| = \frac{||Y(n)||_1}{2n}\]
+    \[\E \|\mu_{n} - p^*\|_{TV} = \frac{1}{2n} \sum_i \E|N_i(n) - np_i^*| = \frac{\E\|Y(n)\|_1}{2n}\]
 %
 \noindent is a function of the moments of the mean-centered counts $Y(n)$.
 
@@ -1686,7 +1666,7 @@ To control these moments, we will develop a Foster-Lyapunov drift condition for 
     We finish by applying this bound to $\xi_i$:
     %
     \begin{align*}
-        \E[|\xi_i(n)|] &= \sqrt{\beta_i} \E \left[ \frac{|\xi_i|}{\sqrt{\beta_i}} \right] \leq \sqrt{\beta_i} \E[\sqrt{V_i}] \lesssim \begin{cases}
+        \E[|\xi_i(n)|] &= \sqrt{\beta_i} \E \left[ \frac{|\xi_i|}{\sqrt{\beta_i}} \right] \leq \sqrt{\beta_i} \E[\sqrt{V_n}] \lesssim \begin{cases}
         \sqrt{\beta_i} & \text{if $p(0) = p^*$} \\
         1 & \text{if $p(0) \neq p^*$}
         \end{cases}
@@ -1763,7 +1743,7 @@ has unique solution $q_i\propto p_i(0)e^{-\beta_i(N_i(n)+1/2)}$.}
         &= \frac{1}{2}\sum_{i=1}^d \beta_i[2q_i N_i(n) + q_i - 2(n+1) p_i^* q_i - 2p_i^* N_i(n) + (2n+1)(p_i^*)^2] \\
         &= \sum_{i=1}^d \left( \beta_i N_i(n) q_i + \frac{1}{2} \beta_iq_i + \frac{2n+1}{2} \beta_i (p_i^*)^2 - \frac{N_i(n)}{\sum_{k=1}^d 1/\beta_k} \right) - \frac{n+1}{\sum_{k=1}^d 1/\beta_k},
     \end{align*}
-    so it is equivalent to maximize $H(q) - \sum_{i=1}^d \beta_i N_i(n) q_i + \frac{1}{2} \beta_iq_i$. When all the $\beta_i$ are equal, this just looks like maximizing $H(q) - \beta \langle N(n),q \rangle$.
+    so it is equivalent to maximize $H(q) + \sum_{i=1}^d q_i\log p_i(0) - \sum_{i=1}^d \left(\beta_i N_i(n) q_i + \frac{1}{2} \beta_iq_i\right)$. When all the $\beta_i$ are equal and $p(0)$ is uniform, this just looks like maximizing $H(q) - \beta \langle N(n),q \rangle$.
 
     Now solve the optimization problem using the Lagrange multiplier $\lambda$. The Lagrangian is
     $$\mathcal L(q) \coloneqq \sum_{i=1}^d \left(- q_i \log q_i + q_i \log p_i(0) - \beta_i N_i q_i - \frac{1}{2} \beta_i q_i + \lambda q_i \right) - \lambda.$$
@@ -1794,39 +1774,11 @@ has unique solution $q_i\propto p_i(0)e^{-\beta_iN_i(n)}$.}
     with Lagrange multiplier $\lambda$. Setting $\nabla_q \mathcal L(q) = 0$ gives
     \begin{align*}
     0 &= \beta_i(N_i(n)-np_i^*) + \log q_i + 1 - \log p_i(0) + \lambda, \\
-    &= \beta_i N_i(n) - \frac{n}{\sum_{j=1}^n 1/\beta_i} + \log q_i + 1 - \log p_i(0) + \lambda,
+    &= \beta_i N_i(n) - \frac{n}{\sum_{j=1}^d 1/\beta_j} + \log q_i + 1 - \log p_i(0) + \lambda,
     \end{align*}
     which we solve to get
     $$q_i \propto p_i(0) e^{-\beta_i N_i(n)}.$$
 \end{proof}
-
-%%%%%%%%%%%%%%%%
-% Stochastic Mirror Descent
-%%%%%%%%%%%%%%%%
-\proofappendixheading{Proof of Theorem~\ref{thm:stochastic_mirror_descent} (Stochastic Mirror Descent)}
-\proofappendixstatement{Theorem}{The optimization problem
-\[
-\argmin_{q\in\Delta^d}\left(h\left\langle \beta_{X_n}e_{X_n}-\frac{1}{\sum_{j=1}^d\beta_j^{-1}}\mathbf 1,\;q\right\rangle+\operatorname{KL}(q\|p(n))\right)
-\]
-has unique solution $q=p(n+1)$, i.e. $q_i\propto p_i(0)e^{-h\beta_iN_i(n+1)}$.}
-\begin{proof}
-    Since $\langle \mathbf 1,q \rangle = 1$, it is equivalent to minimize
-    $$h \langle \beta_{X_n} e_{X_n},q \rangle + \operatorname{KL}(q \| p(n)) = h \beta_{X_n} q_{X_n} + \sum_{i=1}^d q_i \log q_i - q_i \log p_i(n).$$
-    Defining the Lagrangian
-    $$\mathcal L(q) \coloneqq h \beta_{X_n} q_{X_n} - \lambda + \sum_{i=1}^d q_i \log q_i - q_i \log p_i(n) + \lambda q_i$$
-    with Lagrange multiplier $\lambda$, the condition $\nabla_q \mathcal L(q) = 0$ gives
-    $$0 = \begin{cases}
-        h \beta_i + \log q_i + 1 - \log p_i(n) + \lambda &\text{if $X_n=i$}, \\
-        \log q_i + 1 - \log p_i(n) + \lambda &\text{if $X_n \neq i$}.
-    \end{cases}$$
-    Solving for $q_i$ gives
-    $$q_i \propto \begin{cases}
-        p_i(n) e^{-h\beta_i} &\text{if $X_n = i$}, \\
-        p_i(n) &\text{if $X_n \neq i$},
-    \end{cases}$$
-    which is precisely the update rule for the self-balancing sampler.
-\end{proof}
-
 
 %%%%%%%%%%%%%%
 % Expected Cover Time
@@ -1911,7 +1863,7 @@ has unique solution $q=p(n+1)$, i.e. $q_i\propto p_i(0)e^{-h\beta_iN_i(n+1)}$.}
 % Diffusion Limits Proofs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\subsubsection{Section 3.1 Proofs: Diffusion Approximations}
+\subsubsection{Section 3.1 Proofs: Diffusion Limits}
 \label{appendix:3_1_diffusion_limit_proofs}
 
 
@@ -1963,7 +1915,7 @@ For convenience, drop the subscript on $c_\beta$ and let $q_i := p_i(0)$. Note:
     & = \beta_i \beta_d h +O(z^2h^{3/2}).
 \end{align*}
 
-\noindent Again $h^{-1} \sigma_h(z)$ converges uniformly for $z$ in a compact set. Lastly, since
+\noindent Again $h^{-1} \sigma_h^2(z)$ converges uniformly for $z$ in a compact set. Lastly, since
 %
     \[|\Delta Z_{nh}^h|~\leq \max(\beta_i, \beta_d) \sqrt{h} \to 0,\]
 %

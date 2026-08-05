@@ -89,7 +89,7 @@ More concretely, let
 \subsection{The Original Bound and Main Results}
 \label{sec:original-bound-main-results}
 
-Under the MSC model, \citet{uricchio2016_bipartition_cover} show:
+Under the MSC model, \citet{uricchio2016_bipartition_cover} establish the following bound.
 
 \begin{theorem}[Original Bipartition Cover upper bound] If we have a species tree with $k$ species and minimum branch length $T_{\mathrm{min}}$ (in coalescent units) and a set $\cG$ of at least
 %
@@ -164,7 +164,7 @@ A \textit{balanced tree} is any rooted tree so that for every vertex the number 
 
 These two tree topologies represent opposite extremes for coalescent behavior: one maximally balanced and the other maximally unbalanced. Caterpillar trees present a combinatorial bottleneck for phylogenetic inference, as many of their bipartitions involve very large subsets of taxa. Balanced trees, however, present a more subtle and severe difficulty: they induce a \emph{coalescent bottleneck}, in which lineages are so evenly dispersed that coalescence is systematically delayed.
 
-This distinction is made precise in Lemma~\ref{lem:caterpillar_maximize_increasing_sums}, which identifies caterpillar trees as extremal for increasing functions of descendant counts, and in Lemma~\ref{lem:balanced_is_worse_case}, which shows that balanced trees are stochastically worst-case for the number of surviving lineages under the multispecies coalescent. Together, these lemmas underpin our main result, which appears as Theorem~\ref{thm:improved_bipartition_cover_bound_balanced} below:
+This distinction is made precise in Lemma~\ref{lem:caterpillar_maximize_increasing_sums}, which identifies caterpillar trees as extremal for increasing functions of descendant counts, and in Lemma~\ref{lem:balanced_is_worse_case}, which shows that balanced trees are stochastically worst-case for the number of surviving lineages under the multispecies coalescent. Together, these lemmas underpin our main result, which appears as Theorem~\ref{thm:improved_bipartition_cover_bound_balanced} below.
 
 \begin{theorem*}[Main result]
 For $\ell\geq 2$, let $p_\ell(T)$ denote the probability that the lineages descending
@@ -287,7 +287,7 @@ Suppose $\{\alpha_{i}\}_{i=1}^{k-3}$ are the descendant counts of our rooted bin
 
 \noindent The proof of Lemma \ref{lem:caterpillar_maximize_increasing_sums} can be found
 in Appendix~\ref{app:caterpillar-maximization-proof}.
-This result implies:
+This result implies the following corollary.
 
 % Corollary %%%
 \begin{corollary}
@@ -899,7 +899,7 @@ The random variables $X_m, Z_{X_m}$ are ultra log-concave, and hence log-concave
 \noindent where we let $\P(Z^{T}_{i-1} \geq z) = 1$ if $T < 0$. This gives $Z_i^T \geq Z_{i-1}^T$ stochastically as desired.
 \end{proof}
 
-\noindent Note that $g_{i1}(T) = 1 - \P(Z_i^T \geq 2)$, from which we get the immediate corollary:
+\noindent Note that $g_{i1}(T) = 1 - \P(Z_i^T \geq 2)$, from which we get the following immediate corollary.
 
 % g is decreasing
 \begin{corollary}
@@ -1075,7 +1075,7 @@ In this section, we prove some lemmas relating to first-order stochastic dominan
     %
     \[f_X(s)f_Y(t) \geq f_X(t)f_Y(s), \quad \forall s \leq t\]
     %
-    \noindent It is not hard to see that $X \leq_{lr} Y$ implies $X \leq_{st} Y$, so this is a strictly stronger ordering than that of first-order stochastic dominance. The LRO has some convenient closure properties. The following appear as Theorems 1.C.9 and 1.C.17 of \cite{shaked2007_stochastic_orders} respectively:
+    \noindent It is not hard to see that $X \leq_{lr} Y$ implies $X \leq_{st} Y$, so this is a strictly stronger ordering than that of first-order stochastic dominance. The LRO has some convenient closure properties. The following appear as Theorems 1.C.9 and 1.C.17 of \cite{shaked2007_stochastic_orders}, respectively.
 
     \begin{theorem}[LRO preserved by Convolutions]
         Suppose we have two collections of independent, log-concave random variables,
@@ -1089,7 +1089,7 @@ Suppose we have a collection $\{V_i\}_{i\in \N}$ of random variables so that $V_
 \label{thm:mixtures_and_likelihood_ratio_order}
 \end{theorem}
 
-\noindent Using these, we can see our random variables of interest are increasing with respect to the LRO:
+\noindent Using these results gives the following monotonicity lemma for our random variables of interest.
 
 \begin{lemma}
 For $i \leq j$ we have $Z_i \leq_{lr} Z_j$, $X_i \leq_{lr} X_j$ and $Z_{X_i} \leq_{lr} Z_{X_j}$.
@@ -1515,7 +1515,7 @@ Recall we aim to prove:
 
 %%%%%%%%%%%%%%%%%
 
-\noindent Now we are ready to return to the main result. First, we show that the result follows from the following stochastic extension of Lemma \ref{lem:deterministic_balancing_lemma}:
+\noindent Now we are ready to return to the main result. First, we show that the result follows from the following stochastic extension of Lemma \ref{lem:deterministic_balancing_lemma}.
 
 % Lemma: more balanced is better
 \begin{lemma}
@@ -1623,7 +1623,7 @@ In this section, we develop some asymptotics for the time $g_{k,1}(T)$ to coales
     \label{eqn:recursion_convolution}
 \end{equation}
 %
-Since $S_k$ are monotonically increasing, we see $S_k \uparrow S_\infty := \sum_{i=1}^\infty X_i$ almost surely, where the limit may be infinite. To quantify the rate of convergence, define the partial sums $s_k  = \sum_{i=1}^k \lambda_i$, the remainder $R_k := \sum_{i=k+1}^\infty X_i$, and the remainder's expectation $r_k := \E R_k= \sum_{i=k+1}^\infty \lambda_i^{-1}$. We start by getting some explicit formulas for the derivatives of the CDF in terms of these rates $\{\lambda_i\}$:
+Since $S_k$ are monotonically increasing, we see $S_k \uparrow S_\infty := \sum_{i=1}^\infty X_i$ almost surely, where the limit may be infinite. To quantify the rate of convergence, define the partial sums $s_k  = \sum_{i=1}^k \lambda_i$, the remainder $R_k := \sum_{i=k+1}^\infty X_i$, and the remainder's expectation $r_k := \E R_k= \sum_{i=k+1}^\infty \lambda_i^{-1}$. We begin with explicit formulas for the derivatives of the CDF in terms of these rates $\{\lambda_i\}$.
 
 \begin{lemma}
     If we have positive, distinct rates $\{\lambda_i\}_{i = 1}^\infty$:
@@ -1820,11 +1820,11 @@ Note that trivially $h_{r+1} \leq h_r s_k$ as the former includes all monomials 
 \subsubsection{Improvement Ratio Asymptotics}
 \label{app:improvement-ratio-asymptotics}
 
-\noindent In Section \ref{sec:estimated_growth_rates} above, we obtained the following asymptotic lower bound on the improvement factor of our balanced bound (Theorem \ref{thm:improved_bipartition_cover_bound_balanced}) over the original bound:
+\noindent In Section \ref{sec:estimated_growth_rates} above, we obtained the following asymptotic lower bound on the improvement factor of our balanced bound (Theorem \ref{thm:improved_bipartition_cover_bound_balanced}) over the original bound
 %
 \[\beta_T := \frac{-\log(1-g_{u(T),1}(T))}{-\log(1-s(T))} \]
 %
-\noindent In this section, we develop small $T$ asymptotics for $\beta_T$. In particular:
+\noindent In this section, we develop small $T$ asymptotics for $\beta_T$. In particular, we obtain the following result.
 %
 \begin{lemma}[Small $T$ Improvements]
     As $T \downarrow 0$, we have
@@ -1899,7 +1899,7 @@ Now that we have analyzed the core function $g_{k,1}(T)$ we are ready to analyze
 
 \noindent In particular, we recover the small $T$ bound found in Appendix $B$ of \cite{shekhar2018_how_many_genes_are_enough}, although here we exactly quantify the asymptotic constant.
 
-  For the fixed $T$ and asymptotic $k$ bound, we Taylor expand $\log(x)$ about $1 - s$ to observe:
+  For the fixed $T$ and asymptotic $k$ bound, we Taylor expand $\log(x)$ about $1 - s$ to observe
 %
 \[\log(1 - g_{k,1}(T) )= \log(1-s)-\sum_{n=1}^\infty \frac{\Delta^n}{n(1-s)^n} = \log(1-s) - \frac{\Delta}{1-s} - O(\Delta^2).\]
 %

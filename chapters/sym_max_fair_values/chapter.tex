@@ -46,7 +46,7 @@ information from displayed liquidity. This chapter proposes one such estimator.
 
 A typical naive model for the fair value is just the \textit{mid price}
 $v_{m} = (b_1 + a_1) / 2$, the average of the best bid and best offer.
- A more nuanced measure is the \textit{weighted mid price}:
+ A more nuanced measure is the \textit{weighted mid price}
 %
 \[v_w = \frac{b_1 \cdot \alpha_1 + a_1 \cdot \beta_1}{\beta_1 + \alpha_1} = v_m + \frac{s}{2} \cdot \frac{\beta_1 - \alpha_1}{\beta_1 + \alpha_1},\]
 %
@@ -67,7 +67,7 @@ heuristics under natural assumptions.
 We first view the bid side and ask side of the order book as two separate
 distributions $\mu_b, \mu_a$. One way of doing
 this is to view each quantity (or order) as a unit mass on the order book
-(and then possibly normalize):
+(and then possibly normalize)
 %
 \begin{equation}
     \mu_b \propto \sum_{i} \beta_i \cdot \delta_{b_i}, \qquad \mu_a \propto \sum_{j} \alpha_j \cdot \delta_{a_j}.
@@ -79,7 +79,7 @@ this is to view each quantity (or order) as a unit mass on the order book
  the orders according to some scheme. Since it seems likely that orders near the spread
  are more informed, it is natural to weight these orders more. Namely, by introducing a
  discount $\lambda \in (0,1]$, we could choose to add more mass to the larger bids and
- the smaller asks, the orders nearer to the spread:
+ the smaller asks, the orders nearer to the spread
 %
 \begin{equation}
     \mu_b \propto \sum_{i} \lambda^{-b_i} \cdot \beta_i \cdot \delta_{b_i}, \qquad \mu_a \propto \sum_{j} \lambda^{a_j} \cdot \alpha_j \cdot \delta_{a_j}.
@@ -106,7 +106,7 @@ while $\phi(v)=\log v$ gives a multiplicative model for positive prices and
 ensures that the resulting fair value remains positive.
 
 To try to generalize our heuristics, consider the simple situation where the bid
-and ask books are perfect mirror images of each other in $\phi$-space, separated possibly by some spread. In this case, buying and selling pressures are exactly equal, so the midpoint in the chosen coordinate is a natural candidate for the fair value. For the identity coordinate this is the usual mid price $v_m$; for a general $\phi$ it is the point around which the transformed distributions are mirror images. In other words, the transformed midpoint solves:
+and ask books are perfect mirror images of each other in $\phi$-space, separated possibly by some spread. In this case, buying and selling pressures are exactly equal, so the midpoint in the chosen coordinate is a natural candidate for the fair value. For the identity coordinate this is the usual mid price $v_m$; for a general $\phi$ it is the point around which the transformed distributions are mirror images. In other words, the transformed midpoint solves
 %
 \begin{equation}
     x_{s,\phi} = \argmin_{c \in \R} \; d\bigl((c-\cdot)_\#\mu_b^\phi, \; (\cdot-c)_\#\mu_a^\phi\bigr),
@@ -174,7 +174,7 @@ This metric comes from the theory of optimal transport. It measures how
  difficult it is to convert one distribution into another by transporting
  it ``piece by piece". The goal is to find a transportation plan that
  requires the least total distance the mass must be transported.
- Formally, it is defined as:
+ Formally, it is defined as
 %
 \[d_{W_p}(\mu, \nu) := \left( \inf_{(X,Y) \in \Pi(\mu, \nu)} \E |X-Y|^p \right)^{1/p},\]
 %
@@ -239,7 +239,7 @@ chosen price coordinate. Writing $x=\phi(v)$ for the transformed fair value, we 
 %
 where $h$ is a latent half-spread in $\phi$-space, reflecting uncertainty,
 inventory concerns, or compensation for supplying liquidity. With imbalanced
-buying and selling pressure, we instead allow asymmetric quotes:
+buying and selling pressure, we instead allow asymmetric quotes
 %
 \[\phi(b)=x-\theta^{-1}h, \qquad
   \phi(a)=x+(1-\theta)^{-1}h,\]
@@ -272,7 +272,7 @@ h=\theta(1-\theta)\log(a/b),\]
 %
  Thus, if we knew which bid was paired with each ask, we could aggregate
  these to get reasonable estimates of the fair value and half-spread
- distributions:
+ distributions
 
  %
 \[\hat{\mu} := \frac{1}{n} \sum_{i=1}^n
@@ -303,7 +303,7 @@ distributions.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Determining optimal bid/ask pairing}
 
-Suppose we have $n$ bids $b_1 \geq \cdots \geq b_n$ and $n$ asks $a_1 \leq \cdots \leq a_n$. Write $\widetilde b_i:=\phi(b_i)$ and $\widetilde a_i:=\phi(a_i)$. Since $\phi$ is increasing, the transformed quotes have the same ordering. Pairing these up amounts to choosing a permutation $\tau \in S_n$ and pairing $b_i$ with $a_{\tau(i)}$. If we assume this is the true pairing, the above generative model specifies exactly its probability distribution. Finding the optimal way of pairing up asks and bids then amounts to solving:
+Suppose we have $n$ bids $b_1 \geq \cdots \geq b_n$ and $n$ asks $a_1 \leq \cdots \leq a_n$. Write $\widetilde b_i:=\phi(b_i)$ and $\widetilde a_i:=\phi(a_i)$. Since $\phi$ is increasing, the transformed quotes have the same ordering. Pairing these up amounts to choosing a permutation $\tau \in S_n$ and pairing $b_i$ with $a_{\tau(i)}$. If we assume this is the true pairing, the above generative model specifies exactly its probability distribution. Finding the optimal way of pairing up asks and bids then amounts to solving
 %
 \begin{align*}
     & \argmax_{\tau \in S_n} \P_{x,h}\left((\widetilde b_i, \widetilde a_{\tau(i)})_{i=1}^n\right) \\
@@ -313,7 +313,7 @@ Suppose we have $n$ bids $b_1 \geq \cdots \geq b_n$ and $n$ asks $a_1 \leq \cdot
     & = \argmax_{\tau \in S_n} \sum_{i=1}^n \log\left(\P_h(\theta (1-\theta) \cdot (\widetilde a_{\tau(i)} - \widetilde b_i)\right) + \log\left( \P_x(\theta \widetilde b_i + (1-\theta) \cdot \widetilde a_{\tau(i)})\right).
 \end{align*}
 %
-\noindent If we assume the transformed half-spread and fair-value coordinates have densities $\P_h=e^{f(x)}\,dx$ and $\P_x=e^{g(x)}\,dx$ then this reduces to:
+\noindent If we assume the transformed half-spread and fair-value coordinates have densities $\P_h=e^{f(x)}\,dx$ and $\P_x=e^{g(x)}\,dx$ then this reduces to
 %
 \[= \argmax_{\tau \in S_n} \sum_{i=1}^n f\Big(\theta(1-\theta) \cdot (\widetilde a_{\tau(i)} - \widetilde b_i) \Big ) + g\Big(\theta \widetilde b_i + (1-\theta) \widetilde a_{\tau(i)}\Big). \]
 %
@@ -330,7 +330,7 @@ distributions is sufficiently more log-concave than the other.
 
 \begin{lemma}
     Suppose the transformed fair-value distribution is $\mu=N(0,\sigma^2)$ and the transformed half-spread distribution has density $\nu=e^{f(x)}\,dx$. If for all $z \in \R$
-    and $t,r > 0$:
+    and $t,r > 0$
     %
     \begin{equation}
          \Delta_t \Delta_r f(z) \geq - \frac{1}{\theta(1-\theta)\sigma^2} \cdot rt.
@@ -338,7 +338,7 @@ distributions is sufficiently more log-concave than the other.
     \end{equation}
 
     %
-    \noindent If $\widetilde b_n \leq \cdots \leq \widetilde b_1 \leq \widetilde a_1 \leq \cdots \leq \widetilde a_n$ then:
+    \noindent If $\widetilde b_n \leq \cdots \leq \widetilde b_1 \leq \widetilde a_1 \leq \cdots \leq \widetilde a_n$ then
         %
     \[\mathrm{id} = \argmax_{\tau \in S_n} \sum_{i=1}^n f\Big(\theta(1-\theta) \cdot (\widetilde a_{\tau(i)} - \widetilde b_i) \Big ) + g\Big(\theta \widetilde b_i + (1-\theta) \widetilde a_{\tau(i)}\Big). \]
     %
@@ -366,7 +366,7 @@ condition is saying that our fair value distribution is more log-concave than ou
 \end{remark}
 
 \begin{example}
-    In particular, one natural choice is $\nu = \mathrm{Gamma}(\lambda, k)$. Here:
+    In particular, one natural choice is $\nu = \mathrm{Gamma}(\lambda, k)$. Here
     %
     \[f(x) = -\lambda x + (k-1) \log(x) + C_{\lambda, k} \quad \to \quad \Delta_t\Delta_r f(x) = (k-1) \log\bigg(1 - \frac{rt}{(x+r)(x+t)}\bigg). \]
     %
@@ -380,11 +380,11 @@ condition is saying that our fair value distribution is more log-concave than ou
 \noindent Note that our above proof of Lemma \ref{lem:optimal_pairing_bids_and_asks_gaussian} actually shows something slightly stronger.
 
 \begin{corollary}
-    If $\widetilde b_n \leq \cdots \leq \widetilde b_1 \leq \widetilde a_1 \leq \cdots \leq \widetilde a_n$ and for all $t,r > 0$:
+    If $\widetilde b_n \leq \cdots \leq \widetilde b_1 \leq \widetilde a_1 \leq \cdots \leq \widetilde a_n$ and for all $t,r > 0$
     %
     \[\Delta_{\theta t} \, \Delta_{(1-\theta) r} \, f(z) \geq \Delta_{r} \Delta_{t} g(w),\]
     %
-    \noindent for $z \in [0, \widetilde a_n-\widetilde b_n]$ and $w \in [\widetilde b_n,\widetilde a_n]$, then we can see:
+    \noindent for $z \in [0, \widetilde a_n-\widetilde b_n]$ and $w \in [\widetilde b_n,\widetilde a_n]$, then we can see
     %
     \[\mathrm{id} = \argmax_{\tau \in S_n} \sum_{i=1}^n f\Big(\theta(1-\theta) \cdot (\widetilde a_{\tau(i)} - \widetilde b_i) \Big ) + g\Big(\theta \widetilde b_i + (1-\theta) \widetilde a_{\tau(i)}\Big). \]
     %
@@ -419,7 +419,7 @@ In this section, we drop our assumption that $\mu_a, \mu_b$ be
 probability measures, so they can take unnormalized forms like in
 equation \eqref{eqn:mua_mub}. One simple measure of imbalance is
 then just the following ratio of the total masses $m_a, m_b$ of
-these measures:
+these measures
 %
 
 \begin{equation}
@@ -433,7 +433,7 @@ these measures:
 \eqref{eqn:mua_mub_proportional}, this is just the ratio of the total
 volume on the bid book and the total volume on the ask book.
 Using this, we can extend \eqref{eqn:optimization_problem} in a way
- that incorporates the imbalances in the bid and ask books:
+ that incorporates the imbalances in the bid and ask books
 %
 \begin{align}
         x_{s,\phi}^\theta & = \argmin_{c \in \mathbb R}
@@ -503,13 +503,13 @@ fair value. This gives the following continuity property under $d_{W_2}$.
 
 \begin{lemma}
     \label{lem:fv_continuity_w2}
-    For transformed price measures $\mu,\nu,\mu',\nu'$, the fair-value coordinate $x_{s,\phi}^\theta:=\phi(v_{s,\phi}^\theta)$ under $d_{W_2}$ in \eqref{eqn:w2_imbalanced_symmetric_fair_value} satisfies for any $p \geq 1$:
+    For transformed price measures $\mu,\nu,\mu',\nu'$, the fair-value coordinate $x_{s,\phi}^\theta:=\phi(v_{s,\phi}^\theta)$ under $d_{W_2}$ in \eqref{eqn:w2_imbalanced_symmetric_fair_value} satisfies for any $p \geq 1$
     %
     \begin{equation}
         \Big| x_{s,\phi}^\theta(\mu, \nu) - x_{s,\phi}^{\theta'}(\mu', \nu') \Big | \leq \theta' d_{W_p}(\mu,\mu') + (1-\theta') d_{W_p}(\nu,\nu') + |\theta-\theta'| \cdot d_{W_p}(\mu,\nu).
     \end{equation}
     %
-    \noindent In particular, if $\mu' = t^\# \mu, \nu' = s^\# \nu$ are pushforward measures then:
+    \noindent In particular, if $\mu' = t^\# \mu, \nu' = s^\# \nu$ are pushforward measures then
     \begin{equation}
         \Big| x_{s,\phi}^\theta(\mu, \nu) - x_{s,\phi}^{\theta'}(\mu', \nu') \Big | \leq \theta' ||t - id||_{L^p(\mu)} + (1-\theta') ||s-id||_{L^p(\nu)} + |\theta - \theta'| \cdot d_{W_p}(\mu,\nu).
     \end{equation}
@@ -591,14 +591,14 @@ in our analysis. More details can be found in \cite{panaretos2020_statistics_was
 \subsection{Properties of Wasserstein Spaces}
 
 \begin{lemma}
-    If $\mu_n \xrightarrow{W_p} \mu$ then $\E_{\mu_n} X \to \E_\mu X$. More specifically:
+    If $\mu_n \xrightarrow{W_p} \mu$ then $\E_{\mu_n} X \to \E_\mu X$. More specifically
 %
     \[\Big| \E_{\mu_n} X - \E_\mu X \Big| \leq d_{W_p}(\mu_n, \mu).\]
 %
     \label{lem:conv_Wp_implies_means_conv}
 \end{lemma}
 \begin{proof}
-    \noindent Since for any coupling $\pi \in \Pi(\mu_n, \mu)$ we have for $p \geq 1$ by Jensen's inequality:
+    \noindent Since for any coupling $\pi \in \Pi(\mu_n, \mu)$ we have for $p \geq 1$ by Jensen's inequality
     %
         \[\bigg|\int_\R x \; \mu_n(dx) - \int_\R y \; \mu(dy) \bigg| \leq \bigg(\int_{\R^2} |x - y|^p \; d\pi \bigg)^{1/p}. \]
     %
@@ -611,7 +611,7 @@ In fact, more is true: as shown in \cite{panaretos2020_statistics_wasserstein_sp
  can be found in \cite{panaretos2020_statistics_wasserstein_space}.
 
 \begin{lemma}
-    For any $p \geq 1$ the map $\mu \mapsto Q_\mu$ from $W_p(\R)$ to $L_p([0,1], \mathrm{Leb})$ is an isometry. Namely for $\mu, \nu \in W_p(\R)$:
+    For any $p \geq 1$ the map $\mu \mapsto Q_\mu$ from $W_p(\R)$ to $L_p([0,1], \mathrm{Leb})$ is an isometry. Namely for $\mu, \nu \in W_p(\R)$
     %
     \[d_{W_p}(\mu, \nu) = \left(\int_0^1 |Q_\mu(z) - Q_\nu(z)|^p \; dz \right)^{1/p}.\]
     %
@@ -619,7 +619,7 @@ In fact, more is true: as shown in \cite{panaretos2020_statistics_wasserstein_sp
 \end{lemma}
 
 \begin{lemma}
-    Given $\{\mu_i\}_{i=1}^n \in W_2(\R)$ its (weighted) empirical barycenter satisfies:
+    Given $\{\mu_i\}_{i=1}^n \in W_2(\R)$ its (weighted) empirical barycenter satisfies
     %
     \[\overline{\mu} := \argmin_{\nu \in W_2} \sum_{i=1}^n \omega_i \cdot d_{W_2}(\nu, \mu_i)^2 \quad \to \quad Q_{\overline{\mu}} =  \sum_{i=1}^n \omega_i \cdot Q_{\mu_i}.\]
     %
@@ -629,7 +629,7 @@ In fact, more is true: as shown in \cite{panaretos2020_statistics_wasserstein_sp
 \end{lemma}
 
 \begin{proof}
-    We adapt the proof of Proposition 3.1 in \cite{raban2024_aggregate_ratings_wasserstein_barycenters}. Apply Lemma \ref{lem:quantile_fns_are_isometry} and the bias-variance decomposition to see $Q_{\overline{\mu}}$ must minimize:
+    We adapt the proof of Proposition 3.1 in \cite{raban2024_aggregate_ratings_wasserstein_barycenters}. Apply Lemma \ref{lem:quantile_fns_are_isometry} and the bias-variance decomposition to see $Q_{\overline{\mu}}$ must minimize
     %
     \[ \sum_{i=1}^n \omega_i \cdot ||Q_{\mu_i} - Q_{\overline{\mu}}||^2_{L^2} =  \sum_{i=1}^n \omega_i \cdot \bigg|\bigg|  \sum_{i=1}^n \omega_i \cdot Q_{\mu_i} - Q_{\overline{\mu}}\bigg |\bigg|^2_{L^2} +  \bigg|\bigg|  \sum_{i=1}^n \omega_i \cdot Q_{\mu_i} - Q_{\mu_i}\bigg |\bigg|^2_{L^2}.\]
     %
@@ -643,30 +643,30 @@ In fact, more is true: as shown in \cite{panaretos2020_statistics_wasserstein_sp
 
 \begin{proof}[Proof of Theorems \ref{thm:wasserstein_solution} ,\ref{thm:imbalanced_wasserstein_solution}]
     \label{proof:imbalanced_wasserstein_solution}
-    By Lemma \ref{lem:quantile_fns_are_isometry} it suffices to work with quantile functions in $\phi$-space. If $\mu = \sum_i p_i \delta_{x_i}$ is discrete, its quantile function is an increasing step function. Namely, assuming $x_1 < x_2 < ... < x_n$ it takes the form:
+    By Lemma \ref{lem:quantile_fns_are_isometry} it suffices to work with quantile functions in $\phi$-space. If $\mu = \sum_i p_i \delta_{x_i}$ is discrete, its quantile function is an increasing step function. Namely, assuming $x_1 < x_2 < ... < x_n$ it takes the form
 %
 \[Q_\mu(z) = x_k \text{  for  } z\in \left(\sum_{i=1}^{k-1} p_i, \quad \sum_{i=1}^k p_i \right]. \]
 %
 
-\noindent Thus if $\mu = \sum_i p_i \delta_{x_i}$ and $\nu = \sum_i q_i \delta_{y_i}$ then:
+\noindent Thus if $\mu = \sum_i p_i \delta_{x_i}$ and $\nu = \sum_i q_i \delta_{y_i}$ then
 %
 \[|Q_\mu(z) - Q_\nu(z)| = |x_k - y_r| \text{ for } z \in \left(\sum_{i=1}^{k-1} p_i, \quad \sum_{i=1}^k p_i \right] \cap \left(\sum_{i=1}^{r-1} q_i, \quad \sum_{i=1}^r q_i \right],\]
 
-\noindent is piecewise constant, with pieces delineated by endpoints $\sum_{i \leq k} p_i, \sum_{j \leq k} q_j$. Namely, if we let $z_1 \leq z_2 \leq ... \leq z_{m+n}$ be the order statistics of $\{\sum_{i=1}^{k} p_i \; : \; k \leq n\} \cup \{\sum_{i=1}^{r} q_i \; : \; r \leq m\}$ we can see:
+\noindent is piecewise constant, with pieces delineated by endpoints $\sum_{i \leq k} p_i, \sum_{j \leq k} q_j$. Namely, if we let $z_1 \leq z_2 \leq ... \leq z_{m+n}$ be the order statistics of $\{\sum_{i=1}^{k} p_i \; : \; k \leq n\} \cup \{\sum_{i=1}^{r} q_i \; : \; r \leq m\}$ we can see
 %
 \[d_{W_p}(\mu, \nu)^p = \sum_{\ell = 1}^{m+n} \Delta z_\ell \cdot | x_{f(\ell)} - y_{g(\ell)}|^p, \qquad \Delta z_\ell := z_\ell - z_{\ell - 1},\]
 %
 \noindent where $f:[m+n] \to [n]$ is the map that sends $\ell$ to $k$ if $z_\ell \in \left[\sum_{i=1}^{k-1} p_i,  \sum_{i=1}^k p_i \right)$. Likewise $g : [m+n] \to [m]$ sends $\ell$ to $k$ if $z_\ell \in \left[\sum_{i=1}^{k-1} q_i,  \sum_{i=1}^k q_i \right)$.\\
 
 
-\noindent Thus, taking $\mu$ to be the transformed bid distribution and $\nu$ the transformed ask distribution, \eqref{eqn:imbalanced_optimization_problem} gives:
+\noindent Thus, taking $\mu$ to be the transformed bid distribution and $\nu$ the transformed ask distribution, \eqref{eqn:imbalanced_optimization_problem} gives
 %
 \begin{equation}
     d_{W_p}\left((c-2\theta\,\cdot)_\#\mu, \; (2(1-\theta)\,\cdot-c)_\#\nu \right)^p = \sum_{\ell = 1}^{m+n} \Delta z_\ell \cdot \Big|2c-2\theta \cdot x_{f(\ell)} - 2(1-\theta) \cdot y_{g(\ell)}\Big|^p,
 \end{equation}
 %
 
-\noindent where $x_1 < ... < x_n$ and $y_1 > ... > y_n$. Note the reversal in the order of the $y_i$ (and hence their corresponding $q_i$). Note that the $z_\ell$ depend only on $p_i, q_i$, not on $c$. In the case of $W_2$, by taking the gradient we can explicitly solve for the optimal $c$ in \eqref{eqn:optimization_problem}:
+\noindent where $x_1 < ... < x_n$ and $y_1 > ... > y_n$. Note the reversal in the order of the $y_i$ (and hence their corresponding $q_i$). Note that the $z_\ell$ depend only on $p_i, q_i$, not on $c$. In the case of $W_2$, by taking the gradient we can explicitly solve for the optimal $c$ in \eqref{eqn:optimization_problem}
 %
 \begin{align*}
     x_{s,\phi}^\theta & = \sum_{\ell = 1}^{m+n} \Delta z_\ell \cdot \Big( \theta x_{f(\ell)} + (1-\theta)y_{g(\ell)} \Big) \\
@@ -684,15 +684,15 @@ Theorem~\ref{thm:wasserstein_solution} is just the special ``balanced" case when
 % continuization
 We can re-state the above proof purely in terms of the quantile functions. Note if $X$ has
 quantile function $Q_X$, then the transformed random variables $Y = c-2\theta X$ and $Y' = 2(1-\theta)X - c$ have
-quantile functions (up to Lebesgue null sets) given by:
+quantile functions (up to Lebesgue null sets) given by
 %
     \[Q_Y(u) = c-2\theta Q_X(1-u), \quad Q_{Y'}(u) = 2(1-\theta) Q_X(u) - c,\]
 %
-\noindent respectively. Using Lemma~\ref{lem:quantile_fns_are_isometry}, then \eqref{eqn:imbalanced_optimization_problem} becomes:
+\noindent respectively. Using Lemma~\ref{lem:quantile_fns_are_isometry}, then \eqref{eqn:imbalanced_optimization_problem} becomes
 %
 \[d_{W_p}\left((c-2\theta\,\cdot)_\#\mu, \; (2(1-\theta)\,\cdot-c)_\#\nu\right)^p = 2^p \int_0^1 \left|c - \theta Q_\mu(1-u) - (1-\theta) Q_\nu(u)\right|^p \; du.\]
 %
-\noindent Defining:
+\noindent Defining
 %
 \[\rho(u) := \theta Q_\mu(1-u) + (1-\theta) Q_\nu(u),\]
 %
@@ -710,7 +710,7 @@ Lemma~\ref{lem:quantile_of_w2_barycenter}. Thus, in the case of $p=2$, our trans
 (imbalance-weighted) $W_2$ barycenter of $\mu, \nu$. Namely
 %
 % Corollary: the fair value is the mean of the barycenter
-\begin{corollary} For any transformed price measures $\mu,\nu\in W_2(\mathbb R)$:
+\begin{corollary} For any transformed price measures $\mu,\nu\in W_2(\mathbb R)$
 %
     \[x_{s,\phi}^\theta = \argmin_{c \in \mathbb R} d_{W_2}\left((c-2\theta\,\cdot)_\#\mu, \; (2(1-\theta)\,\cdot-c)_\#\nu\right)
     = \int_\mathbb R x\,\bar{\mu}_\theta(dx),
@@ -726,11 +726,11 @@ images, then $\rho$ is just some constant $c$, so every level $u$ agrees on the 
 the $p^{th}$ mean is $c$ for every $p>1$.
 
 \begin{proof}[Proof of Lemma \ref{lem:optimal_pairing_bids_and_asks_gaussian}]
-    The proof is analogous to Lemma 4.1 of \cite{bobkov2009_one_dimensional_measures_kantorovich}, which shows log-concavity is the crucial condition. Call the sum to be maximized $S(\tau)$ and the summand $V(\widetilde b_i,\widetilde a_{\tau(i)})$. For brevity within this proof, write $b_i:=\widetilde b_i$ and $a_j:=\widetilde a_j$. If $i < j$ but $\tau(i) =: u > v := \tau(j)$ we will show $S(\tau') \geq S(\tau)$ for $\tau' = (uv) \tau$. Namely, by correcting the order of $i,j$ in the image we can improve the objective value. Note since $\mu$ is normally distributed:
+    The proof is analogous to Lemma 4.1 of \cite{bobkov2009_one_dimensional_measures_kantorovich}, which shows log-concavity is the crucial condition. Call the sum to be maximized $S(\tau)$ and the summand $V(\widetilde b_i,\widetilde a_{\tau(i)})$. For brevity within this proof, write $b_i:=\widetilde b_i$ and $a_j:=\widetilde a_j$. If $i < j$ but $\tau(i) =: u > v := \tau(j)$ we will show $S(\tau') \geq S(\tau)$ for $\tau' = (uv) \tau$. Namely, by correcting the order of $i,j$ in the image we can improve the objective value. Note since $\mu$ is normally distributed
     %
     \[ g(x) = -\frac{x^2}{2\sigma^2} \qquad \to \qquad  \Delta_r \Delta_t g(x) = - \frac{rt}{\sigma^2}. \]
     %
-    \noindent  Recall that $b_j \leq b_i \leq a_v \leq a_u$. Define $r := b_i - b_j \geq 0$, $z := a_v - b_i \geq 0$, and $t := a_u - a_v \geq 0$ to be the spacing between these four values and let $w := \theta b_j + (1-\theta)a_v$ to be the weighted average of the smallest ask and bid in this group. Then we see:
+    \noindent  Recall that $b_j \leq b_i \leq a_v \leq a_u$. Define $r := b_i - b_j \geq 0$, $z := a_v - b_i \geq 0$, and $t := a_u - a_v \geq 0$ to be the spacing between these four values and let $w := \theta b_j + (1-\theta)a_v$ to be the weighted average of the smallest ask and bid in this group. Then we see
     %
     \begin{align*}
         & S(\tau') - S(\tau) \\[6pt]
@@ -745,7 +745,7 @@ the $p^{th}$ mean is $c$ for every $p>1$.
         & = \frac{\theta (1-\theta)}{\sigma^2} \cdot rt + \Delta_{\theta(1-\theta) t} \, \Delta_{\theta(1-\theta) r} \, f(\theta(1-\theta) z).
     \end{align*}
     %
-    \noindent Substituting $t' = \theta(1-\theta)t$ and likewise for the other variables we get:
+    \noindent Substituting $t' = \theta(1-\theta)t$ and likewise for the other variables we get
     %
     \[S(\tau') - S(\tau) = \frac{1}{\theta(1-\theta)\sigma^2} \cdot r't' + \Delta_{t'} \Delta_{r'} f(z').\]
     %
@@ -818,7 +818,7 @@ The main idea is that the optimization problem in \eqref{eqn:wp_imbalanced_symme
     %
     \[||a|^p - |b|^p|| \leq p |a-b| \cdot (|a|^{p-1} + |b|^{p-1}),\]
     %
-    \noindent we see:
+    \noindent we see
     %
     \begin{align*}
         \Big| |\rho_n(u) - c|^p - |\rho(u) - c|^p\Big| & \leq p \cdot |\rho_n(u) - \rho(u)| \cdot \left[(|\rho_n(u)| +c)^{p-1} + (|\rho(u)| + c)^{p-1}\right]\\

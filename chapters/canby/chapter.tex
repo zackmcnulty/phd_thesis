@@ -86,11 +86,11 @@ following assumptions about $\nu^{(c)}$ and $\rho^{(c)}$.
     Non-homoplastic states occur sufficiently often, specifically
     %
     \begin{enumerate}[label=(\roman*)]
-        \item The root macro-state contains a non-homoplastic micro-state with positive probability:
+        \item The root macro-state contains a non-homoplastic micro-state with positive probability
               %
                 \[\rho^{(c)} \left(\left\{A \in {\Sigma^{(c)} \choose *} \; : \; A \cap \Sigma^{(c)}_N \neq \emptyset \right\}\right) > 0.\]
               %
-        \item There is positive probability of adding a non-homoplastic micro-state to the current macro-state when a birth occurs:
+        \item There is positive probability of adding a non-homoplastic micro-state to the current macro-state when a birth occurs
                 %
                 \[\nu^{(c)}(\Sigma_N^{(c)}) > 0.\]
                 %
@@ -120,7 +120,7 @@ phylogenetic trees $\cT$ based on the number of \textit{quartets}, four-leaf ind
 it solves the optimization problem
 %
 \begin{equation}
-    \hat{T} = \argmax_\cT  \sum_{q \in \cQ(\cT)} W(q),
+    \hat{\cT} = \argmax_\cT  \sum_{q \in \cQ(\cT)} W(q),
     \label{eqn:astral_quartet_support_optimization_problem}
 \end{equation}
 %
@@ -149,7 +149,7 @@ the restricted search space
 %
 %
 \begin{equation}
-    \hat{T} = \argmax_{\cX(\cT) \subseteq \cX}  \sum_{q \in \cQ(\cT)} W(q).
+    \hat{\cT} = \argmax_{\cX(\cT) \subseteq \cX}  \sum_{q \in \cQ(\cT)} W(q).
     \label{eqn:astral_heuristic_optimization_problem}
 \end{equation}
 %
@@ -167,11 +167,13 @@ significantly more data to obtain similar recovery rates~\cite{shekhar2018_how_m
 between computational and sample efficiency.
 
 As discussed in \cite{uricchio2016_bipartition_cover}, \cite{mcnulty2026_improved_bipartition_cover_bound}, the main shortcoming of the relaxed problem
-is that it is quite unlikely that $\cX(\cT) \subseteq \cX_g$, since the bipartitions induced by edges near the root are very
+is that it is quite unlikely that $\cX(\cT^*) \subseteq \cX_g$, since the bipartitions induced by edges near the root are very
 difficult to recover. Several heuristics have been proposed to extend the set $\cX_g$ in an effort to improve its coverage
 properties and the empirical performance of the relaxed problem~\cite{mirarab2015_astral_ii_species_tree_estimation}, \cite{zhang2018_astral_iii_species_tree_reconstruction}, \cite{dibaeinia2021_fastral_scalable_phylogenomics}.
 Alternatively \cite{zhang2022_weighting_gene_tree_uncertainty} proposes a weighted version of~\eqref{eqn:astral_quartet_support_optimization_problem}
 which incorporates quartet-support information from the gene-tree estimation stage, which down-weights possibly misleading quartets.
+
+ASTRAL recovers only the underlying unrooted tree. When an appropriate outgroup is available, it can be used to root the inferred tree.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ASTRAL-Based Inference for PCH Model
@@ -209,8 +211,8 @@ quartet topology that groups $u$ with $v$ and $x$ with $y$.
 \end{equation*}
 %
 where $U := c(u)$, and so on. Namely, $M_q$ consists of the pairs of non-homoplastic states that are seemingly ``split'' across the quartet $q$.
-For the true quartet topology, \cite{evans2026_canby_identifiability} shows this support is larger in expectation than the support assigned to
-the two alternatives:
+For the true quartet topology, \cite[Theorem 1]{evans2026_canby_identifiability} shows this support is larger in expectation than the support assigned to
+the two alternatives, as summarized in the following lemma.
 %
 \begin{lemma}
     If $\cT_q^* = uv||xy$ is the quartet topology of the leaves $(u,v,x,y)$ in $\cT^*$ then
@@ -246,7 +248,7 @@ directly implies the following. Recall, a phylogenetic tree (with branch lengths
 the same distance from the root. When this holds, the supports for the two incorrect topologies are identically distributed.
 
 \begin{corollary}
-    If $\cT^*$ is ultrametric, then $M_{ux|vy} \overset{d}{=}M_{uy|vx}.$
+    If $\cT^*$ is ultrametric, then $M_{ux||vy} \overset{d}{=}M_{uy||vx}.$
     \label{corr:wrong_quartet_supports_identically_distributed}
 \end{corollary}
 
@@ -275,14 +277,15 @@ separate by converting each informative character-quartet pair into a single top
  may be more robust in heterogeneous or misspecified settings due to the heavy-tailed nature of the quartet-support
  distributions.
 
-Lastly, in Section~\ref{sec:pch_astral_sample_complexity}, we develop rudimentary sample complexity bounds for the two ASTRAL-based procedures
+Lastly, in Section~\ref{sec:pch_astral_sample_complexity}, we develop sample complexity bounds for the two ASTRAL-based procedures
 when characters are sampled under the simplified immigration-death process $ID(\theta, \lambda, \mu)$.
 We show PCH-ASTRAL requires $O(L^{-2} \log(k) + L^{-1} \log^2(k))$ characters to recover $\cT^*$ with high probability, where
 %
     \[L := \min_{s \in {[k] \choose 4}} \min_{t \in A_s \setminus \{\cT_s^*\}} \E \left[|M_{\cT_s^*}| - |M_t|\right]\]
 %
 is the minimal margin the correct quartet topology has over incorrect ones. Similarly,
-PCH-ASTRAL(sc) requires $O(\Delta^{-2} \log(k))$ \textit{informative} characters, where
+PCH-ASTRAL(sc) requires $O(p_{\min}^{-1}\Delta^{-2}\log(k))$ total characters,
+equivalently $O(\Delta^{-2}\log(k))$ informative character votes per quartet, where
 %
     \[\Delta := \min_{s \in {[k] \choose 4}} \min_{q \in A_s \setminus \{\cT_s^*\}} \left[\P_s(\cT_s^*) - \P_s(q)\right], \quad \P_s(q) := \P\left(q = \argmax_{q' \in A_s} |M_{q'}| \; \Big\vert \; \max_{q' \in A_s} |M_{q'}| > 0\right).\]
 %
@@ -296,8 +299,9 @@ again gives some notion of the margin.
 
 Let $\cT^*$ denote the true species tree underlying our PCH model,
 which has $k$ leaves (species/languages), and let $\cL(\cT^*)$ denote its leaf set.
-Given any phylogenetic tree $\cT$, let $\cQ_\cT$ denote its set of
-\textit{quartets}, which are the subtrees induced by a collection of four leaves. Hence $|\cQ_\cT| = {k \choose 4}$.
+We will often conflate $\cL(\cT^*)$ with $[k]$. Given any phylogenetic tree
+$\cT$, let $\cQ(\cT)$ denote its set of \textit{quartets}, which are the subtrees
+induced by a collection of four leaves. Hence $|\cQ(\cT)| = {k \choose 4}$.
 
 For random variables $U$ and $V$, we write $U \succeq_{st} V$ if $U$ first-order
 stochastically dominates $V$, meaning
@@ -340,7 +344,7 @@ The constraint $\mu_1 = 0$ and the renormalization by $\nu^{(c)} (\Sigma^{(c)} \
 the PCH model hard to analyze as they add a certain
 dependence structure between the different micro-states of a specific character. If we drop these conditions, we
 get a classical immigration-death (ID) process, which is much more tractable. This approximation
-is reasonable in the parameter regime where the number of characters in a given branch is rarely one, which occurs
+is reasonable in the parameter regime where the number of micro-states in a given branch is rarely one, which occurs
 when $\lambda$ is sufficiently large relative to $\mu$, and when homoplasy is fairly rare, so renormalization has little
 influence.
 
@@ -366,8 +370,8 @@ $Z_\theta \sim \mathrm{Poisson}(\theta)$ and $\theta \geq 0$. Since we can
 always choose $\theta = 0$, such a $\theta$ always exists. Then there exists a coupling so $|X_0 \cap \Sigma_N| \geq Z_\theta$ 
 almost surely. Let $Y_0$ be a uniformly at random chosen subset of size $Z_\theta$ from $X_0 \cap \Sigma_N$.
 
-From here, we use a single $\tau \sim \mathrm{\Exp}(\lambda)$ clock for each
-branch of $\cT^*$ to determine possible births. If $\tau$ rings at location $s \in \cT^*$,
+From here, we use rate-$\lambda$ exponential clocks along the branches of
+$\cT^*$ to determine possible births. If a clock rings at location $s \in \cT^*$,
 sample a new state $\alpha \notin X_{s^-}$ for the PCH model as usual, namely
 according to the conditional distribution
 %
@@ -383,9 +387,9 @@ according to the conditional distribution
 \end{cases}\]
 %
 \noindent This ensures that the birth rate in $(Y_s)$ along a given branch
-is always $\lambda_N$. Similarly, when a new state $\alpha$ is born in $X_s$,
-assign it an independent $\tau_\alpha \sim \mathrm{Exp(\mu)}$ clock. If it
- rings at location $s \in \cT^*$, let
+is always $\lambda_N$. Similarly, assign each state $\alpha$ independent
+rate-$\mu$ exponential clocks along the branches of $\cT^*$. If a clock for
+$\alpha$ rings at location $s \in \cT^*$, let
 %
 \[X_s = \begin{cases}
     X_{s^-} \setminus \{\alpha\} & X_{s-} \neq \{\alpha\},\\
@@ -439,13 +443,13 @@ $\lambda_i \equiv \lambda$ and death rates $\mu_i = i\mu \cdot 1\{i > 1\}$. Henc
 \end{lemma}
 
 \noindent The ergodic theorem tells us as $T \to \infty$ the fraction of the time $\{S_t\}_{t \in [0,T]}$ spends in state 1
-converges almost surely to $\pi_1 = \frac{\lambda / \mu}{e^{\lambda / \mu}-1}$. Heuristically, over long-branches our effective death rate then becomes:
+converges almost surely to $\pi_1 = \frac{\lambda / \mu}{e^{\lambda / \mu}-1}$. Heuristically, over long-branches our effective death rate then becomes
 %
 \[\mu_{\text{eff}} = \mu \left(1-\pi_1\right) = \mu \cdot \frac{e^{\lambda / \mu}-\lambda/\mu-1}{e^{\lambda / \mu}-1}.\]
 %
 \noindent If $\lambda \ll \mu$, then $\mu_{\text{eff}} \approx \frac{\lambda}{2} $ which
 is significantly less than $\mu$ in this low-polymorphism regime.
-If $\lambda \gg \mu$, then $\pi_1$ is exponentially small in $m$, so the
+If $\lambda \gg \mu$, then $\pi_1$ is exponentially small in $\lambda/\mu$, so the
 process is rarely in state $1$. Hence it becomes well-approximated by our
 ID process coupling.
 
@@ -477,7 +481,7 @@ for such random variables, which we rely on in Lemma~\ref{lem:canby_concentratio
 for the ID process coupling.
 
  Later on, we will need to develop some control over the expected margin
- between the species tree topology and the other topologies:
+ between the species tree topology and the other topologies
     %
     \[\Delta^{(c)}_q := \E D_t, \quad D_t := |M^{(c)}_q| - |M_{t}^{(c)}|,
     \quad q = \cT_s^*,\quad t \in A_s \setminus \{\cT_s^*\}.\]
@@ -486,8 +490,8 @@ for the ID process coupling.
 Lemma~\ref{lem:correct_topo_max_expected_support}, and quantifies the expected-support gap.
 Let $\rho_N = \E |c(r) \cap \Sigma_N|$ be the
 expected number of non-homoplastic states present at the root. Note for a given (rooted) quartet, there
-are two possible topologies, as shown in Figure~\ref{fig:canby_quartet_topologies}. As denoted in the figure,
-let $i, j, k$ denote the most recent common ancestors of $\{u,v,x,y\}, \{u,v\}$, and $\{x,y\}$ respectively.
+are two possible topologies, as shown in Figure~\ref{fig:canby_quartet_topologies}.
+Let $i,j,k$ denote the most recent common ancestors of these leaves, as depicted in the figure.
 
 \begin{figure}[htbp]
     \centering
@@ -582,10 +586,10 @@ deaths of $\alpha$ occur after it is born then in fact $L_\alpha \in \{A_e, B_e\
 one choice for the candidate bipartitions is
 %
 \[\cX_1 := \left\{\left(L^{(c)}_\alpha \mid \cL(\cT^*) \setminus L^{(c)}_\alpha\right) :
-c \in C,\ \alpha \in \Sigma^{(c)},\ \varnothing \subsetneq L^{(c)}_\alpha \subsetneq \cL(\cT^*)\right\}.\]
+c \in \cC,\ \alpha \in \Sigma^{(c)},\ \varnothing \subsetneq L^{(c)}_\alpha \subsetneq \cL(\cT^*)\right\}.\]
 %
 \noindent At stationarity, we typically have around $\lambda \mu^{-1}$ states in each leaf,
-so roughly we can see $|\cX_1| \lesssim k |C| \lambda \mu^{-1}$ grows only linearly in $k$.
+so roughly we can see $|\cX_1| \lesssim k |\cC| \lambda \mu^{-1}$ grows only linearly in $k$.
 Under mild assumptions this alone is sufficient for ensuring statistical consistency,
 since with positive probability a given non-homoplastic $\alpha$ is born
 along an edge $e$ and does not die at all. More precisely,
@@ -594,28 +598,29 @@ along an edge $e$ and does not die at all. More precisely,
 \begin{theorem}[Bipartition Cover Bounds for PCH With No Borrowing]
 Let $\cB$ be the set of bipartitions of a phylogenetic tree $\cT^*$ with $k$ leaves
 and minimum/maximum branch lengths $f_{min}, f_{max}$ respectively. Suppose further
-we have a PCH model $\left\{\Sigma^{(c)}, \lambda^{(c)}, \mu^{(c)}, \rho^{(c)}\right\}_{c \in C}$
+we have independent PCH characters with parameters
+$\left\{\Sigma^{(c)}, \lambda^{(c)}, \mu^{(c)}, \nu^{(c)}, \rho^{(c)}\right\}_{c \in \cC}$
 on $\cT^*$ with no borrowing and whose rates follow an immigration-death process. Let
 %
-\[C_N := \{c \in C \; : \; \nu^{(c)}(\Sigma_N^{(c)}) > 0\},\]
+\[\cC_N := \{c \in \cC \; : \; \nu^{(c)}(\Sigma_N^{(c)}) > 0\},\]
 %
 \noindent be the set of characters with positive chance of non-homoplasy.
  Furthermore, assume we have the following assumptions on the parameters of the PCH model:
 
 \begin{enumerate}
 
-    \item[(i)] \textit{Nonvanishing Birth Rates:} Suppose that $\lambda^{(c)} \nu^{(c)}(\Sigma_N^{(c)}) \geq b > 0$ for all $c \in C_N$.
+    \item[(i)] \textit{Nonvanishing Birth Rates:} Suppose that $\lambda^{(c)} \nu^{(c)}(\Sigma_N^{(c)}) \geq b > 0$ for all $c \in \cC_N$.
 
-    \item[(ii)] \textit{Bounded death rates}: Suppose $\mu^{(c)} \leq D < \infty$ for all $c \in C_N$.
+    \item[(ii)] \textit{Bounded death rates}: Suppose $\mu^{(c)} \leq D < \infty$ for all $c \in \cC_N$.
 \end{enumerate}
 %
-\noindent Then we have exponential convergence of the coverage probability:
+\noindent Then we have exponential convergence of the coverage probability
 %
-\[\P(\cB \nsubseteq \cX_1)  \leq\sum_{\ell=2}^{k-2} q_\ell^{|C_N|} \leq (k-3)q_{k-2}^{|C_N|},\qquad q_\ell := \exp\left(-bf_{min} \exp\left[-2\ell Df_{max}\right]\right).\]
+\[\P(\cB \nsubseteq \cX_1)  \leq\sum_{\ell=2}^{k-2} q_\ell^{|\cC_N|} \leq (k-3)q_{k-2}^{|\cC_N|},\qquad q_\ell := \exp\left(-bf_{min} \exp\left[-2\ell Df_{max}\right]\right).\]
 %
-\noindent In particular, we have asymptotic consistency when $|C_N| \to \infty$:
+\noindent In particular, we have asymptotic consistency when $|\cC_N| \to \infty$
 %
-\[\lim_{|C_N| \to \infty} \P(\cB \subseteq \cX_1) = 1.\]
+\[\lim_{|\cC_N| \to \infty} \P(\cB \subseteq \cX_1) = 1.\]
 %
 \label{thm:canby_bipartition_cover_bounds_no_borrowing}
 \end{theorem}
@@ -634,10 +639,10 @@ bad at generating large bipartitions.
   character born in edge $e$ has no deaths is exponentially
    small in $|A|$. To rectify this, we propose a few heuristics for expanding the size
     of $\cX_1$ so it has better coverage probabilities. A natural solution
-     is to allow multiple states $\alpha$ to contribute:
+     is to allow multiple states $\alpha$ to contribute
 %
 \[\cX_m := \left\{(A \mid \cL(\cT^*) \setminus A) \; : \;
-A = \bigcup_{i=1}^r L_{\alpha_i}^{(c)},\ c \in C,\ \alpha_i \in \Sigma^{(c)},\
+A = \bigcup_{i=1}^r L_{\alpha_i}^{(c)},\ c \in \cC,\ \alpha_i \in \Sigma^{(c)},\
 1 \leq r \leq m,\ \varnothing \subsetneq A \subsetneq \cL(\cT^*)\right\}.\]
 %
 \noindent It is easy to see that $\cX_n \subseteq \cX_m$ for $n \leq m$, so in
@@ -649,7 +654,7 @@ A = \bigcup_{i=1}^r L_{\alpha_i}^{(c)},\ c \in C,\ \alpha_i \in \Sigma^{(c)},\
 Alternatively, for a nonnegative integer $r$, we can expand each observed leaf set by adding at most $r$ leaves. Define
 %
 \[\cX_{\leq r} := \left\{(A \mid \cL(\cT^*) \setminus A) \; : \;
-\exists\, c \in C,\ \alpha \in \Sigma^{(c)}\text{ such that }
+\exists\, c \in \cC,\ \alpha \in \Sigma^{(c)}\text{ such that }
 L_\alpha^{(c)} \subseteq A \subsetneq \cL(\cT^*),\ |A \setminus L_\alpha^{(c)}| \leq r\right\}.\]
 %
 \noindent For a fixed leaf set $L_\alpha^{(c)}$, this generates at most
@@ -674,7 +679,7 @@ $s=\{u,v,x,y\}$, define
 \[
     \tau_s^{(c_i)}
     :=
-    \arg\max_{q\in\mathcal A_s} |M_q^{(c_i)}|, \quad I^{(c_i)}_s := \left\{\max_{q\in\mathcal A_s} |M_q^{(c_i)}| > 0\right\},
+    \arg\max_{q\in A_s} |M_q^{(c_i)}|, \quad I^{(c_i)}_s := \left\{\max_{q\in A_s} |M_q^{(c_i)}| > 0\right\},
 \]
 \noindent with ties broken uniformly. We then solve~\eqref{eqn:astral_quartet_support_optimization_problem} with
 quartet supports
@@ -691,19 +696,23 @@ each quartet, the correct topology is the most likely one. Namely
     \label{eqn:anomaly_free_property}
 \end{equation}
 
+\noindent On $I_s^c$, all three supports vanish, so uniform tie-breaking assigns each
+topology probability $1/3$. Consequently, property~\eqref{eqn:anomaly_free_property}
+is equivalent to the corresponding strict inequalities conditional on $I_s$.
+
 \noindent If property~\eqref{eqn:anomaly_free_property} holds for every quartet $\cT^*_s \in \cQ(\cT^*)$,
 we say the PCH model is in the \textit{anomaly-free zone}. When this occurs, the above
 ASTRAL-based procedure is asymptotically consistent and has sample-complexity essentially quadratic in the margin
 
 \begin{theorem}[Sample Complexity PCH-ASTRAL(sc)]
-    Suppose we have a collection of $n$ iid characters $\{c_i\}$ in the anomaly-free zone. If
-        \[n > \frac{9}{p_{min}\Delta^2} \log\left(\frac{4\binom{k}{4}}{\varepsilon}\right),\]
+    Suppose we have a collection of $n$ iid characters $\{c_i\}$ in the anomaly-free zone, and let $0<\varepsilon<1$. If
+        \[n > \frac{8}{p_{\min}\Delta^2} \log\left(\frac{3\binom{k}{4}}{\varepsilon}\right),\]
         %
         \noindent where
         %
-        \[\Delta := \min_{s \in {[k] \choose 4}} \min_{t \neq \cT_s^*} \left[\P(\tau_s^{(c)} = \cT_s^* \mid I_s) - \P(\tau_s^{(c)} = t \mid I_s) \right], \quad p_{min} := \min_{s \in {[k] \choose 4}} \P(I_s),\]
+        \[\Delta := \min_{s \in {[k] \choose 4}} \min_{t \in A_s\setminus\{\cT_s^*\}} \left[\P(\tau_s^{(c)} = \cT_s^* \mid I_s) - \P(\tau_s^{(c)} = t \mid I_s) \right], \quad p_{\min} := \min_{s \in {[k] \choose 4}} \P(I_s),\]
         %
-    \noindent then the above ASTRAL-based procedure recovers $\cT^*$ with probability at least $1-\epsilon$.
+    \noindent then the above ASTRAL-based procedure recovers $\cT^*$ with probability at least $1-\varepsilon$.
     \label{thm:sample_complexity_separate_characters}
 \end{theorem}
 
@@ -744,7 +753,7 @@ consequence of our concentration bound Lemma~\ref{lem:canby_concentration_of_sco
     \label{lem:sample_complexity_pch_astral}
 \end{lemma}
 
-\noindent As discussed in the proof, the parameter $\kappa$ in a sense measures how heavy-tailed the support sizes $|M_{uv||xy}|$ are.
+\noindent Note that $L > 0$ by Lemma~\ref{lem:correct_topo_max_expected_support}. As discussed in the proof, the parameter $\kappa$ in a sense measures how heavy-tailed the support sizes $|M_{uv||xy}|$ are.
 It has the trivial upper bound $\kappa \leq (1 + \zeta)^2$, which is a function merely of the expected number of
 states in a leaf of the $ID(\theta, \lambda, \mu)$ process. Hence the worst-case margin $L$ is the main parameter
 of interest. Analogous to Lemma~\ref{lem:canby_expected_margin}, under $ID(\theta, \lambda, \mu; \cT^*)$ we can lower bound $L$
@@ -782,13 +791,13 @@ improvements may significantly improve the rate.
 
 In this chapter, we developed several potential candidates for bipartition covers which
 substantially reduce the search space of the original PCH-ASTRAL inference procedure.
-This modification plausibly expands the scope of PCH-ASTRAL from a few dozen languages
-to hundreds of languages. Although restricting the search space reduces sample efficiency,
+This modification is intended to make PCH-ASTRAL computationally feasible for much larger
+collections of languages. Although restricting the search space reduces sample efficiency,
 we proposed several heuristics designed to mitigate this loss in performance.
 
 Beyond this, we derived sample-complexity bounds under the immigration-death
 process model $ID(\theta,\lambda,\mu)$, both for the original PCH-ASTRAL procedure and for
-the robustified procedure PCH-ASTRAL(sc). In both cases, the rates depend explicitly on a
+the character-voting procedure PCH-ASTRAL(sc). In both cases, the rates depend explicitly on a
 quartet-level margin measuring the advantage of the correct quartet topology over the
 incorrect ones. We further gave partial bounds relating these margins to the underlying
 model parameters.
@@ -818,13 +827,12 @@ we do not currently have simple geometric sufficient conditions ensuring that th
 
 Finally, several refinements of the present analysis should be possible. The margin bounds
 used here depend on coarse survival and death probability estimates from
-Lemma~\ref{lem:death_rate_prob_bounds}; sharper estimates, for example using Laplace transforms
- of hitting times, may yield more granular constants.
+Lemma~\ref{lem:death_rate_prob_bounds}; sharper estimates may yield more granular constants.
 
- Lastly, extensive empirical simulations would also be valuable, both to compare PCH-ASTRAL and PCH-ASTRAL(sc) under various
- model regimes and to assess how well the theoretical margins predict finite-sample behavior.
- Moreover, it would be interesting to study how well our proposed bipartition heuristics improve
- coverage properties.
+Extensive empirical simulations would also be valuable, both to compare PCH-ASTRAL and PCH-ASTRAL(sc) under various
+model regimes and to assess how well the theoretical margins predict finite-sample behavior.
+It would also be interesting to study how well our proposed bipartition heuristics improve
+coverage properties.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -833,229 +841,12 @@ Lemma~\ref{lem:death_rate_prob_bounds}; sharper estimates, for example using Lap
 \newpage
 \begin{subappendices}
 
-\section{Immigration-Death Process Proofs}
-\label{app:canby_id_proofs}
-
-Let $\mathrm{ID}(\theta, \lambda, \mu)$ denote an immigration-death process $Y_t$ with $|Y_0| \sim \mathrm{Poisson}(\theta)$,
- birth rate $\lambda$, and death rate $\mu$ per individual. We start by understanding
- the population size in such a process.
-
-%%%%%%%%%%
-% Population Sizes ID Processes
-%%%%%%%%%%
-
-\begin{lemma}[Population Sizes in ID Processes]\label{lem:pop_sizes_in_ID_processes}
-    If $(Y_t)_{t \geq 0} \sim \mathrm{ID}(\theta, \lambda, \mu)$ then:
-    %
-    \[|Y_t| \sim \mathrm{Poisson}(m_\theta(t)), \quad m_\theta(t) = \theta e^{-\mu t} + \frac{\lambda}{\mu}(1-e^{-\mu t}).\]
-    %
-    \noindent In particular, its stationary distribution is $\mathrm{Poisson}(\lambda/\mu)$. Moreover for $s < t$:
-    %
-    \[\E|Y_t \cap Y_s| = m_\theta(s) \cdot e^{-\mu (t-s)}.\]
-\end{lemma}
-
-\begin{proof}
-    Kolmogorov's forward equations tell us
-    %
-    \[\frac{d}{dt}p_k = \lambda p_{k-1} + \mu (k+1) p_{k+1} - (k\mu + \lambda) p_{k}, \quad p_k(0) = \frac{e^{-\theta} \theta^k}{k!}.\]
-    %
-\noindent It is easy to see the Poisson probabilities $p_k(t) = \exp(-m(t))m(t)^k/ k!$ satisfy these equations, and hence $X(t) \sim \mathrm{Poisson}(m_\theta(t))$. The covariance formula follows from the fact:
-\[|Y_t| = \mathrm{Binomial}(X_s, e^{-\mu (t-s)}) + |Z|, \quad |Z| \sim \mathrm{Poisson}(m_0(t-s)),\]
-\noindent where these two terms are independent. The formula follows from the law of total covariance.
-\end{proof}
-
-\noindent It will be important to know how much time the PCH model spends with just a single state. For this purpose, it will be important to know how long it takes to go down from $n$ states to one. Since the dynamics of the ID process and PCH model essentially agree when there are more than one state, this reduces to studying the hitting times of our ID process.
-
-
-%%%%%%%%%%
-% Hitting Times ID Process
-%%%%%%%%%%
-\begin{lemma}[Hitting Times in ID Process] Let:
-%
-\[\tau_n := \inf\{t > 0 : |Y_t| = 1\},\]
-%
-\noindent conditional on $|Y_0| = n$. Then:
-    %
-    \[\E \tau_2 = \frac{\mu}{\lambda^2}(e^{\lambda / \mu} - 1 - \lambda/\mu).\]
-    %
-\noindent Moreover, its Laplace transform satisfies:
-%
-\[\frac{2\mu}{\lambda + 2\mu + s}\leq \E e^{-s\tau_2} \leq \frac{\lambda + 2\mu}{\lambda + 2\mu + s}.\]
-%
-\end{lemma}
-
-\begin{proof}
-    Let $w_n := \E \tau_n$. Note by conditioning on the time of the first event we see:
-    %
-    \[w_n = \frac{1}{\lambda + n\mu} \left[1 + \lambda w_{n+1} + n\mu w_{n-1}\right], \quad w_1 = 0.\]
-    %
-    \noindent
-
-    Next control the Laplace transform $\phi_n(s) := \E e^{-s \tau_n}$. We will rely on the classical relation between the Laplace transform of birth-death processes and continued fractions. Conditioning on the first event time (either a birth or a death) we see:
-    %
-    \[\phi_n = \frac{\lambda}{\lambda + n \mu} \cdot \phi_{n+1} + \frac{n\mu}{\lambda + n \mu} \cdot \phi_{n-1}, \qquad \phi_1 \equiv 1.\]
-    %
-    \noindent Noting that $\phi_3 \in [0,1]$ gives the desired bound on $\phi_2$. More generally, this gives an upwards recurrence for the ratios $r_n := \frac{\phi_n}{\phi_{n-1}}$ where $r_2 := \phi_2$:
-    %
-    \[r_n = \frac{n\mu}{\lambda + n\mu + s - \lambda r_{n+1}}.\]
-    %
-    \noindent Iterating gives the continued fraction expansion:
-    %
-    \[r_{n} = \frac{n\mu}{\lambda + n\mu + s - \frac{\lambda(n+1)\mu}{\lambda + (n+1)\mu + s - \cdots}}.\]
-    %
-    \noindent We can truncate this at even or odd convergents to get lower and upper bounds respectively on $r_n$. From these, we can bound $\phi_n(s) = \prod_{k=2}^n r_k$.
-\end{proof}
-
-\noindent Note that the above implies in the low-polymorphism regime $\lambda \ll \mu$, we get $\E \tau_2 = \frac{1}{2\mu} + O(\lambda/\mu^2)$.
-
-%%%%%%%%%%%%%%%
-% Stationarity distribution PCH Cardinality Process
-%%%%%%%%%%%%%%%
-\begin{proof}[Proof of Lemma \ref{lem:stationary_dist_state_cardinality_process}]
-    This process is reversible, so by detailed balanced:
-    %
-        \[\pi_{i+1}(i+1)\mu = \lambda \pi_i, \quad \forall i \geq 1.\]
-    %
-    \noindent Recursively applying this shows $\pi_i \propto \frac{(\lambda/\mu)^i}{i!}$ as desired.
-\end{proof}
-
-%%%%%%%%%%%%%%%
-% PCH Death Rate Bounds
-%%%%%%%%%%%%%%%
-\begin{proof}[Proof of Lemma \ref{lem:death_rate_prob_bounds}]
-    Suppose along the given branch we spent a fraction $\tau \in [0,1]$ of the time with at least two states, whose distribution implicitly depends on $n,T$. Then if $\alpha$ is a state present at time zero:
-    %
-    \[\P(\alpha \text{ survives along branch} \mid \tau) = e^{-\mu T \cdot \tau}.\]
-    %
-    \noindent Hence the survival probability depends only on the Laplace transform $\phi$ of $\tau$:
-    %
-        \[\P(\alpha \text{ survives along branch}) = \phi(\mu T).\]
-    %
-    Trivially $\tau \leq 1$, which gives the upper bound. For the lower bound, note that $p_{n,T}$ is increasing in $n$ by a simple coupling argument. Hence WLOG we assume $n=1$. One way for $\alpha$ to die in this setting is for another state $\beta$ to be born at time $\gamma \sim \mathrm{Exp}(\lambda)$. The first of these two states dies by time $T$ with probability $1-e^{-2\mu(T-\gamma)}$ and the death is equally likely to be $\alpha$ or $\beta$. Hence:
-    %
-    \[p_{n,T} \geq \frac{1}{2} \cdot \int_0^T (1-e^{-2\mu (T-\gamma)}) \lambda e^{-\lambda \gamma} d\gamma = \frac{1}{2}\left[(1-e^{-\lambda T}) -  \frac{\lambda(e^{- \lambda T} - e^{-2\mu T})}{2\mu - \lambda}\right].\]
-    %
-    \noindent An even simpler bound is:
-    %
-    \[p_{n,T} \geq \frac{1}{2} (1-e^{-\lambda T/2}) (1-e^{-\mu T}),\]
-    %
-    \noindent which is the probability we have a birth of some state $\beta$ by time $T/2$, a death of either $\alpha, \beta$ in the remaining time $T/2$, and that this death is $\alpha$.
-\end{proof}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Quartet Supports under ID(theta, lam, mu)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\noindent The following shows that our quartet supports $|M_{uv||xy}|$ take a particularly simple form
-under the ID process coupling.
-
-\begin{lemma}[Quartet Supports under ID Process]
-    Suppose $Y_t \sim ID(\theta, \lambda, \mu)$ on the underlying tree $\cT^*$. For any subset $\mathcal U$
-    of the leaves of $\cT^*$, for each $A \subseteq \mathcal U$ define
-    %
-        \[N_A^{\mathcal U} := \left|\left(\bigcap_{\ell \in A} \{\alpha \in Y_\ell\}\right) \cap \left(\bigcap_{\ell \in \mathcal U \setminus A} \{\alpha \notin Y_\ell\}\right) \right|\]
-    %
-    \noindent to be the number of states $\alpha$ which appear exactly in the set of leaves $A$, among
-    those in $\mathcal U$. Then $\{N_A^{\mathcal U}\}_{A \subseteq \mathcal U}$ are mutually independent Poisson random
-    variables. In particular, for $s = \{u,v,x,y\}$ this implies
-    %
-        \[|M_{uv||xy}| = N^{(s)}_{uv} \cdot N^{(s)}_{xy}.\]
-    %
-    \noindent Thus, $|M_{uv||xy}|$ is the product of two independent Poisson random variables.
-    \label{lem:quartet_supports_under_ID_process}
-\end{lemma}
-
-\noindent This Lemma makes analyzing the expected margin
-%
-    \[\Delta_t := \E |M_{\cT^*_s}| - \E |M_t|, \quad t \in A_s \setminus \{\cT_s^*\}\]
-%
-\noindent particularly easy under the $ID(\theta, \lambda, \mu)$ process: we just must try to
-understand the means $m^{(s)}_{uv}$ of these Poisson random variables $N^{(s)}_{uv}$. Calculating these exactly
-can be challenging, but Lemma~\ref{lem:pop_sizes_in_ID_processes} gives a simple upper bound
-%
-    \[m_{uv}^{(s)} \leq \left(\theta \vee \frac{\lambda}{\mu}\right)\eta_{uv}.\]
-%
-\noindent The first term accounts for the number of states reaching the most recent common ancestor of $u,v$, and
-the second term thins these to only those reaching both $u,v$.
-
-\begin{proof}[Proof of Lemma \ref{lem:quartet_supports_under_ID_process}]
-    Fix a point $x \in \cT^*$. For any states $\alpha$ born at $x$, we see that
-    $\alpha \in N_A^{\mathcal U}$ for some $A \subseteq \mathcal U$. For fixed tree topology $\cT^*$ and model
-    parameters $\theta, \lambda, \mu$, the probability $p_x(\alpha \in N_A^{\mathcal U})$
-    it lands in a particular one of these sets depends only on the location $x$, and is
-    independent of the birth-process itself and any other states.
-
-    The number of states born along the tree form a Poisson point process
-    with intensity
-    %
-        \[\nu(dz) := \theta \delta_r(dz) + \lambda\,dz,\]
-    %
-    where $r$ is the root and \(dz\) denotes length measure on the branches of \(\cT^*\).
-    Kingman's marking theorem then implies that the marked process forms a Poisson
-    point process on $\cT^* \times \{A : A \subseteq \mathcal U\}$ with intensity $\nu(dz) p_x(dA)$. See,
-    for example, the chapter on marked Poisson processes in \cite{kingman1992_poisson_processes}.
-    The desired result then follows immediately.
-\end{proof}
-
-%%%%%%%%%%%%%%%
-% M_{uv|xy} tail bound
-%%%%%%%%%%%%%%%
-
-\begin{lemma}[Tail Bounds for Quartet Supports]
-    Let $\zeta = \theta \vee \frac{\lambda}{\mu}$. Under $ID(\theta, \lambda, \mu; \cT^*)$
-    %
-    \[\P(|M_{uv||xy}| > t) \leq 2\exp\left(- \zeta \min\{\eta_{uv}, \eta_{xy}\}  \cdot h\left(\zeta^{-1}\sqrt{\frac{t}{\eta_{uv} \eta_{xy}}}\right)\right),\]
-    %
-    \noindent where $h(t) := (t\log(t) - t + 1) 1\{t \geq 1\}.$ Moreover, $M_{uv||xy}$ is sub-Weibull$(1/2)$
-    with Orlicz pseudo-norm associated to $\Phi_{\alpha}(x) = \exp(x^\alpha) - 1$ given by
-    %
-    \[||M_{uv||xy}||_{\Psi_{1/2}} \lesssim \left(1 + \zeta \cdot \eta_{uv} \right) \left(1 + \zeta \cdot \eta_{xy} \right).\]
-    %
-    \label{lem:canby_concentration_of_scores}
-\end{lemma}
-
-\begin{proof}[Proof of Lemma~\ref{lem:canby_concentration_of_scores} (quartet-support tail bound)]
-    Note that:
-    %
-        \[M_{uv||xy} \subseteq \{(\alpha, \beta) : \alpha \in U \cap V,\ \beta \in X \cap Y\} = (U \cap V) \times (X \cap Y).\]
-    %
-    \noindent Suppose that $w, z$ are the most recent common ancestors of $u,v$ and $x,y$ respectively. Lemma~\ref{lem:pop_sizes_in_ID_processes}
-    implies that $|Z|, |W| \leq_{st} \mathrm{Poisson}(\zeta)$. Then Poisson-thinning implies
-    %
-    \[|U \cap V| \leq_{st} \mathrm{Poisson}\left(m_{uv}\right), \quad  m_{uv} := \zeta \eta_{uv},\]
-    %
-    \noindent and analogously for $|X \cap Y|$. Chernoff's implies:
-    %
-    \[\P(\mathrm{Poisson}(m) \geq mt) \leq \exp(-m h(t)).\]
-    %
-    \noindent By union bound, for any $\gamma > 0$:
-    %
-    \[\P(|M_{uv||xy}| > t) \leq \P(|U \cap V| \geq \gamma\sqrt{t}) + \P(|X \cap Y| \geq \gamma^{-1}\sqrt{t}).\]
-    %
-    \noindent Setting $\gamma = \sqrt{m_{uv} /m_{xy}}$ weights the two terms according to their means, giving:
-    %
-    \[\leq \exp\left(-m_{uv} h \left(\sqrt{\frac{t}{m_{uv} m_{xy}}}\right)\right) + \exp\left(-m_{xy} h \left(\sqrt{\frac{t}{m_{uv} m_{xy}}}\right)\right),\]
-    %
-    \noindent from which the desired bound directly follows.
-
-    To upper bound the Orlicz norm, we rely on the H\"older-type inequality appearing as
-    equation~(3.5) in~\cite{kuchibhotla2022_beyond_sub_gaussian_high_dimensional_statistics}. This gives
-    %
-    \[|| M_q ||_{\Psi_{1/2}} \leq || \mathrm{Poisson}(m_{uv})||_{\Psi_1} \cdot || \mathrm{Poisson}(m_{xy})||_{\Psi_1}.\]
-    %
-    \noindent A simple calculation and the bound $\log(1+x) \geq \frac{x}{1+x}$ for $x \geq 0$ shows
-    %
-    \[||\mathrm{Poisson}(m) ||_{\Psi_1} = \frac{1}{\log(1 + \log(2) / m)} \leq 1 + \frac{m}{\log(2)},\]
-    %
-    \noindent from which the result follows.
-\end{proof}
-
-
+\newcommand{\canbyproofstatement}[2]{\noindent\emph{#1.} #2\par\medskip}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Anomaly-free zone
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{The Anomaly-Free Zone}
+\section{The Anomaly-Free Zone}
     \label{app:anomaly-free_zone}
 
     In this section, we briefly discuss the anomaly-free property~\eqref{eqn:anomaly_free_property}.
@@ -1085,12 +876,12 @@ the second term thins these to only those reaching both $u,v$.
     the supports are heavily concentrated on $\{0,1\}$, and the maximum support is typically the unique nonzero one.
 
     \begin{lemma}[Low Polymorphism Implies Anomaly-Free Zone]
-        For an $ID(\epsilon \theta, \epsilon \lambda, \mu)$ process on $\cT^*$, let $s = \{u,v,x,y\}$ be any set of four leaves.
+        For an $ID(\epsilon \theta, \epsilon \lambda, \mu ; \cT^*)$ process, let $s = \{u,v,x,y\}$ be any set of four leaves.
         If
         %
-            \[\omega_*^{(\epsilon)} = \E |M_{\cT_s^*}^{(\epsilon)}|, \quad \{ \omega_1^{(\epsilon)}, \omega_2^{(\epsilon)}\} = \{|M_{q'}^{(\epsilon)}| \; :\; q \in A_s \setminus \{\cT_s^*\}\},\]
+            \[\omega_*^{(\epsilon)} = \E |M_{\cT_s^*}^{(\epsilon)}|, \quad \{ \omega_1^{(\epsilon)}, \omega_2^{(\epsilon)}\} = \{ \E|M_{q'}^{(\epsilon)}| \; :\; q' \in A_s \setminus \{\cT_s^*\}\},\]
         %
-        \noindent are the mean supports of the correct and two incorrect topologies respectively, then as $\epsilon \downarrow 0$
+        \noindent are the mean supports of the correct and two incorrect topologies respectively, then for every $q\in A_s$, as $\epsilon \downarrow 0$
         %
             \[\P\left(q = \arg\max_{q' \in A_s} |M^{(\epsilon)}_{q'}| \; \Big\vert \; \max_{q' \in A_s} |M^{(\epsilon)}_{q'}| > 0\right) = \frac{\omega_q^{(1)}}{\omega_*^{(1)} + \omega_1^{(1)} + \omega_2^{(1)}} + O(\epsilon).\]
         %
@@ -1101,9 +892,10 @@ the second term thins these to only those reaching both $u,v$.
         Let $N_{uv}^{(\epsilon)}, ..., N_{vx}^{(\epsilon)}$ be the corresponding Poisson random variables from Lemma~\ref{lem:quartet_supports_under_ID_process}, and
         $m_{uv}^{(\epsilon)}, ..., m_{vx}^{(\epsilon)}$ their means.
         Observe $m_{uv}^{(\epsilon)} = \epsilon m_{uv}^{(1)}$, and similarly for the other means,
-        by a simple Poisson-thinning argument. Letting $\omega_q := \omega_q^{(1)}$ and $m_{uv} := m_{uv}^{(1)}$, we see
+        by a simple Poisson-thinning argument. Letting $\omega_q := \omega_q^{(1)}$ and $m_{uv} := m_{uv}^{(1)}$,
+        for $q = uv||xy$ let
         %
-            \[p_{uv||xy} := \P\left(|M_{uv||xy}^{(\epsilon)}| > 0\right) = (1-e^{-\epsilon m_{uv}})(1-e^{-\epsilon m_{xy}}) = \epsilon^2 \omega_{uv||xy} + O(\epsilon^3),\]
+            \[p_{q} := \P\left(|M_{q}^{(\epsilon)}| > 0\right) = (1-e^{-\epsilon m_{uv}})(1-e^{-\epsilon m_{xy}}) = \epsilon^2 \omega_{q} + O(\epsilon^3),\]
         %
         \noindent and likewise for the other supports. More specifically, using $a \geq 1-e^{-a} \geq a - a^2/2$ for $a \geq 0$ and
         the fact that $m_{uv}^{(1)} \leq \zeta := \theta \vee \lambda \mu^{-1}$, we see
@@ -1129,14 +921,216 @@ the second term thins these to only those reaching both $u,v$.
             & =  \frac{\omega_q}{\omega_* + \omega_1 + \omega_2} + O(\epsilon),
         \end{align*}
         %
-        \noindent as desired.
+        \noindent as desired. Since the true topology has the highest expected support by Lemma~\ref{lem:correct_topo_max_expected_support},
+        this implies the anomaly-free property when $\epsilon$ is sufficiently small.
     \end{proof}
 
 
     \noindent Hence, the anomaly-free property holds in this low-polymorphism regime, at least under the simpler $ID(\theta, \lambda, \mu)$ model.
     Of course, this is also the regime where the immigration-death process approximation is the least accurate, so it is not clear how this result
-    translates to the full PCH model. However, we see this result as evidence that the anomaly-free property is not a particularly restrictive condition,
-    and is likely to hold in many practical settings.
+    translates to the full PCH model. Nevertheless, we see this as evidence the anomaly-free property is a reasonable
+    constraint, and conjecture it holds in the low-polymorphism regime of the full PCH model. 
+
+
+\section{Immigration-Death Process Proofs}
+\label{app:canby_id_proofs}
+
+Let $\mathrm{ID}(\theta, \lambda, \mu)$ denote an immigration-death process $Y_t$ with $|Y_0| \sim \mathrm{Poisson}(\theta)$,
+ birth rate $\lambda$, and death rate $\mu$ per individual. We start by understanding
+ the population size in such a process.
+
+%%%%%%%%%%
+% Population Sizes ID Processes
+%%%%%%%%%%
+
+\begin{lemma}[Population Sizes in ID Processes]\label{lem:pop_sizes_in_ID_processes}
+    If $(Y_t)_{t \geq 0} \sim \mathrm{ID}(\theta, \lambda, \mu)$ then
+    %
+    \[|Y_t| \sim \mathrm{Poisson}(m_\theta(t)), \quad m_\theta(t) = \theta e^{-\mu t} + \frac{\lambda}{\mu}(1-e^{-\mu t}).\]
+    %
+    \noindent In particular, its stationary distribution is $\mathrm{Poisson}(\lambda/\mu)$. Moreover for $s < t$
+    %
+    \[\E|Y_t \cap Y_s| = m_\theta(s) \cdot e^{-\mu (t-s)}.\]
+\end{lemma}
+
+\begin{proof}
+    Kolmogorov's forward equations tell us
+    %
+    \[\frac{d}{dt}p_k = \lambda p_{k-1} + \mu (k+1) p_{k+1} - (k\mu + \lambda) p_{k}, \quad p_k(0) = \frac{e^{-\theta} \theta^k}{k!}.\]
+    %
+\noindent It is easy to see the Poisson probabilities
+$p_k(t) = \exp(-m_\theta(t))m_\theta(t)^k/k!$ satisfy these equations, and hence
+$|Y_t| \sim \mathrm{Poisson}(m_\theta(t))$. For $s<t$, conditional on $Y_s$,
+\[
+    |Y_t\cap Y_s|\sim\mathrm{Binomial}(|Y_s|,e^{-\mu(t-s)}).
+\]
+\noindent Taking expectations gives
+$\E|Y_t\cap Y_s|=m_\theta(s)e^{-\mu(t-s)}$.
+\end{proof}
+
+%%%%%%%%%%%%%%%
+% Stationarity distribution PCH Cardinality Process
+%%%%%%%%%%%%%%%
+\canbyproofstatement{Lemma~\ref{lem:stationary_dist_state_cardinality_process}}{
+Along a branch of the PCH model, let $S_t=|c(t)|$ have birth rate $\lambda$ and
+death rate $i\mu$ in state $i>1$, with no death from state $1$. Its stationary
+distribution is a $\mathrm{Poisson}(\lambda/\mu)$ random variable conditioned to
+be positive:
+\[
+    \pi_i=\frac{(\lambda/\mu)^i}{i!(e^{\lambda/\mu}-1)},\qquad i\geq1.
+\]}
+\begin{proof}[Proof of Lemma \ref{lem:stationary_dist_state_cardinality_process}]
+    This process is reversible, so by detailed balance
+    %
+        \[\pi_{i+1}(i+1)\mu = \lambda \pi_i, \quad \forall i \geq 1.\]
+    %
+    \noindent Recursively applying this shows $\pi_i \propto \frac{(\lambda/\mu)^i}{i!}$ as desired.
+\end{proof}
+
+%%%%%%%%%%%%%%%
+% PCH Death Rate Bounds
+%%%%%%%%%%%%%%%
+\canbyproofstatement{Lemma~\ref{lem:death_rate_prob_bounds}}{
+For a PCH branch of length $T$, let $p_{n,T}$ be the probability that a specified
+state $\alpha$ dies when the branch starts with $n\geq1$ states and has birth and
+per-state death rates $\lambda,\mu>0$. Then
+\[
+    \frac12(1-e^{-\lambda T/2})(1-e^{-\mu T})\leq p_{n,T}\leq1-e^{-\mu T}.
+\]}
+\begin{proof}[Proof of Lemma \ref{lem:death_rate_prob_bounds}]
+    Suppose along the given branch we spent a fraction $\tau \in [0,1]$ of the time with at least two states, whose distribution implicitly depends on $n,T$. Then if $\alpha$ is a state present at time zero
+    %
+    \[\P(\alpha \text{ survives along branch} \mid \tau) = e^{-\mu T \cdot \tau}.\]
+    %
+    \noindent Hence the survival probability depends only on the Laplace transform $\phi$ of $\tau$
+    %
+        \[\P(\alpha \text{ survives along branch}) = \phi(\mu T).\]
+    %
+    Trivially $\tau \leq 1$, which gives the upper bound. For the lower bound, note that $p_{n,T}$ is increasing in $n$ by a simple coupling argument. Hence WLOG we assume $n=1$. One way for $\alpha$ to die in this setting is for another state $\beta$ to be born at time $\gamma \sim \mathrm{Exp}(\lambda)$. The first of these two states dies by time $T$ with probability $1-e^{-2\mu(T-\gamma)}$ and the death is equally likely to be $\alpha$ or $\beta$. Hence
+    %
+    \[p_{n,T} \geq \frac{1}{2} \cdot \int_0^T (1-e^{-2\mu (T-\gamma)}) \lambda e^{-\lambda \gamma} d\gamma = \frac{1}{2}\left[(1-e^{-\lambda T}) -  \frac{\lambda(e^{- \lambda T} - e^{-2\mu T})}{2\mu - \lambda}\right].\]
+    %
+    \noindent An even simpler bound is
+    %
+    \[p_{n,T} \geq \frac{1}{2} (1-e^{-\lambda T/2}) (1-e^{-\mu T}),\]
+    %
+    \noindent which is the probability we have a birth of some state $\beta$ by time $T/2$, a death of either $\alpha, \beta$ in the remaining time $T/2$, and that this death is $\alpha$.
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Quartet Supports under ID(theta, lam, mu)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\noindent The following shows that our quartet supports $|M_{uv||xy}|$ take a particularly simple form
+under the ID process coupling.
+
+\begin{lemma}[Quartet Supports under ID Process]
+    Suppose $Y_t \sim ID(\theta, \lambda, \mu)$ on the underlying tree $\cT^*$. For any subset $\mathcal U$
+    of the leaves of $\cT^*$, for each $A \subseteq \mathcal U$ define
+    %
+        \[N_A^{\mathcal U} := \left|\left\{\alpha :
+        \alpha \in Y_\ell\ \text{for every }\ell \in A,
+        \alpha \notin Y_\ell\ \text{for every }\ell \in \mathcal U \setminus A
+        \right\}\right|\]
+    %
+    \noindent to be the number of states $\alpha$ which appear exactly in the set of leaves $A$, among
+    those in $\mathcal U$. Then $\{N_A^{\mathcal U}\}_{A \subseteq \mathcal U}$ are mutually independent Poisson random
+    variables. In particular, for $s = \{u,v,x,y\}$ this implies
+    %
+        \[|M_{uv||xy}| = N^{(s)}_{uv} \cdot N^{(s)}_{xy}.\]
+    %
+    \noindent Thus, $|M_{uv||xy}|$ is the product of two independent Poisson random variables.
+    \label{lem:quartet_supports_under_ID_process}
+\end{lemma}
+
+\noindent This Lemma makes analyzing the expected margin
+%
+    \[\Delta_t := \E |M_{\cT^*_s}| - \E |M_t|, \quad t \in A_s \setminus \{\cT_s^*\}\]
+%
+\noindent particularly easy under the $ID(\theta, \lambda, \mu)$ process: we just must try to
+understand the means $m^{(s)}_{uv}$ of these Poisson random variables $N^{(s)}_{uv}$. Calculating these exactly
+can be challenging, but Lemma~\ref{lem:pop_sizes_in_ID_processes} gives a simple upper bound
+%
+    \[m_{uv}^{(s)} \leq \left(\theta \vee \frac{\lambda}{\mu}\right)\eta_{uv}.\]
+%
+\noindent The first term accounts for the number of states reaching the most recent common ancestor of $u,v$, and
+the second term thins these to only those reaching both $u,v$.
+
+\begin{proof}[Proof of Lemma \ref{lem:quartet_supports_under_ID_process}]
+    Fix a point $x \in \cT^*$. Each state $\alpha$ born at $x$ appears on some subset
+    $A \subseteq \mathcal U$ of the leaves in $\mathcal U$. For fixed tree topology $\cT^*$ and model
+    parameters $\theta, \lambda, \mu$, the probability $p_x(A)$ that it receives a particular
+    mark $A$ depends only on the location $x$, and is
+    independent of the birth-process itself and any other states.
+
+    The number of states born along the tree form a Poisson point process
+    with intensity
+    %
+        \[\nu(dz) := \theta \delta_r(dz) + \lambda\,dz,\]
+    %
+    where $r$ is the root and \(dz\) denotes length measure on the branches of \(\cT^*\).
+    Kingman's marking theorem then implies that the marked process forms a Poisson
+    point process on $\cT^* \times \{A : A \subseteq \mathcal U\}$ with intensity $\nu(dz) p_z(dA)$. See,
+    for example, the chapter on marked Poisson processes in \cite{kingman1992_poisson_processes}.
+    The desired result then follows immediately.
+\end{proof}
+
+%%%%%%%%%%%%%%%
+% M_{uv|xy} tail bound
+%%%%%%%%%%%%%%%
+
+\begin{lemma}[Tail Bounds for Quartet Supports]
+    Let $\zeta = \theta \vee \frac{\lambda}{\mu}$. Under $ID(\theta, \lambda, \mu; \cT^*)$
+    %
+    \[\P(|M_{uv||xy}| > t) \leq 2\exp\left(- \zeta \min\{\eta_{uv}, \eta_{xy}\}  \cdot h\left(\zeta^{-1}\sqrt{\frac{t}{\eta_{uv} \eta_{xy}}}\right)\right),\]
+    %
+    \noindent where $h(t) := (t\log(t) - t + 1) 1\{t \geq 1\}.$ Moreover, $|M_{uv||xy}|$ is sub-Weibull$(1/2)$
+    with Orlicz pseudo-norm associated to $\Phi_{\alpha}(x) = \exp(x^\alpha) - 1$ given by
+    %
+    \[\bigl\||M_{uv||xy}|\bigr\|_{\Psi_{1/2}} \lesssim \left(1 + \zeta \cdot \eta_{uv} \right) \left(1 + \zeta \cdot \eta_{xy} \right).\]
+    %
+    \label{lem:canby_concentration_of_scores}
+\end{lemma}
+
+\begin{proof}[Proof of Lemma~\ref{lem:canby_concentration_of_scores} (quartet-support tail bound)]
+    Note that
+    %
+        \[M_{uv||xy} \subseteq \{(\alpha, \beta) : \alpha \in U \cap V,\ \beta \in X \cap Y\} = (U \cap V) \times (X \cap Y).\]
+    %
+    \noindent Suppose that $w,z$ are the most recent common ancestors of $u,v$ and $x,y$, respectively, and let
+    $W:=Y_w$ and $Z:=Y_z$. Lemma~\ref{lem:pop_sizes_in_ID_processes}
+    implies that $\mathrm{Poisson}(\zeta) \succeq_{st} |W|$ and
+    $\mathrm{Poisson}(\zeta) \succeq_{st} |Z|$. Then Poisson-thinning implies
+    %
+    \[\mathrm{Poisson}(m_{uv}) \succeq_{st} |U \cap V|, \quad  m_{uv} := \zeta \eta_{uv},\]
+    %
+    \noindent and analogously for $|X \cap Y|$. Chernoff's inequality implies
+    %
+    \[\P(\mathrm{Poisson}(m) \geq mt) \leq \exp(-m h(t)).\]
+    %
+    \noindent By union bound, for any $\gamma > 0$
+    %
+    \[\P(|M_{uv||xy}| > t) \leq \P(|U \cap V| \geq \gamma\sqrt{t}) + \P(|X \cap Y| \geq \gamma^{-1}\sqrt{t}).\]
+    %
+    \noindent Setting $\gamma = \sqrt{m_{uv} /m_{xy}}$ weights the two terms according to their means, giving
+    %
+    \[\leq \exp\left(-m_{uv} h \left(\sqrt{\frac{t}{m_{uv} m_{xy}}}\right)\right) + \exp\left(-m_{xy} h \left(\sqrt{\frac{t}{m_{uv} m_{xy}}}\right)\right),\]
+    %
+    \noindent from which the desired bound directly follows.
+
+    To upper bound the Orlicz norm, we rely on the H\"older-type inequality appearing as
+    equation~(3.5) in~\cite{kuchibhotla2022_beyond_sub_gaussian_high_dimensional_statistics}. This gives
+    %
+    \[\bigl\||M_q|\bigr\|_{\Psi_{1/2}} \leq \| \mathrm{Poisson}(m_{uv})\|_{\Psi_1} \cdot \| \mathrm{Poisson}(m_{xy})\|_{\Psi_1}.\]
+    %
+    \noindent A simple calculation and the bound $\log(1+x) \geq \frac{x}{1+x}$ for $x \geq 0$ shows
+    %
+    \[||\mathrm{Poisson}(m) ||_{\Psi_1} = \frac{1}{\log(1 + \log(2) / m)} \leq 1 + \frac{m}{\log(2)},\]
+    %
+    \noindent from which the result follows.
+\end{proof}
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1148,6 +1142,22 @@ the second term thins these to only those reaching both $u,v$.
 %%%%%%%%%%%%%%%
 % Bipartition Cover Bounds
 %%%%%%%%%%%%%%%
+\canbyproofstatement{Theorem~\ref{thm:canby_bipartition_cover_bounds_no_borrowing}}{
+Let $\cB$ be the bipartitions of a phylogenetic tree $\cT^*$ with $k$ leaves
+and branch lengths in $[f_{min},f_{max}]$. Consider independent PCH characters
+$c\in \cC$ under the no-borrowing model with immigration--death dynamics, and define
+\[
+    \cC_N=\{c\in \cC:\nu^{(c)}(\Sigma_N^{(c)})>0\}.
+\]
+Assume $\lambda^{(c)}\nu^{(c)}(\Sigma_N^{(c)})\geq b>0$ and
+$\mu^{(c)}\leq D<\infty$ for every $c\in \cC_N$. Then
+\[
+ \P(\cB\nsubseteq\cX_1)
+ \leq\sum_{\ell=2}^{k-2}q_\ell^{|\cC_N|}
+ \leq(k-3)q_{k-2}^{|\cC_N|},\qquad
+ q_\ell=e^{-bf_{min}e^{-2\ell Df_{max}}},
+\]
+and hence $\P(\cB\subseteq\cX_1)\to1$ as $|\cC_N|\to\infty$.}
 \begin{proof}[Proof of Theorem \ref{thm:canby_bipartition_cover_bounds_no_borrowing} (Bipartition Cover Bound)]
 
 Fix an edge $e \in E(\cT)$ with $k_e$ descendants and a given character $c$. 
@@ -1158,25 +1168,25 @@ $\phi_e = (L_\alpha \mid \cL(\cT^*) \setminus L_\alpha)$ for some $\alpha \in \S
 First, note by our coupling to the ID process, the number $N_e$ of non-homoplastic 
 states born along the edge $e$ satisfies
 %
-\[N_e \succeq_{st} \mathrm{Poisson}(\lambda T_e \cdot \nu(\Sigma_N)) \succeq_{st} \mathrm{Poisson}(\eta), \qquad \eta := \lambda T_{min} \nu(\Sigma_N),\]
+\[N_e \succeq_{st} \mathrm{Poisson}(\lambda T_e \cdot \nu(\Sigma_N)) \succeq_{st} \mathrm{Poisson}(\eta), \qquad \eta := \lambda f_{min} \nu(\Sigma_N),\]
 %
-\noindent where $T_e$ is the length of the branch $e$ and $T_{min}$ is the minimum branch length in the tree.
+\noindent where $T_e$ is the length of the branch $e$ and $f_{min}$ is the minimum branch length in the tree.
 
-For a given non-homoplastic $\alpha$ born along the edge $e$, we can lower bound the probability it has no deaths below $e$. By Lemma \ref{lem:death_rate_prob_bounds} the probability $\alpha$ survives along a branch of length $T$ is at least $\exp(-\mu T)$. There are $2k_e - 1 \leq 2k_e$ edges (including $e$) that $\alpha$ can die on. Each is at most length $T_{max}$, so we can lower bound the probability $\alpha$ has no deaths at all by:
+For a given non-homoplastic $\alpha$ born along the edge $e$, we can lower bound the probability it has no deaths below $e$. By Lemma \ref{lem:death_rate_prob_bounds} the probability $\alpha$ survives along a branch of length $T$ is at least $\exp(-\mu T)$. There are $2k_e - 1 \leq 2k_e$ edges (including $e$) that $\alpha$ can die on. Each is at most length $f_{max}$, so we can lower bound the probability $\alpha$ has no deaths at all by
 %
-\[\P(\alpha \text{ has no deaths} \mid \alpha \in \Sigma_N,\ \alpha \text{ born on } e) \geq \exp(- \tau_{k_e}), \qquad \tau_{k_e} := 2\mu k_e T_{max}.\]
+\[\P(\alpha \text{ has no deaths} \mid \alpha \in \Sigma_N,\ \alpha \text{ born on } e) \geq \exp(- \tau_{k_e}), \qquad \tau_{k_e} := 2\mu k_e f_{max}.\]
 %
-\noindent Using this result followed by $N_e \succeq_{st} \mathrm{Poisson}(\eta)$ we see:
+\noindent Using this result followed by $N_e \succeq_{st} \mathrm{Poisson}(\eta)$ we see
 %
 \[\P\bigl(\exists\alpha \; \phi_e = (L_\alpha \mid \cL(\cT^*) \setminus L_\alpha)\bigr) \geq \E_{n \sim N_e} \left(1-(1-\exp(-\tau_{k_e}))^n\right) \geq 1-\exp(-\eta e^{-\tau_{k_e}}).\]
 %
- From here, we use the caterpillar bound from~\cite{mcnulty2026_improved_bipartition_cover_bound} applied to our $|C|$ characters implies:
+ From here, we use the caterpillar bound from~\cite{mcnulty2026_improved_bipartition_cover_bound} applied to our $|\cC|$ characters implies
 %
-\[\P(\cB \subseteq \cX_1) \geq 1 - \sum_{\ell=2}^{k-2} \prod_{c \in C}\exp\left(-\eta^{(c)} e^{-\tau_{\ell}^{(c)}}\right) =  1 - \sum_{\ell=2}^{k-2} \exp\left(-\sum_{c \in C}\eta^{(c)} e^{-\tau_{\ell}^{(c)}}\right).\]
+\[\P(\cB \subseteq \cX_1) \geq 1 - \sum_{\ell=2}^{k-2} \prod_{c \in \cC}\exp\left(-\eta^{(c)} e^{-\tau_{\ell}^{(c)}}\right) =  1 - \sum_{\ell=2}^{k-2} \exp\left(-\sum_{c \in \cC}\eta^{(c)} e^{-\tau_{\ell}^{(c)}}\right).\]
 %
-\noindent Note none of the above uses our boundedness assumptions on the birth or death rates $\lambda^{(c)}, \mu^{(c)}$. Using these assumptions on the birth and death rates, we see:
+\noindent Note none of the above uses our boundedness assumptions on the birth or death rates $\lambda^{(c)}, \mu^{(c)}$. Using these assumptions on the birth and death rates, we see
 %
-\[\P(\cB \subseteq \cX_1) \geq 1 - \sum_{\ell=2}^{k-2}q_\ell^{|C_N|} \geq 1-(k-3)q_{k-2}^{|C_N|}, \qquad q_\ell := \exp\left(-bT_{min} \exp\left[-2\ell DT_{max}\right]\right).\]
+\[\P(\cB \subseteq \cX_1) \geq 1 - \sum_{\ell=2}^{k-2}q_\ell^{|\cC_N|} \geq 1-(k-3)q_{k-2}^{|\cC_N|}, \qquad q_\ell := \exp\left(-bf_{min} \exp\left[-2\ell Df_{max}\right]\right).\]
 %
 \noindent Hence we get the desired exponential convergence of the coverage probability.
 \end{proof}
@@ -1185,101 +1195,108 @@ For a given non-homoplastic $\alpha$ born along the edge $e$, we can lower bound
 %%%%%%%%%%%%%%%
 % Sample complexity bounds for new ASTRAL procedure
 %%%%%%%%%%%%%%%
+\canbyproofstatement{Theorem~\ref{thm:sample_complexity_separate_characters}}{
+Let $\{c_i\}_{i=1}^n$ be iid characters in the anomaly-free zone, let
+$I_s=\{\max_{q\in A_s}|M_q^{(c)}|>0\}$, and fix $0<\varepsilon<1$. Define
+\[
+ \Delta=\min_s\min_{t\neq\cT_s^*}
+ \left[\P(\tau_s^{(c)}=\cT_s^*\mid I_s)-
+ \P(\tau_s^{(c)}=t\mid I_s)\right],qquad
+ p_{\min}=\min_s\P(I_s).
+\]
+If
+\[
+ n>\frac{8}{p_{\min}\Delta^2}
+ \log\!\left(\frac{3\binom{k}{4}}{\varepsilon}\right),
+\]
+then PCH-ASTRAL(sc) recovers $\cT^*$ with probability at least $1-\varepsilon$.}
 \begin{proof}[Proof of Theorem~\ref{thm:sample_complexity_separate_characters} (Sample Complexity PCH-ASTRAL(sc))]
-    Note for a specific leaf set $s$, we have $n_s \sim \mathrm{Binomial}(n, p_s)$ informative characters (characters where $I_s$ occurs).
-    Applying Chernoff's bound
-        \[
-            \P\left(n_s < \frac{np_s}{2}\right)
-            \leq \exp\left(-\frac{np_s}{8}\right)
-            \leq \exp\left(-\frac{np_m}{8}\right).
-        \]
-    Union bounding over all \(\binom{k}{4}\) quartets gives
-        \[
-            \P\left(\min_{s\in {[k]\choose 4}} n_s < \frac{np_m}{2}\right)
-            \leq
-            \binom{k}{4}\exp\left(-\frac{np_m}{8}\right).
-        \]
-    Thus, provided
-        \[
-            np_m \geq 8\log\left(\frac{\binom{k}{4}}{\varepsilon}\right),
-        \]
-    we have, with probability at least \(1-\varepsilon\), at least \(n'= np_m/2\) informative characters for every quartet.
-
-    From here, we mimic the proof of Theorem 2.1 in~\cite{shekhar2018_how_many_genes_are_enough}. First, if for every quartet $q\in\cQ$ the modal topology among
-    $\{\tau_q^{(c_i)}\}_{i=1}^{n'}$ is the true topology $\cT_q^*$, then exact ASTRAL returns
-    the true tree $\cT^*$. Hence it suffices to union bound over quartets. Let $E_q$ denote
-    the event that the true topology is not modal for quartet $q$.
-
-    Fix a quartet $q$, and let $t_1,t_2$ denote the two incorrect topologies. Set
+    Let $K:=\binom{k}{4}$. For a fixed leaf set $s$, write
+    $p_s:=\P(I_s)$ and let $n_s$ be the number of informative characters. Since
+    $n_s\sim\mathrm{Binomial}(n,p_s)$, Chernoff's bound gives
     \[
-        p_q := \P(\tau_q^{(c)}=\cT_q^*),
+        \P\left(n_s<\frac{np_s}{2}\right)
+        \leq \exp\left(-\frac{np_{\min}}{8}\right).
+    \]
+    Therefore, by union bound
+    \[
+        \P\left(\min_{s\in {[k]\choose 4}}n_s<\frac{np_{\min}}{2}\right)
+        \leq K\exp\left(-\frac{np_{\min}}{8}\right).
+    \]
+
+    \noindent Hence with high probability, every leaf set $s$ has at least
+    $n' := np_{\min}/2$ informative characters. Now fix $s$ and label its two incorrect topologies $t_1,t_2$. Conditional on
+    $I_s$, define
+    \[
+        p_s^*:=\P(\tau_s^{(c)}=\cT_s^*\mid I_s),
         \qquad
-        r_{t_i} := \P(\tau_q^{(c)}=t_i).
+        r_{s,j}:=\P(\tau_s^{(c)}=t_j\mid I_s),\quad j=1,2.
     \]
-    \noindent By the anomaly-free property,
-    $p_q>r_{t_i}$. Let
+    For each informative character $c_i$, let
     \[
-        \Delta_q := p_q-r_q,
-        \qquad
-        \Delta := \min_{q\in\cQ}\Delta_q >0.
+        Z_i^{(j)}
+        :=1\{\tau_s^{(c_i)}=\cT_s^*\}
+        -1\{\tau_s^{(c_i)}=t_j\},\qquad j=1,2.
     \]
-    For this fixed quartet, let
+    Conditional on $n_s$, the variables $Z_i^{(j)}$ are iid, take values in
+    $[-1,1]$, and satisfy
     \[
-        (N_*,N_1,N_2)\sim \mathrm{Mult}(n';p_q,r_q,r_q)
+        \E[Z_i^{(j)}\mid I_s]=p_s^*-r_{s,j}\geq\Delta.
     \]
-    count the number of characters assigning the true topology and the two incorrect
-    topologies.
-
-    Fix any $w<\Delta_q/3$, and define
+    Hence Hoeffding's inequality implies
     \[
-        A_q := \left\{\frac{N_*}{n'}\in(p_q-w,p_q+w)\right\},
+        \P\left(\sum_{i=1}^{n_s}Z_i^{(j)}\leq0\,\middle|\,n_s\right)
+        \leq \exp\left(-\frac{n_s\Delta^2}{2}\right).
     \]
-    and
+    On the event $F_s$ the unique modal topology for $s$ is not $\cT_s^*$, then the above event
+    occurs for at least one $j\in\{1,2\}$. Thus, on $n_s\geq np_{\min}/2$,
     \[
-        B_{q,j}:=\left\{\frac{N_j}{n'}\in(r_q-w,r_q+w)\right\},
-        \qquad j=1,2.
-    \]
-    If $A_q\cap(B_{q,1}\cup B_{q,2})$ occurs, then the true topology is modal.
-    Hence, by a union bound and Hoeffding's inequality,
-    \[
-        \P(E_q)
-        \leq
-        \P(A_q^c)+\P(B_{q,1}^c)
-        \leq
-        4\exp(-2n'w^2).
-    \]
-    Taking $w$ arbitrarily close to $\Delta_q/3$ gives
-    \[
-        \P(E_q)
-        \leq
-        4\exp\left(-\frac{2n'\Delta_q^2}{9}\right)
-        \leq
-        4\exp\left(-\frac{2n'\Delta^2}{9}\right).
+        \P\left(F_s\,\middle|\,n_s\right)
+        \leq 2\exp\left(-\frac{np_{\min}\Delta^2}{4}\right).
     \]
 
-    \noindent Finally, union bounding over all $\binom{k}{4}$ quartets,
+    If the true topology is uniquely modal for every leaf set, exact ASTRAL returns
+    $\cT^*$. Combining the preceding estimate with the informative-count bound
+    above and union bounding over the $K$ leaf sets gives
     \[
-        \P(\widehat{\cT}\neq \cT^*)
-        \leq
-        4\binom{k}{4}
-        \exp\left(-\frac{2n'\Delta^2}{9}\right).
+        \P(\widehat{\cT}\neq\cT^*)
+        \leq K\exp\left(-\frac{np_{\min}}{8}\right)
+        +2K\exp\left(-\frac{np_{\min}\Delta^2}{4}\right)
+        \leq 3K\exp\left(-\frac{np_{\min}\Delta^2}{8}\right),
     \]
-    Thus, to recover $\cT^*$ with probability at least $1-\varepsilon$, it suffices that
-    \[
-        n'
-        >
-        \frac{9}{2\Delta^2}
-        \log\left(
-            \frac{4\binom{k}{4}}{\varepsilon}
-        \right).
-    \]
+    as $\Delta\leq1$. Applying the assumed lower bound on $n$
+    gives $\P(\widehat{\cT}=\cT^*)\geq1-\varepsilon$ as desired.
 \end{proof}
 
 %%%%%%%%%%%%%%%%%%%
 % Expected Margin
 %%%%%%%%%%%%%%%%%%%
+\canbyproofstatement{Lemma~\ref{lem:canby_expected_margin}}{
+Under the PCH model, let $q=\cT_s^*=uv||xy$, let
+$\Delta_q^{(c)}=\E[|M_q^{(c)}|-|M_t^{(c)}|]$ for either incorrect
+$t\in A_s\setminus\{q\}$, set $\lambda_N=\lambda\nu(\Sigma_N)$ and
+$\rho_N=\E|c(r)\cap\Sigma_N|$, and label the internal vertices $i,j,k$ as in
+Figure~\ref{fig:canby_quartet_topologies}. If the induced quartet is balanced,
+\[
+ \Delta_q^{(c)}\geq
+ \left(\frac{\lambda_N}{\mu}\right)^2
+ (1-\eta_{ij})(1-\eta_{ik})\eta_{uv}\eta_{xy}.
+\]
+If it is a caterpillar, then
+\[
+ \Delta_q^{(c)}\geq
+ \frac{\lambda_N}{\mu}
+ \left[\rho_N\eta_{ri}+\frac{\lambda_N}{\mu}(1-\eta_{ri})\right]
+ (1-\eta_{jk})\xi_{jk}\eta_{uv}\eta_{xy}.
+\]}
 \begin{proof}[Proof of Lemma \ref{lem:canby_expected_margin} (Expected support margin)]
 
+Fix $t \in A_s \setminus \{q\}$ and recall that
+$D_t=|M_q^{(c)}|-|M_t^{(c)}|$ and $\Delta_q^{(c)}=\E D_t$.
+For an ordered pair of distinct non-homoplastic states, define
+%
+\[I_q(\alpha,\beta):=1\{(\alpha,\beta)\in M_q^{(c)}\}.\]
+%
 Suppose first that the quartet $q = uv || xy$ induces a balanced tree in $\cT^*$. Let $i, j, k$ denote the internal vertices of this subtree like so:
 
 \begin{center}
@@ -1302,25 +1319,27 @@ Suppose first that the quartet $q = uv || xy$ induces a balanced tree in $\cT^*$
 \end{tikzpicture}
 \end{center}
 
-\noindent Let $I := c(i)$ be the set of micro-states at vertex $i$, and likewise for $J,K$. Then:
+\noindent Let $I := c(i)$ be the set of micro-states at vertex $i$, and likewise for $J,K$.
+The cancellation argument in the proof of Theorem 1
+from~\cite{evans2026_canby_identifiability} gives
 %
-\[\E [\Delta_q^{(c)} \mid J, K] = \sum_{(\alpha, \beta) \in \cA(J, K)} \E(I_{uv||xy}(\alpha, \beta) \mid J, K),\]
+\[\E [D_t \mid J, K] = \sum_{(\alpha, \beta) \in \cA(J, K)} \E(I_{uv||xy}(\alpha, \beta) \mid J, K),\]
 %
-\noindent where:
+\noindent where
 %
 \[\cA(J, K) = \{(\alpha, \beta) : \alpha\neq\beta \in \Sigma_N,\ \alpha \in J,\ \beta \in K,\ \{\alpha, \beta\} \nsubseteq J \cap K\}.\]
 %
-\noindent We see that:
+\noindent We see that
 %
 \[\cB(J, K) := \{(\alpha, \beta) : \alpha \in J \setminus K,\ \beta \in K \setminus J\} \subseteq \cA(J, K).\]
 %
-\noindent For $(\alpha, \beta) \in \cB(J, K)$, since we just need $\alpha, \beta$ to survive until the leaves, by Lemma \ref{lem:death_rate_prob_bounds}:
+\noindent For $(\alpha, \beta) \in \cB(J, K)$, since we just need $\alpha, \beta$ to survive until the leaves, by Lemma \ref{lem:death_rate_prob_bounds}
 %
 \[\E(I_{uv||xy}(\alpha, \beta) \mid J, K) \geq \eta_{ju} \eta_{jv} \eta_{kx} \eta_{ky}.\]
 %
-\noindent Hence:
+\noindent Hence
 %
-\[\E \Delta_q^{(c)} \geq \E |\cB(J, K)| \cdot \eta_{ju} \eta_{jv} \eta_{kx} \eta_{ky}.\]
+\[\Delta_q^{(c)} \geq \E |\cB(J, K)| \cdot \eta_{ju} \eta_{jv} \eta_{kx} \eta_{ky}.\]
 %
 \noindent Note $(\alpha, \beta) \in \cB(J, K)$ can occur if:
 %
@@ -1354,7 +1373,7 @@ number of non-homoplastic states at the root, then by Poisson thinning we get co
 \end{enumerate}
 %
 \noindent Formula (iv) comes from the fact that $|I| \sim \mathrm{Poisson}(m_\theta(\ell_{ri}))$, and so there are $\E |I| (|I| - 1) = m_\theta(\ell_{ri})^2$ ordered pairs
-of distinct states on average at $i$. Hence when the subtree induced by the quartet is balanced:
+of distinct states on average at $i$. Hence when the subtree induced by the quartet is balanced
 %
 \[\E |\cB(J,K)|
 \geq
@@ -1370,9 +1389,9 @@ m_\theta(\ell_{ri})\xi_{ij}\eta_{ik}
 \right] \geq m_0(\ell_{ij})  m_0(\ell_{ik}).\]
 %
 \noindent where the right hand side is always a valid lower bound even without the Poisson
-assumption on $|R|$. With our above work, this gives the desired bound on $\E \Delta_q^{(c)}$ when the induced subtree is balanced.
+assumption on $|R|$. With our above work, this gives the desired bound on $\Delta_q^{(c)}$ when the induced subtree is balanced.
 
-If the subtree induced by $q$ is a caterpillar tree like so:
+If the subtree induced by $q$ is a caterpillar tree like so
 
 \begin{center}
 \begin{tikzpicture}[
@@ -1394,14 +1413,15 @@ If the subtree induced by $q$ is a caterpillar tree like so:
 \end{tikzpicture}
 \end{center}
 
-\noindent Then we saw:
+\noindent then the analogous cancellation argument from the proof of
+Theorem 1 in~\cite{evans2026_canby_identifiability} gives
 %
-\[\E [\Delta_q^{(c)} \mid I, J, K] = \sum_{(\alpha, \beta) \in \tilde{\cA}(I, J, K)} \E(I_{uv||xy}(\alpha, \beta) \mid I, J, K),\]
+\[\E [D_t \mid I, J, K] = \sum_{(\alpha, \beta) \in \tilde{\cA}(I, J, K)} \E(I_{uv||xy}(\alpha, \beta) \mid I, J, K),\]
 %
-\noindent where:
+\noindent where
 \[\tilde{\cA}(I, J, K) = \{(\alpha, \beta) : \alpha\neq\beta \in \Sigma_N,\ \alpha \in I \cap J,\ \beta \in K,\ \{\alpha, \beta\} \nsubseteq J \cap K\}.\]
 %
-\noindent Again, we see this set contains:
+\noindent Again, we see this set contains
 %
 \[\tilde{\cB}(I, J, K) := \{(\alpha, \beta) : \alpha \in (I \cap J) \setminus K,\ \beta \in K \setminus J\}.\]
 %
@@ -1412,11 +1432,11 @@ For $(\alpha, \beta) \in \tilde{\cB}(I, J, K)$ we see $(\alpha,\beta) \in M_{uv|
     \item $\beta$ survives on $(k,x]$ and $(k,y]$.
 \end{itemize}
 
-\noindent so again by Lemma \ref{lem:death_rate_prob_bounds}:
+\noindent so again by Lemma \ref{lem:death_rate_prob_bounds}
 %
 \[\E(I_{uv||xy}(\alpha, \beta) \mid I, J, K) \geq \eta_{iu}\eta_{jv} \eta_{kx} \eta_{ky}.\]
 %
-\noindent Note $(\alpha, \beta) \in \tilde{B}(I,J,K)$ can occur only if $\alpha$ is born before $i$, survives along $(i, j]$ and dies on $(j,k]$,
+\noindent Note $(\alpha, \beta) \in \tilde{\cB}(I,J,K)$ can occur only if $\alpha$ is born before $i$, survives along $(i, j]$ and dies on $(j,k]$,
 and $\beta$ is born on $(j,k]$ and survives until $k$. Let $r$ denote the root of the tree. Note for $\alpha$, any
 non-homoplastic state born at the root survives to $i$ with probability at least $\eta_{ri}$. Independently from this, we have at
 least $\mathrm{Poisson}(m_0(\ell_{ri}))$ born along the path $[r, i]$. Of these, at least a $\eta_{ij}\xi_{jk}$ fraction survive until they
@@ -1424,19 +1444,34 @@ least $\mathrm{Poisson}(m_0(\ell_{ri}))$ born along the path $[r, i]$. Of these,
  along $(j,k]$ and do not die on this branch. Hence if we let $\rho_N := \E |c(r) \cap \Sigma_N|$ be the expected number of
   non-homoplastic states present at the root
 %
-\[\E |\tilde{B}(I,J,K)| \geq \eta_{ij} \xi_{jk}\left[\rho_N \cdot \eta_{ri} + \frac{\lambda_N}{\mu}(1-e^{-\mu \ell_{ri}})\right] \cdot \left[\frac{\lambda_N}{\mu} (1-e^{-\mu \ell_{jk}})\right],\]
+\[\E |\tilde{\cB}(I,J,K)| \geq \eta_{ij} \xi_{jk}\left[\rho_N \cdot \eta_{ri} + \frac{\lambda_N}{\mu}(1-e^{-\mu \ell_{ri}})\right] \cdot \left[\frac{\lambda_N}{\mu} (1-e^{-\mu \ell_{jk}})\right],\]
 %
 \noindent giving the desired bound.
 \end{proof}
-% END PROOFFFFFF
-
-
-
-
+\canbyproofstatement{Lemma~\ref{lem:sample_complexity_pch_astral}}{
+Let $\{c_i\}_{i=1}^n$ be iid characters generated by
+$ID(\theta,\lambda,\mu;\cT^*)$, let $0<\delta<1$, and define
+\[
+ \zeta=\theta\vee\frac{\lambda}{\mu},\qquad
+ \kappa=\max_s\max_{uv||xy\in A_s}
+ (1+\zeta\eta_{uv})(1+\zeta\eta_{xy}),
+\]
+\[
+ L=\min_s\min_{t\neq\cT_s^*}
+ \E\left[|M_{\cT_s^*}|-|M_t|\right]>0,
+ \qquad
+ t_\delta=\log\!\left(\frac{4\binom{k}{4}}{\delta}\right).
+\]
+If
+\[
+ n\gtrsim\max\left\{\frac{\kappa^2}{L^2}t_\delta,
+                     \frac{\kappa}{L}t_\delta^2\right\},
+\]
+then PCH-ASTRAL recovers $\cT^*$ with probability at least $1-\delta$.}
 \begin{proof}[Proof of Lemma \ref{lem:sample_complexity_pch_astral} (Sample Complexity PCH-ASTRAL)]
     If for each leaf-set $s$ the topology $q \in A_s$ maximizing the score $S_q$ is the correct topology,
     then PCH-ASTRAL will trivially return the correct species tree $\cT^*$, as the set of topologies $\{q_s\}_{s \in {[k] \choose 4}}$
-    will exactly match those generated by the species tree $\cT^*$. Hence if $\hat{\cT}$ is the output of this inference procedure, by union bound:
+    will exactly match those generated by the species tree $\cT^*$. Hence if $\hat{\cT}$ is the output of this inference procedure, by union bound
     %
      \[\P(\hat{\cT} = \cT^*) \geq 1 - \sum_{s} \P(q_s \neq \cT^*_s).\]
     %
@@ -1454,7 +1489,9 @@ least $\mathrm{Poisson}(m_0(\ell_{ri}))$ born along the path $[r, i]$. Of these,
     %
     \noindent Lemma~\ref{lem:canby_concentration_of_scores} implies for universal constants
     %
-        \[||D_i - \E D_i ||_{\Psi_{1/2}} \lesssim \Big||M_{\cT_s^*}| \Big|_{\Psi_{1/2}} + \Big||M_t| \Big|_{\Psi_{1/2}} \lesssim \kappa.\]
+        \[\|D_i - \E D_i\|_{\Psi_{1/2}} \lesssim
+        \bigl\||M_{\cT_s^*}|\bigr\|_{\Psi_{1/2}}
+        + \bigl\||M_t|\bigr\|_{\Psi_{1/2}} \lesssim \kappa.\]
     %
 
     \noindent Applying the sub-Weibull concentration inequality of Theorem 3.1 in~\cite{kuchibhotla2022_beyond_sub_gaussian_high_dimensional_statistics}
@@ -1469,7 +1506,7 @@ least $\mathrm{Poisson}(m_0(\ell_{ri}))$ born along the path $[r, i]$. Of these,
     %
         \[\P(S_{\cT_s^*} \leq S_t) \leq 2\exp(-t_\delta).\]
     %
-    \noindent Unioning-bounding over quartets and the two incorrect topologies then gives
+    \noindent Taking a union bound over quartets and the two incorrect topologies then gives
     %
         \[\P(\hat{\cT} = \cT^*) \geq 1 - 2{k \choose 4} \cdot 2\exp(-t_\delta) = 1-\delta,\]
     %

@@ -1208,8 +1208,32 @@ these solutions can be expressed implicitly as
 	\label{eqn:optimal_entropy_regularized_policy}
 \end{equation}
 
-%
-A proof can be found in our chapter on diffusive limits of entropy-regularized optimal control problems.
+\begin{lemma}[Entropy-Regularized Gibbs Optimizer]
+Fix $x$, let $U$ be finite, and let $\tau>0$. Then
+\[
+\inf_{\mu\in\mathcal P(U)}
+\sum_{u\in U}\mu(u)\left[Q_\gamma(x,u)+\tau\log\mu(u)\right]
+=-\tau\log Z(x),
+\qquad
+Z(x):=\sum_{u\in U}e^{-Q_\gamma(x,u)/\tau},
+\]
+and the unique minimizer is
+\[
+\pi^*(u\mid x)=Z(x)^{-1}e^{-Q_\gamma(x,u)/\tau}.
+\]
+\end{lemma}
+
+\begin{proof}
+For any $\mu\in\mathcal P(U)$,
+\begin{align*}
+\sum_{u\in U}\mu(u)\left[Q_\gamma(x,u)+\tau\log\mu(u)\right]
+&=-\tau\log Z(x)
++\tau\sum_{u\in U}\mu(u)\log\frac{\mu(u)}{\pi^*(u\mid x)}\\
+&=-\tau\log Z(x)+\tau\operatorname{KL}(\mu\|\pi^*(\cdot\mid x)).
+\end{align*}
+The result follows from nonnegativity of the KL divergence, with equality only when $\mu=\pi^*(\cdot\mid x)$.
+\end{proof}
+
 \noindent As we can see, the optimal policy is naturally a soft-min / Gibbs distribution with Hamiltonian $-Q_\gamma(x, \cdot ) / \tau$, and the value function
 is essentially the log-partition function of this distribution. Note how entropy-regularization essentially smooths out
 the strict minimization problem that occurs in equation \eqref{eqn:optimal_unregularized_policy}. While equation \eqref{eqn:optimal_entropy_regularized_policy} only implicitly defines the optimal policy, for certain choices of dynamics and loss functions we can be more explicit. Suppose we have some potential $\Phi:S \to \R$ and we define loss

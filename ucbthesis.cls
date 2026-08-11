@@ -732,7 +732,7 @@ by\par
 \RequirePackage{caption}
 \RequirePackage{appendix}
 \RequirePackage{enumitem}
-\RequirePackage[natbib=true]{biblatex}
+\RequirePackage[natbib=true,sortcites=true]{biblatex}
 \AtBeginBibliography{\sloppy}
 
 \theoremstyle{plain}

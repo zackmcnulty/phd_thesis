@@ -914,10 +914,10 @@ Overall, we have shown that self-balancing exponential sampling rules provide a 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newpage
-\section{Appendix}
-\label{sec:self_balancing_appendix}
+\begin{subappendices}
 
-\subsection{Empirical Results}
+\section{Empirical Results}
+\label{sec:self_balancing_appendix}
 \label{appendix:empirical_results}
 
 In this section, we provide some additional empirical evidence for some of the $\beta$ scalings we developed heuristically in Section \ref{sec:diffusion_approximations} above. Simulation code can be found in the GitHub repository \href{https://github.com/zackmcnulty/self_balancing_sampler}{self\_balancing\_sampler}.
@@ -925,7 +925,7 @@ In this section, we provide some additional empirical evidence for some of the $
 In the first few sections, we study the behavior of the self-balancing sampler under two different unit-norm choices of $\beta$ when $d=4$: the uniform $\beta$ and the non-uniform $\beta \propto [1.1, 0.8, 0.9, 1.2]$, the latter of which also has a unique maximizer of $p^*(\beta)$. In the last section, we give an example of how the self-balancing sampler can be applied to the citizen's assembly problem, and analyze its behavior in this setting.
 
 % Convergence Rate
-\subsubsection{Convergence Rate}
+\subsection{Convergence Rate}
 
 For $d_n := \E \|\mu_n - p^*\|_{\operatorname{TV}}$, Theorem~\ref{thm:average_case_conv_rate} implies that the following quantity is finite
 
@@ -972,7 +972,7 @@ For our simulation, we chose $M=1000$ and $N=10000$. The latter was chosen large
 
 
 % Predictability %%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Predictability}
+\subsection{Predictability}
 
 In this section, we explore how the parameter $\beta$ affects the adversary's prediction accuracy, as described in Section \ref{sec:adversarial_interpretation}. For tied maximizers, the analysis there suggests that the excess accuracy above the naive IID baseline $p_{max}^*$ scales like $\Theta(\sqrt{\beta})$. We compare it to our two naive baselines: IID sampling and deterministic sampling.
 
@@ -1012,7 +1012,7 @@ The results are shown in Figure \ref{fig:predictability_plots}. In the uniform $
 % end fig
 
 % Trade Off %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Trade-Off}
+\subsection{Trade-Off}
 
 Lastly, we study the trade-off between predictability and the convergence rate. As discussed in the previous two sections, we quantify the former using the adversary's prediction accuracy, and the latter using $C(\beta)=\limsup_{n\to\infty}n d_n$. Figure \ref{fig:trade_off} highlights the results.
 
@@ -1041,7 +1041,7 @@ Note the adversarial accuracy starts essentially at the baseline $p_{max}^*$ and
 
 
 % Citizen's Assembly %%%%%%%%%%%%%%%%%%%
-\subsubsection{Citizen's Assembly}
+\subsection{Citizen's Assembly}
 \label{sec:citizens_assembly}
 
 In this section, we simulate the self-balancing sampler on the citizen's assembly problem discussed in Section~13 of~\cite{flanigan2021_fair_algorithms_citizens_assemblies}. The setting is as follows.
@@ -1146,7 +1146,7 @@ The results are shown in Figure~\ref{fig:citizen_assembly} for the class sizes d
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Optimal Control Background
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Optimal Control}
+\section{Optimal Control}
 \label{appendix:optimal_control}
 
 
@@ -1260,7 +1260,7 @@ Alternatively, if we choose a linear loss $\ell(x,u) = \beta_u x_u$, and myopic 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newpage
-\subsection{Proof Appendix}
+\section{Proofs}
 \label{appendix:proofs}
 
 
@@ -1270,7 +1270,7 @@ In this Appendix, we collect the formal proofs of all the main results of the pa
 %%%%%%%%%%%%%%%%%%%%%%%%%
 % Potential-Based Sampling
 %%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Proofs for Model and Structural Properties}
+\subsection{Proofs for Model and Structural Properties}
 \label{appendix:model_and_structural_proofs}
 
 \proofappendixheading{Proof of Proposition~\ref{prop:projection_centered_counts_are_markovian}}
@@ -1445,7 +1445,7 @@ $\mathrm{gcd}(v_1,..., v_d) = 1$ then $v_dN_i(n) - v_i N_d(n),$ is a Markov chai
 
 
 \newpage
-\subsubsection{Proofs for Fast Convergence of the Empirical Distribution}
+\subsection{Proofs for Fast Convergence of the Empirical Distribution}
 \label{appendix:convergence_rate_proofs}
 
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -1767,7 +1767,7 @@ To control these moments, we will develop a Foster-Lyapunov drift condition for 
 % Optimization Problem Formulation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\subsubsection{Proofs for Optimization Characterizations}
+\subsection{Proofs for Optimization Characterizations}
 \label{appendix:optimization_proofs}
 
 % Entropy regularized
@@ -1832,7 +1832,7 @@ has unique solution $q_i\propto p_i(0)e^{-\beta_iN_i(n)}$.}
 % Expected Cover Time
 %%%%%%%%%%%%%%
 \newpage
-\subsubsection{Proofs for Expected Cover Time}
+\subsection{Proofs for Expected Cover Time}
 \label{appendix:expected_cover_time_proofs}
 
 
@@ -1901,7 +1901,7 @@ has unique solution $q_i\propto p_i(0)e^{-\beta_iN_i(n)}$.}
 % Diffusion Limits Proofs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\subsubsection{Proofs for Weak-Bias Diffusive Limits}
+\subsection{Proofs for Weak-Bias Diffusive Limits}
 \label{appendix:diffusion_limit_proofs}
 
 
@@ -2047,7 +2047,7 @@ Hence this process has drift
 % 2D stationary distribution
 %%%%%%%%%%%
 \newpage
-\subsubsection{Proofs for Adversarial Accuracy}
+\subsection{Proofs for Adversarial Accuracy}
 \label{appendix:adversarial_accuracy_proofs}
 
 \proofappendixheading{Proof of Lemma~\ref{lem:2d_stationary_project_centered} ($d=2$ Stationary Distribution)}
@@ -2116,3 +2116,5 @@ A_\beta=\frac12+\Theta(\sqrt{\beta}).
     %
     \noindent as desired.
  \end{proof}
+
+\end{subappendices}

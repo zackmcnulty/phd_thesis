@@ -862,7 +862,9 @@ provides a natural direction for obtaining sharper finite-sample guarantees.
 
 % Appendix: Basic Results %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \clearpage
-\section{Appendix: Basic Results}
+\begin{subappendices}
+
+\section{Basic Results}
 \label{app:basic-results}
 
     % Basic Properties Log-concavity
@@ -1189,7 +1191,7 @@ For $i \leq j$ we have $Z_i \leq_{lr} Z_j$, $X_i \leq_{lr} X_j$ and $Z_{X_i} \le
 
 % Caterpillar Bound %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\section{Appendix: Proofs of the Main Upper-Bound Results}
+\section{Proofs of the Main Upper-Bound Results}
 \label{app:main-upper-bound-proofs}
 
 \subsection{Proof of Lemma \ref{lem:caterpillar_maximize_increasing_sums}: Caterpillars Maximize Increasing Sums}
@@ -1694,7 +1696,7 @@ Let $L$ and $R$ be the two subtrees of the root of $\cT$ which are of sizes $m$ 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Proof of asymptotics
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Appendix: Asymptotic Results}
+\section{Asymptotic Results}
 \label{app:asymptotic-results}
 
 \subsection{Proof of Lemma \ref{lem:asymptotics_g_k1(T)}: Asymptotics $g_{k,1}(T)$}
@@ -2046,3 +2048,5 @@ $\log\beta_T=\Theta(T^{-1})$ as $T \downarrow 0$. Thus, in this regime, the
 asymptotic lower bound on the improvement factor grows exponentially in $T^{-1}$.
 
 Repeating our above analysis shows that \textit{any} bound built using the union bound and the coalescent function $g_{k,1}(T)$ cannot be asymptotically better than $\log(k)/T$. This is true, \textit{even if the descendant counts $\alpha_i$ are known}, as we can still upper bound $g_{\alpha_i, 1}(T) \leq g_{2,1}(T)$. Hence the asymptotics in $k$ are fundamentally limited to $\Theta(\log(k))$ by our union bound argument, and we can only hope to improve upon the constant down to the limit $T^{-1}$. Still, we see some finite-sample improvements empirically, as we observed in Figure \ref{fig:improvement_ratios}.
+
+\end{subappendices}

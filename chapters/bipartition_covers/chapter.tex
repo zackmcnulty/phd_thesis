@@ -933,7 +933,7 @@ provides a natural direction for obtaining sharper finite-sample guarantees.
 
 We will start by proving some basic properties about the function $g_{i,j}(T)$ and the associated random variables $Z_i^T$ with distribution $\P(Z_i^T = j) = g_{i,j}(T)$. Recall that $Z^T_i$ gives the distribution of the number of lineages remaining after starting with $i$ lineages and running Kingman's coalescent for $T$ seconds.
 
-Moreover, recall $X_{\cB_k}$ denotes the number of lineages reaching the root of a balanced tree with $k$ leaves and branch lengths all equal to $T$. For convenience, we denote $X_k := X_{\cB_k}$. Using the above, we will show that all the variables of interest in this paper are log-concave.
+Moreover, recall $X_{\cB_k}$ denotes the number of lineages reaching the root of a balanced tree with $k$ leaves and branch lengths all equal to $T$. For convenience, we denote $X_k := X_{\cB_k}$. Using the above, we will show that all the variables of interest in this chapter are log-concave.
 
 \begin{lemma}
 The random variables $X_m, Z_{X_m}$ are ultra log-concave, and hence log-concave.
@@ -1308,7 +1308,7 @@ nondecreasing. Then $\sum_i f(\alpha_{i})$ is maximized when $T$ is the caterpil
 %%%%
 
 
-\noindent We can provide a partial complement to the above Lemma \ref{lem:caterpillar_maximize_increasing_sums} analyzing the other extreme. More concretely, we will show that the more balanced the tree is, the smaller these sums tend to be. We will not use this result in this paper, but it adds to the idea that the balanced tree and the caterpillar tree are in a sense the two extreme points in our space of trees.
+\noindent We can provide a partial complement to the above Lemma \ref{lem:caterpillar_maximize_increasing_sums} analyzing the other extreme. More concretely, we will show that the more balanced the tree is, the smaller these sums tend to be. We will not use this result in this chapter, but it adds to the idea that the balanced tree and the caterpillar tree are in a sense the two extreme points in our space of trees.
 
 \begin{lemma}
  Suppose $\{\alpha_{i}\}_{i=1}^{2k-2}$ are the descendant counts of our rooted binary tree $T$ corresponding to \textit{all} the edges of our tree (not just ones corresponding to nontrivial bipartitions). Moreover, suppose $f: \N \to \R$ is nondecreasing and convex. Then $\sum_i f(\alpha_{i})$ is minimized when $T$ is the balanced tree.
@@ -1703,7 +1703,7 @@ Let $L$ and $R$ be the two subtrees of the root of $\cT$ which are of sizes $m$ 
 
 In this section, we develop some asymptotics for the time $g_{k,1}(T)$ to coalescence of Kingman's coalescent, specialized to the topic of interest. More properties of this coalescent time are discussed in \cite{moehle2015_absorption_time_tree_length} and \cite{chen2013_asymptotic_coefficients_lagrange}. The paper \cite{kersting2017_absorption_time_lambda_coalescents} further generalizes some of these ideas to $\Lambda$-coalescents.
 
- We will work in slightly more generality than this paper requires. Namely, suppose that we have positive \textbf{distinct} rates $\{\lambda_i\}_{i=1}^\infty$. Define the random variables $\{S_k\}_{k =1}^\infty$ by $S_k = \sum_{i=1}^k X_i$ for $X_i \sim \mathrm{Exp}(\lambda_i)$ independent (namely $X_i$ has density $\tau_i(x) := \lambda_i \exp(-\lambda_i x)$). Moreover, define $F_k(T) := \P(S_k \leq T)$ to be their CDFs and $f_k(T)$ their densities. If we define
+ We will work in slightly more generality than this chapter requires. Namely, suppose that we have positive \textbf{distinct} rates $\{\lambda_i\}_{i=1}^\infty$. Define the random variables $\{S_k\}_{k =1}^\infty$ by $S_k = \sum_{i=1}^k X_i$ for $X_i \sim \mathrm{Exp}(\lambda_i)$ independent (namely $X_i$ has density $\tau_i(x) := \lambda_i \exp(-\lambda_i x)$). Moreover, define $F_k(T) := \P(S_k \leq T)$ to be their CDFs and $f_k(T)$ their densities. If we define
 %
 \[C_{i,k} := \prod_{\substack{m=1 \\ m \neq i}}^k \frac{\lambda_m}{\lambda_m - \lambda_i}\]
 %

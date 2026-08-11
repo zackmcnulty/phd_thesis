@@ -17,7 +17,16 @@ to converge to the uniform distribution. Two naive ways of doing this are:
 
 For these two sampling schemes, there's a trade-off between the \emph{speed} of convergence and the \emph{predictability} of the samples. Namely, the former converges at rate $O(n^{-1/2})$ in the total variation distance, while the latter converges at the much faster rate $O(n^{-1})$. On the other hand, the former process is as unpredictable as possible, maximizing the entropy at each sampling step, while the latter is perfectly predictable.
 
-This tradeoff becomes readily apparent in the problem of scheduling audits or inspections, such as testing for doping in professional sports. A sports regulatory body is tasked with routinely testing teams for the use of performance enhancing drugs, but any deterministic schedule has the potential to be taken advantage of, since the players can temporarily cease doping in anticipation of the tests. On the other hand, sampling teams IID to receive doping tests can lead to wasteful behavior, such as spending resources to test a team multiple times in relatively short succession, while letting other teams remain temporarily untested; in effect, temporary imbalances in the empirical distribution of audited teams reflect inefficiencies in the order of teams chosen. Moreover, empirical evidence suggests \textit{biasing} inspections towards individuals with certain risk factors can improve outcomes \cite{lauritzen2023_intelligence_based_doping_control}. Similar tradeoffs arise in the scheduling of restaurant health inspections, where inspection agencies often seek to prioritize higher-risk establishments or those with poor inspection histories while still preserving enough unpredictability to prevent strategic compliance behavior \cite{buchholz2002_risk_based_restaurant_inspection}.
+This tradeoff becomes readily apparent in the problem of scheduling audits or 
+inspections, such as testing for doping in professional sports. A sports regulatory
+ body is tasked with routinely testing teams for the use of performance enhancing drugs, but 
+ any deterministic schedule has the potential to be taken advantage of, since the 
+ players can temporarily cease doping in anticipation of the tests. On the other hand,
+  sampling teams IID to receive doping tests can lead to wasteful behavior, such 
+  as spending resources to test a team multiple times in relatively short succession,
+   while letting other teams remain temporarily untested; in effect, temporary imbalances 
+   in the empirical distribution of audited teams reflect inefficiencies in the order of 
+   teams chosen. Moreover, empirical evidence suggests \textit{biasing} inspections towards individuals with certain risk factors can improve outcomes \cite{lauritzen2023_intelligence_based_doping_control}. Similar tradeoffs arise in the scheduling of restaurant health inspections, where inspection agencies often seek to prioritize higher-risk establishments or those with poor inspection histories while still preserving enough unpredictability to prevent strategic compliance behavior \cite{buchholz2002_risk_based_restaurant_inspection}.
 
 
 Another closely related problem is how to sample from a population while keeping the realized sample balanced across several overlapping strata. For example, suppose we are constructing a citizen's assembly of 100 members out of a volunteer pool of 1000, and we would like our assembly to be demographically representative across multiple overlapping characteristics, such as gender, age, and education level. We may attempt to balance these characteristics using a deterministic or quota-constrained selection algorithm for choosing a committee, but, as noted in \cite{flanigan2021_fair_algorithms_citizens_assemblies}, some algorithms can lead to somewhat undemocratic outcomes in which certain members of the volunteer pool have a minuscule chance of being chosen for the committee. On the other hand, a simple random sample can result in a committee which is not properly representative for each characteristic.
@@ -25,9 +34,15 @@ Another closely related problem is how to sample from a population while keeping
 Lastly, in randomized controlled trials there is inherent tension between ensuring covariates known to influence treatment effects are balanced across groups, while maintaining enough randomness to provide robustness against unknown prognostic factors. \cite{harshaw2024_gram_schmidt_walk_design} explore this trade-off between covariate balance and robustness, but their sampling strategy is inherently non-sequential. On the other hand, the classical work of \cite{pocock1975_sequential_treatment_assignment} provides a sequential analogue, biasing each assignment toward the treatment group that would reduce observed covariate imbalance. While effective as a balancing heuristic, the resulting procedure is not derived from optimizing any explicit objective, making the balance/robustness tradeoff relatively opaque.
 
 
-In this paper, we explore this balance--unpredictability trade-off for a natural family of sequential sampling rules. Heuristically, we show that by adaptively biasing our sampling process, we can limit predictability while maintaining fast convergence rates. For this purpose, consider the following sequential sampling rule, informally described as ``downweight the outcome's probability and renormalize'': Fix some $\alpha \in (0,1)$, and start with some initial distribution $p(0) \in \Delta_+^d$, where
+In this chapter, we explore this balance--unpredictability trade-off for a 
+natural family of sequential sampling rules. Heuristically, we show that by adaptively 
+biasing our sampling process, we can limit predictability while maintaining fast 
+convergence rates. For this purpose, consider the following sequential sampling rule, 
+informally described as ``downweight the outcome's probability and renormalize'': Fix some 
+$\alpha \in (0,1)$, and start with some initial distribution $p(0) \in \Delta_+^d$, 
+where
 %
-    \[\Delta_+^d := \{x \in \R^d : x_i > 0, \sum x_i = 1\}\]
+    \[\Delta_+^d := \Big\{x \in \R^d : x_i > 0, \sum x_i = 1\Big\}\]
 %
 \noindent is the d-dimensional unit simplex with full support. At step $n$, recursively do the following:
 \begin{enumerate}
@@ -148,16 +163,31 @@ See Figure~\ref{fig:uniform_downweight_normalize} for a visual schematic of the 
 \end{figure}
 
 
-This sequential sampling rule is still random, and intuitively, it generates empirical distributions which are closer to uniform because it de-emphasizes outcomes which are currently over-represented in the empirical distribution. More precisely, if we denote the counts process
+This sequential sampling rule is still random, but intuitively it generates empirical 
+distributions which are closer to uniform because it de-emphasizes outcomes which are 
+currently over-represented in the empirical distribution. More precisely, if we denote 
+the \emph{counts process}
 %
     \[N_i = N_i(n) \coloneqq \# \{ 1 \leq j \leq n : X_j = i\},\]
 %
 then this rule generates samples according to
 $$p_i = p_{i}(n) \coloneqq \frac{p_{i}(0) \cdot \alpha^{N_i(n)}}{\sum_{j=1}^d p_{j}(0) \cdot \alpha^{N_j(n)} }.$$
 
-\noindent Hence we can see that this sampler interpolates the two naive sampling methods: when $\alpha = 1$ (and $p(0)$ is uniform), we recover the uniform sampler, and when $\alpha \downarrow 0$, we recover greedy least-count sampling with uniformly random tie-breaking; if ties are broken deterministically, we recover deterministic sampling.
+\noindent Hence this sampler interpolates the two naive sampling methods: 
+when $\alpha = 1$ (and $p(0)$ is uniform), we recover the uniform sampler, and 
+when $\alpha \downarrow 0$, we recover greedy least-count sampling with uniformly
+ random tie-breaking; if ties are broken deterministically, we recover 
+ deterministic sampling.
 
-As we will later see, the same scheme works for non-uniform target distributions by replacing a uniform $\alpha$ by a suitable $\alpha_i$ for each $i$; more precisely, for a target distribution $p^*$, one can set $\alpha_i = e^{-c/p_i^*}$ for every $i$, where the choice of $c > 0$ determines the trade-off between balance and predictability. Perhaps most unexpectedly, this simple sampling rule admits two complementary characterizations: as the essentially unique invariant potential-based sampler (Proposition~\ref{prop:charactizing_v_invariance}) and as the Gibbs optimizer of an entropy-regularized count-imbalance objective (Theorem~\ref{thm:instantaneous_optimization}).
+As we will later see, the same scheme works for non-uniform target distributions 
+by replacing a uniform $\alpha$ by a suitable $\alpha_i$ for each $i$; more 
+precisely, for a target distribution $p^*$, one can set $\alpha_i = e^{-r/p_i^*}$ 
+for every $i$, where the choice of $r > 0$ determines the trade-off between balance
+ and predictability. Perhaps most unexpectedly, this simple sampling rule admits 
+ two complementary characterizations: as the essentially unique invariant 
+ potential-based sampler (Proposition~\ref{prop:charactizing_v_invariance}) and 
+ as the Gibbs optimizer of an entropy-regularized count-imbalance objective 
+ (Theorem~\ref{thm:instantaneous_optimization}).
 
 \paragraph*{Related Work.}
 Our sampling rule is related to several bodies of work on negatively dependent and history-dependent
@@ -199,10 +229,14 @@ Within this framework, our sampler uses assignment probabilities that depend
    amenable to a unified stochastic-process analysis.
 
 \paragraph*{Outline.}
-Section \ref{sec:potential_biased_sampling} shows that such samplers arise naturally by enforcing an invariance property on the sampling probabilities $p(n)$, namely that they depend only on \emph{relative} differences in the counts $N_i$. We show that after properly centering the counts process, it descends to an irreducible and positive recurrent Markov chain on the centered counts, a process which exhibits strong mean-reversion properties.
+Section \ref{sec:potential_biased_sampling} shows that such samplers arise naturally by enforcing an 
+invariance property on the sampling probabilities $p(n)$, namely that they depend only on
+\emph{differences} in the counts $N_i$ rather than their absolute magnitudes. We show that after properly 
+centering the counts process, it descends to an irreducible and positive recurrent Markov chain on the 
+centered counts, a process which exhibits strong mean-reversion properties.
 
 Then, in Section \ref{sec:convergence_rate} we show our first main result: that for any choice of $\alpha$, the self-balancing sampler
-converges at rate $O(1/n)$ in expectation, matching the fastest possible rate up to constants, while almost surely it converges at rate $O(\log n / n)$
+converges in total variation at rate $O(1/n)$ in expectation, matching the fastest possible rate up to constants, while almost surely it converges at rate $O(\log n / n)$
 of its target law almost surely, which is optimal up to a logarithmic factor. Hence, the self-balancing property of this sampler drastically
 improves upon the convergence rate of IID sampling, and matches the convergence rate of the naive greedy sampler. Moreover,
 we quantify the influence the bias parameter $\alpha$ has on the leading order constant and show there are two regimes: the
@@ -216,40 +250,37 @@ interpretation through an entropy-regularized optimization problem, balancing mi
 mean-squared imbalance in the counts with maximizing entropy. This formalizes the balance/convergence
  versus robustness/unpredictability trade off in terms of an explicit objective, a limitation of the
  classical procedure \cite{pocock1975_sequential_treatment_assignment}.
- Appendix Section~\ref{appendix:optimal_control} later shows that the sampler further fits within the broader
+ Appendix Section~\ref{appendix:optimal_control} later shows that this sampler further fits within the broader
  framework of entropy-regularized optimal control.
 
 In an effort to further quantify the trade-off between convergence and unpredictability, we develop diffusion
  limits in Section~\ref{sec:diffusion_approximations} and an adversarial notion of predictability in Section
 ~\ref{sec:adversarial_interpretation}. The latter defines predictability as the accuracy an adversary
-   trying to predict the next sampled index would achieve if they behaved optimally, which is possibly more
-   natural than the entropy-based characterization of Section~\ref{sec:optimization_problem}. We are
+   trying to predict the next sampled index would achieve if they behaved optimally. We are
    particularly interested in a \emph{weak-biasing regime}, in which $\alpha \uparrow 1$, which is the
    natural regime under which diffusion limits arise. Using these tools, we provide some non-rigorous analysis
    into how the behavior of the sampler at stationarity changes as we vary the bias parameter $\alpha$.
 In this weak-biasing regime, the diffusion heuristics approximate the centered counts by an Ornstein-Uhlenbeck process with stationary
-fluctuations of order $(\log(1/\alpha))^{-1/2}$, matching the upper-bounds derived in Section~\ref{sec:convergence_rate} and
-suggesting how stronger biasing enforces mean-reversion while reducing randomness.
+fluctuations of order $(\log(1/\alpha))^{-1/2}$, matching the upper-bounds derived in Section~\ref{sec:convergence_rate}.
 
 
 Complementing this, the adversarial analysis in Section~\ref{sec:adversarial_interpretation}
-translates these fluctuations into prediction accuracy. In the $d=2$ case with uniform initialization and uniform target law $p^*$,
-we show, through explicit analysis of the stationary law of the centered counts process, that an adversary
+translates these fluctuations into prediction accuracy. In the $d=2$ case with uniform initialization and uniform target law $p^*$, 
+through explicit analysis of the stationary law of the centered counts process, we show an adversary
 can predict the next sample with accuracy $\frac{1}{2} + \Theta(\sqrt{\log(1/\alpha)})$ in the weak-bias regime
-$\alpha \uparrow 1$. More generally, when several outcomes maximize $p^*$, our non-rigorous analysis suggests that the adversary can exploit fluctuations
-among the tied outcomes, and its excess prediction accuracy above $\max_i p_i^*$ is again of order
-$\sqrt{\log(1/\alpha)}$ as in the $d=2$ case.
-
-
+$\alpha \uparrow 1$. More generally, we conjecture this is true when several outcomes maximize $p^*$, and we provide 
+non-rigorous analysis suggesting an adversary can exploit fluctuations among the tied outcomes in order to achieve excess 
+prediction accuracy above $\max_i p_i^*$ again of order $\sqrt{\log(1/\alpha)}$, as in the $d=2$ case.
 
 Empirical demonstrations and applications to the citizen's assembly model of our results are
 provided in Appendix~\ref{appendix:empirical_results}. For clarity of exposition, proofs are
 postponed until Appendix~\ref{appendix:proofs}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Basic Results
+% Model and Structural Properties
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Basic results}
+\section{Model and Structural Properties}
+\label{sec:model_and_structural_properties}
 
 \subsection{Definitions}
 
@@ -267,7 +298,7 @@ We say such a rule is \textit{Markovian} if it selects its next sample $X_{n+1} 
 %
 \[\P\left(X_{n+1} = i \mid \{X_j\}_{j \leq n}\right) = \pi_i(N(n)).\]
 %
-\noindent The self-balancing sampler is then a Markovian sampling rule with sampling function $\pi_i = p_i$. In this paper, we will show that this sampler (and more generally samplers with $\alpha_i \in (0,1)$ possibly different for each outcome) arises naturally within this class of sampling rules after enforcing a specific symmetry on the sampling function $\pi$, and that it exhibits nice optimality properties. Note we can express this sampling rule as a softmax
+\noindent The self-balancing sampler is then a Markovian sampling rule with sampling function $\pi_i = p_i$. Note we can express this sampling rule as a softmax
 %
 \begin{equation}
     p_i = p_i(n) = \frac{p_{i}(0) \cdot e^{-\beta_i N_{i}(n)}}{\sum_{j=1}^d p_{j}(0) \cdot e^{-\beta_j N_{j}(n) }},
@@ -275,17 +306,25 @@ We say such a rule is \textit{Markovian} if it selects its next sample $X_{n+1} 
 \end{equation}
 
 %
-where $\beta_i = - \log \alpha_i$. As we will see below, these $\beta_i$ are in some sense a more natural parameterization. Heuristically, they can be interpreted as follows: for $i,j \in [d]$, if $\beta_i^{-1} /\beta_j^{-1} = \frac{p}{q}$ is rational, then $p$ samples of $i$ are weighted the same as $q$ samples of $j$ under this sampling scheme. Thus $\beta_i^{-1}$ measures the relative weight assigned to sampling $i \in [d]$. Higher weighted indices tend to be selected more often.
+\noindent where $\beta_i = - \log \alpha_i$. As we will see below, these $\beta_i$ are in some sense 
+a more natural parameterization. Heuristically, they can be interpreted as follows: 
+for $i,j \in [d]$, if $\beta_i^{-1} /\beta_j^{-1} = \frac{p}{q}$ is rational, then $p$ samples
+ of $i$ are weighted the same as $q$ samples of $j$. Thus $\beta_i^{-1}$ measures the relative weight
+assigned to sampling $i \in [d]$: higher weighted indices tend to be selected more often.
 
-Throughout the chapter, unless stated otherwise, we assume that the ratios $\beta_i/\beta_j$ are rational for every $i,j\in[d]$. Equivalently, there exist $c>0$ and $v\in\N_{>0}^d$ such that $\beta_i=c/v_i$ for every $i$. This commensurability assumption ensures that the projection-centered counts evolve on a discrete state space.
+Throughout the chapter, unless stated otherwise, we assume that the ratios $\beta_i/\beta_j$ are rational for 
+every $i,j\in[d]$. Equivalently, there exist $r>0$ and $v\in\N_{>0}^d$ such that $\beta_i=r/v_i$ for every $i$.
+This \emph{rational-ratio} assumption ensures that the projection-centered counts evolve on a 
+countable state space.
 
-We also use $\beta\downarrow0$ to denote radial convergence along a fixed bias vector. More precisely, this means that $\beta^{(m)}=r_m\beta$ for a fixed $\beta\in(0,\infty)^d$ and a sequence $r_m>0$ satisfying $r_m\to0$. Thus the ratios among the coordinates of $\beta$ remain fixed while their common scale tends to zero.
-
-In this paper, we are interested in how the empirical sampling distributions
+We also use $\beta\downarrow0$ to denote radial convergence along a fixed bias vector.
+More precisely, this means that $\beta^{(m)}=r_m\beta$ for a fixed $\beta\in(0,\infty)^d$ and 
+a sequence $r_m>0$ satisfying $r_m\to0$. Thus the ratios among the coordinates of $\beta$ remain 
+fixed while their common scale tends to zero. In this chapter, we are interested in how the empirical sampling distribution
 %
 \[\mu(n) := \frac{1}{n} \sum_{i=1}^n \delta_{X_i}\]
 %
-\noindent evolve over time under the self-balancing sampler. We show the limiting distribution is
+\noindent evolves over time. Under the self-balancing sampler, we show the limiting distribution is
 %
 \[p_i^* := \frac{\beta_i^{-1}}{\sum_{j=1}^d \beta_j^{-1}}.\]
 %
@@ -309,9 +348,9 @@ The second, which we call the \textit{projection-centered counts}, reweights the
 \subsection{Potential-based sampling}
 \label{sec:potential_biased_sampling}
 
-In this section, we show that the self-balancing sampler arises naturally by enforcing a certain invariance property on our class of Markovian sampling rules, and that under
+In this section, we show the self-balancing sampler arises naturally by enforcing a certain invariance property on our class of Markovian sampling rules, and that under
 this relation the counts process $(N(n))_{n \in \N}$ descends
-to our projection-centered counts $(\tilde{Y}(n))_{n \in \N}$. This projected chain is a Markov chain in its own right, and under mild assumptions is irreducible, positive recurrent, and admits a unique stationary distribution. Proofs can be found in Appendix~\ref{appendix:2_2_proofs_potential_based_sampling}.
+to our projection-centered counts $(\tilde{Y}(n))_{n \in \N}$. This projected chain is a Markov chain in its own right, and under mild assumptions is irreducible, positive recurrent, and admits a unique stationary distribution. Proofs can be found in Appendix~\ref{appendix:model_and_structural_proofs}.
 
  For a Markovian sampling rule, one natural choice for the sampling function $\pi$ is to define a potential $\phi_i: \N \to (0, \infty)$ for each coordinate and to select a sample proportional to its potential
 %
@@ -321,21 +360,27 @@ to our projection-centered counts $(\tilde{Y}(n))_{n \in \N}$. This projected ch
 %
 \[\pi(x + \mathbf{1}) = \pi(x), \quad \forall x \in \N^d.\]
 %
-\noindent Translation-invariance expresses the opinion that our next sample $X_{n+1}$ should depend only on the relative differences in the sampling counts $\{N_i(n)\}_{i=1}^d$ rather than their absolute sizes. More generally, we say $\pi$ is \textit{$v$-invariant} for some $v \in \N^d$ if
+\noindent where $\mathbf{1} = (1,...,1)$. Translation-invariance expresses the opinion that 
+our next sample $X_{n+1}$ should depend only on the differences in the sampling 
+counts $\{N_i(n)\}_{i=1}^d$ rather than their absolute sizes. 
+More generally, we say $\pi$ is \emph{$v$-invariant} for some $v \in \N^d$ if
 %
 \[\pi(x + v) = \pi(x), \quad \forall x \in \N^d.\]
 %
-\noindent Here $v$-invariance expresses the heuristic that sampling $i$ a total of $v_i$ times ought to be equivalent to sampling $j$ a total of $v_j$ times. Thus $(v_i)$ plays an analogous role to the relative weights $(\beta_i^{-1})$.
+\noindent Here $v$-invariance expresses the heuristic that sampling $i$ a total of $v_i$ times 
+ought to be equivalent to sampling $j$ a total of $v_j$ times. Thus $(v_i)$ plays an analogous role 
+to the relative weights $(\beta_i^{-1})$.
 
-Note that we can view v-invariance as inducing an equivalence relation $\sim_v$ on $\N^d$
+Note we can view v-invariance as inducing an equivalence relation $\sim_v$ on $\N^d$
 %
     \[x \sim_v y \iff x = y + k v, \quad k \in \Z.\]
 %
-\noindent Under this relation and a slight technical assumption, our counts process $(N(n))_{n \in \N}$ descends to a Markov chain on $\Z^{d-1}$.
+\noindent Under this relation and a slight technical assumption, our counts process $(N(n))_{n \in \N}$
+ descends to a Markov chain on $\Z^{d-1}$.
 
 \begin{proposition}[Projection-Centered Chain]
     If $\pi$ is $v$-invariant and $\mathrm{gcd}(v_1,..., v_d) = 1$
-    then $v_dN_i(n) - v_i N_d(n),$ is a Markov chain on $\Z^{d-1}$.
+    then $(v_dN_i(n) - v_i N_d(n))_{i=1}^{d-1}$ is a Markov chain on $\Z^{d-1}$.
      \label{prop:projection_centered_counts_are_markovian}
 \end{proposition}
 
@@ -343,14 +388,12 @@ Note that we can view v-invariance as inducing an equivalence relation $\sim_v$ 
 %
     \[x \sim_v y \iff v_dx_i - v_ix_d = v_dy_i - v_iy_d.\]
 %
-
-\noindent Note that
+Alternatively, we can express the above equivalence as
 %
-\[v_dN_i(n) - v_i N_d(n) = \beta_d^{-1}N_i(n) - \beta_i^{-1}N_d(n),\]
-%
-\noindent which, up to constants, is just our projection-centered counts $\tilde{Y}(n)$. Alternatively, we can express the above equivalence as
-%
-\[\frac{x_i}{v_i} - \frac{1}{d} \sum_{j=1}^d \frac{x_j}{v_j} = \frac{y_i}{v_i} - \frac{1}{d} \sum_{j=1}^d \frac{y_j}{v_j}, \quad \forall i \in [d],\]
+\begin{equation}
+    \frac{x_i}{v_i} - \frac{1}{d} \sum_{j=1}^d \frac{x_j}{v_j} = \frac{y_i}{v_i} - \frac{1}{d} \sum_{j=1}^d \frac{y_j}{v_j}, \quad \forall i \in [d],
+    \label{eqn:v_invariance_through_centering_by_weighted_mean}
+\end{equation}
 %
 which shows the projection-centered counts $\tilde{Y}(n)$ center the reweighted counts $\beta_iN_i(n)$ by their mean, rather than the long-term
 average $np^*$ as $Y(n)$ does. Now, we show the self-balancing sampler is essentially the only $v$-invariant sampling rule generated by a potential.
@@ -374,32 +417,29 @@ average $np^*$ as $Y(n)$ does. Now, we show the self-balancing sampler is essent
     %
         \[v' := v / \mathrm{gcd}(v_1,..., v_d),\]
     %
-    \noindent as well. Hence in this setting of interest in this paper, we may always assume $\mathrm{gcd}(v) = 1$ so by Proposition~\ref{prop:projection_centered_counts_are_markovian} our projection-centered counts are Markovian.
+    \noindent as well. Hence in this setting of interest in this chapter, we may always assume $\mathrm{gcd}(v) = 1$ so by Proposition~\ref{prop:projection_centered_counts_are_markovian} our projection-centered counts are Markovian.
 
-In a sense, the projection-centered counts are more natural because they live
-on a countable space $\Z^{d-1}$. As the self-balancing sampler has strong mean-reversion
+As the self-balancing sampler has strong mean-reversion
 properties, it is natural to expect the projection-centered counts are positive recurrent, and hence
 have some stationary distribution. This is indeed the case.
 
 \begin{lemma}
-    For $\beta_i=cv_i^{-1}$, where $v\in\N_{>0}^d$ and $c>0$, the projected chain
+    For $\beta_i=rv_i^{-1}$, where $v\in\N_{>0}^d$ and $r>0$, the projected chain
     \[
         \left(v_dN_i(n)-v_iN_d(n)\right)_{i=1}^{d-1}
     \]
-    \noindent with potential $\phi_i(n) = p_i(0)e^{-\beta_i n}$ as in \eqref{eqn:self_balancing_sampler_transition_probs}
+    \noindent with $p_i(0)>0$ and potential $\phi_i(n) = p_i(0)e^{-\beta_i n}$ as in \eqref{eqn:self_balancing_sampler_transition_probs}
     is irreducible and positive recurrent, and thus has a unique stationary
     distribution $\eta$ on
     \[
-        \left\{\left(v_d n_i-v_i n_d\right)_{i=1}^{d-1}:n\in\N^d\right\}
+        \cX_v := \left\{\left(v_d n_i-v_i n_d\right)_{i=1}^{d-1}:n\in\N^d\right\}
         \subseteq\Z^{d-1}.
     \]
     \label{lem:projection_centered_has_stationarity}
 \end{lemma}
 %
 In general, determining the stationary distribution $\eta$ is challenging, as the chain is non-reversible for $d > 2$.
-However, in the special case $d=2$, we can calculate $\eta$ explicitly, which we will do in Lemma \ref{lem:2d_stationary_project_centered} below.
-Positive recurrence is just the first manifestation of the sampler's mean-reversion properties, which we will explore more in the following sections.
-
+However, in the special case $d=2$, we can calculate $\eta$ explicitly, which we will do in Lemma \ref{lem:2d_stationary_project_centered} below. 
 Unsurprisingly, at stationarity the  sampler generates samples according to the target $p^*$.
 
 \begin{lemma}
@@ -421,34 +461,38 @@ has stationary distribution $\eta$ on $\Z^{d-1}$.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Convergence of the empirical Distribution
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Fast convergence of the empirical distribution for self-balancing sampling}
+\section{Fast Convergence of the Empirical Distribution}
 
 \label{sec:convergence_rate}
 
-In this section, we show that for any choice of $\alpha_i \in (0,1)$, the self-balancing sampler converges to the desired limiting distribution at a rate faster than IID sampling, and in fact converges as fast as possible. Below, for functions $f,g:\N \to [0, \infty)$ we say $f = O(g)$ if $\lim\sup_{n\to \infty} f/g < \infty$. Further, we say $f = \Omega(g)$ if $g = O(f)$ and $f = \Theta(g)$ if $f = O(g)$ and $g = O(f)$. Proofs can be found in Appendix~\ref{appendix:2_3_convergence_rate_proofs}.
+In this section, we show for any choice of $\alpha_i \in (0,1)$, the self-balancing sampler converges to the desired limiting distribution at a rate faster than IID sampling, and in fact converges as fast as possible. Below, for functions $f,g:\N \to [0, \infty)$ we say $f = O(g)$ if $\lim\sup_{n\to \infty} f/g < \infty$. Further, we say $f = \Omega(g)$ if $g = O(f)$ and $f = \Theta(g)$ if $f = O(g)$ and $g = O(f)$. Proofs can be found in Appendix~\ref{appendix:convergence_rate_proofs}.
 
 Any empirical distribution sampled on $d \geq 2$ values (each with nonzero probability) converges at least as slow as $1/n$, because for any distribution $q \in \Delta^d$,
 $$\| \mu_n - q\|_{\operatorname{TV}} = \frac{1}{2} \sum_{i=1}^d \left| \frac{N_i}{n} - q_i \right| \geq \frac{1}{2n}\sum_{i=1}^d \min_{z \in \Z} |z - nq_i|.$$
-If $q_i$ is irrational for some $i$, then $\{n q_i \pmod 1\}_{n=1}^\infty$ is dense in $[0,1]$, so there are infinitely many $n$ such that $\min_{z \in \Z} |z - nq_i| \geq 1/3$, giving an overall lower bound of $\|  \mu_n - q\|_{\operatorname{TV}} \geq \frac{1}{6n}$ for infinitely many $n$. On the other hand, if all $q_i$ are rational with least common denominator $m$, then for any $n$ not divisible by $m$, $\min_{z \in \Z} |z - nq_i| \geq 1/m$ for some $i$. Thus, for infinitely many $n$, we get $\| \mu_n - q\|_{\operatorname{TV}} \geq \frac{1}{2mn}$.
+If $q_i$ is irrational for some $i$, then $\{n q_i \pmod 1\}_{n=1}^\infty$ is dense in $[0,1]$, so there are infinitely many $n$ such that $\min_{z \in \Z} |z - nq_i| \geq 1/3$, 
+giving an overall lower bound of $\|  \mu_n - q\|_{\operatorname{TV}} \geq \frac{1}{6n}$ for infinitely many $n$. On the other hand, if all $q_i$ are rational
+ with least common denominator $m$, then for any $n$ not divisible by $m$, $\min_{z \in \Z} |z - nq_i| \geq 1/m$ 
+ for some $i$. Thus, for infinitely many $n$, we get $\| \mu_n - q\|_{\operatorname{TV}} \geq \frac{1}{2mn}$.
+ Thus there exists a deterministic subsequence $(n_k)$ depending only on $q$ such that, for every sampling scheme,
+ \[\|\mu_{n_k}-q\|_{\operatorname{TV}}=\Omega(n_k^{-1}).\]
 
 IID sampling converges at the rate $\Theta(1/\sqrt n)$ in expectation, as for samples from a distribution $q$,
 $$\E[\| \mu_n - q\|_{\operatorname{TV}}] = \frac{1}{2\sqrt n} \sum_{i=1}^d \E \left[\left|\frac{N_i - nq_i}{\sqrt n}\right|\right],$$
 where each expectation term is $\Theta(1)$ by the central limit theorem. However, for our self-balancing sampler, the
 empirical distribution converges much faster than IID sampling. Theorem~\ref{thm:average_case_conv_rate} shows that
  in expectation, the convergence actually matches the fastest possible rate of $O(1/n)$, regardless of the choice
- of $\alpha_i \in (0,1)$.
+ of $\alpha_i \in (0,1)$. 
 
- Such a rate commonly appears in such biased sampling procedures, and by specializing the classical
+ Such a rate commonly appears in such biased sampling procedures. By specializing the classical
  Foster-Lyapunov drift condition to the sequential sampling setting of interest, \cite{hu2016_generalized_efron_biased_coin}
  provides a sufficient drift condition for this to occur. However, by developing a more quantitative version (Lemma~\ref{lem:drift_lemma}) of
  the classical Foster-Lyapunov drift conditions, we are able to get more explicit control on the leading order constants. More details
  on such drift conditions can be found in \cite{meyn2009_markov_chains_stochastic_stability}, for example.
 
 
-
 % Theorem
 \begin{theorem}[Average-case convergence rate] \label{thm:average_case_conv_rate}
-    For the self-balancing sampling rule, the empirical distribution $\mu(n)$ converges at a rate of $1/n$
+    For the self-balancing sampling rule, the empirical distribution $\mu(n)$ converges at a rate of $1/n$:
     %
     $$\E\| \mu(n) - p^* \|_{\operatorname{TV}} = O(1/n).$$
     %
@@ -460,13 +504,22 @@ empirical distribution converges much faster than IID sampling. Theorem~\ref{thm
     where the constant depends only on $p(0)$, $p^*$, $\kappa := \frac{\max_i \beta_i}{\min_i \beta_i}$, and $d$.
 \end{theorem}
 
-As one might expect, increasing the bias $\beta$ tends to decrease the gap between the target sampling law $p^*$ and the empirical sampling distribution. To see why these two regimes arise, note when $p(0) = p^*$, the sampling law when $Y(0) = 0$ is already $p^*$. Hence it only has to correct the fluctuations about this stationary sampling law. When $p(0) \neq p^*$, the sampling law is $p^*$ only when $Y(n) = c_i/  \beta_i$, so the sampler must additionally correct this initial gap of order $\beta_i^{-1}$ caused by this mismatch.
+As one might expect, increasing the bias $\beta$ tends to decrease the
+ gap between the target sampling law $p^*$ and the empirical sampling 
+ distribution. To see why these two regimes arise, note when $p(0) = p^*$, the sampling 
+ law when $Y(0) = 0$ is already $p^*$. Hence it only has to correct the 
+ fluctuations about this stationary sampling law. When $p(0) \neq p^*$, the sampler must 
+ additionally correct this initial gap caused by this mismatch.
 
-The following shows that, almost surely, the self-balancing sampler improves upon the $O(n^{-1/2})$ convergence rate of IID sampling and converges at rate $O(\log n/n)$ to its target $p^*$.
+The following shows that, almost surely, the self-balancing sampler improves upon the 
+$O(n^{-1/2})$ convergence rate of IID sampling and converges at rate 
+$O(\log n/n)$ to its target $p^*$.
 
 \begin{theorem}[Almost-sure convergence rate] \label{thm:limit_probabilities}
-    For the self-balancing sampling rule, almost surely,
-    $$\limsup_{n\to\infty}\frac{n}{\log n}\| \mu(n) - p^*\|_{\operatorname{TV}} \leq 2\sum_{i=1}^d \frac{1}{\beta_i}.$$
+    For the self-balancing sampling rule, 
+    $$\limsup_{n\to\infty}\frac{n}{\log n}\| \mu(n) - p^*\|_{\operatorname{TV}} \leq 2\sum_{i=1}^d \frac{1}{\beta_i}$$
+    %
+    almost surely.
 \end{theorem}
 
 Hence, almost every realization converges at a rate of $O(\log n/n)$, which is only a logarithmic factor worse than the optimal $O(1/n)$ rate,
@@ -476,13 +529,14 @@ and drastically improves over the rate of $O(1/\sqrt n)$ for IID sampling.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Interpretation as an optimization problem
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Interpretation as an optimization problem}
+\section{Optimization Characterizations}
 
 \label{sec:optimization_problem}
 
 Here, we formalize the interpretation of the self-balancing sampler as optimizing the trade-off between
 the convergence rate of the empirical distribution and its unpredictability at each step.
- To this end, we show that this sampling rule solves a greedy optimization problem that balances a one-step reduction in count imbalance against preserving entropy in the next sample. Proofs can be found in Appendix~\ref{appendix:2_4_optimization_proofs}.
+ To this end, we show that this sampling rule solves a greedy optimization problem that balances a one-step reduction 
+ in count imbalance against preserving entropy in the next sample. Proofs can be found in Appendix~\ref{appendix:optimization_proofs}.
 
 Let $H(q) \coloneqq -\sum_{i=1}^d q_i \log q_i$ denote the Shannon entropy, let $H(q,p) \coloneqq - \sum_{i=1}^d q_i \log p_i$ denote the cross-entropy,
 and let $\operatorname{KL}(q \| p) \coloneqq H(q,p) - H(q) = \sum_{i=1}^d q_i \log \frac{q_i}{p_i}$.
@@ -500,7 +554,7 @@ allows the $\alpha_i$ (and hence the $\beta_i$) to be non-constant in $i$.
 \begin{theorem} \label{thm:general_optimization_problem}
     Let $L_\beta(n) \coloneqq \frac{1}{2} \sum_{i=1}^d \beta_i (N_i(n) - np_i^*)^2$ denote the weighted quadratic loss for the empirical counts and $D_\beta(q) \coloneqq  \mathbb E[ L_\beta(n+1) - L_\beta(n) \mid N(n), q]$ denote the one-step increase in $L_\beta$ when sampling $X_{n+1} \sim q$. Then the unique solution to the optimization problem
     $$\argmax_{q \in \Delta^d} \left(H(q) - H(q,p(0)) - D_\beta(q)\right) = \argmin_{q \in \Delta^d} \left(\operatorname{KL}(q \| p(0)) + D_\beta(q)\right)$$
-    is the $1/2$-offset self-balancing sampling method $p_i(n) \propto p_i(0)e^{-\beta_i (N_i(n)+1/2)}$, initialized at the distribution $p_i(0)$.
+    is the $1/2$-offset self-balancing sampling method $p_i(n) \propto p_i(0)e^{-\beta_i (N_i(n)+1/2)}$.
 \end{theorem}
 
 The entropy-regularized optimization problem found in 
@@ -535,20 +589,18 @@ It is somewhat remarkable that the same sampling rule characterized by a global 
  target-centering term does not affect the optimizer after normalization. The resulting policy therefore 
  depends only on the weighted counts $\beta_i N_i(n)$.
 
-The role of entropy here is also slightly different from its usual interpretation in reinforcement learning. There, entropy is often used to encourage exploration while learning an unknown environment \cite{haarnoja2018_soft_actor_critic_arxiv}. Here, the environment is known, and the entropy term instead prevents the sampling rule from becoming overly predictable. Thus the corresponding trade-off is between reducing the current imbalance and preserving randomness in the next sample.
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Expected Cover time
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Expected cover time}
+\section{Expected Cover Time}
 
 Beyond asymptotic convergence of the empirical distribution, it is also important in applications
 that the sampler does not neglect any index for too long. A natural way to quantify this is via the cover
 time, namely the number of steps required before every outcome has been sampled at least once.
  In audit and inspection settings, this measures how long a team can go entirely untested;
- in sampling and representation problems, it measures how long a category can remain completely unrepresented in the realized sample. Proofs can be found in Appendix~\ref{appendix:2_5_expected_cover_time}.
+ in sampling and representation problems, it measures how long a category can remain completely unrepresented in the realized sample. Proofs can be found in Appendix~\ref{appendix:expected_cover_time_proofs}.
 
 For deterministic sampling, the number of steps to see all $d$ outcomes is $d$, and for IID sampling, the expected number of steps to see all the outcomes, known as the ``coupon collector problem,'' is $\Theta(d\log d)$. The self-balancing sampler has behavior which interpolates between these two extremes, as we now show.
 
@@ -572,7 +624,7 @@ $$\limsup_{\beta \uparrow \infty} \E[C] = \Theta(d), \qquad \liminf_{\beta \down
 In this section, we explore a few different diffusion approximations of our self-balancing sampler, highlighting its mean-reversion and other asymptotic properties. We are primarily interested in the \textit{weak-biasing regime} where $\beta \downarrow 0$, which is the natural regime under which a diffusive limit can arise.
 
 
- Our first result shows that in this weak-biasing regime each coordinate is in a sense just a time-changed Ornstein--Uhlenbeck (OU) process. Proofs can be found in Appendix~\ref{appendix:3_1_diffusion_limit_proofs}.
+ Our first result shows that in this weak-biasing regime each coordinate is in a sense just a time-changed Ornstein--Uhlenbeck (OU) process. Proofs can be found in Appendix~\ref{appendix:diffusion_limit_proofs}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -741,7 +793,7 @@ Note
 \label{sec:adversarial_interpretation}
 
 In order to develop a notion of how
-``predictable'' such a sampler is, consider the case where an adversary attempts to guess the next sample given the current sample history. Then one way of quantifying the predictability of the sampler is to study how accurate such an adversary can be if they behave optimally. In this section, we formalize this idea. Proofs can be found in Appendix~\ref{appendix:3_3_adversarial_accuracy_proof}.
+``predictable'' such a sampler is, consider the case where an adversary attempts to guess the next sample given the current sample history. Then one way of quantifying the predictability of the sampler is to study how accurate such an adversary can be if they behave optimally. In this section, we formalize this idea. Proofs can be found in Appendix~\ref{appendix:adversarial_accuracy_proofs}.
 
 Predictability criteria of this form have been studied extensively for restricted randomization designs, where selection bias is commonly measured by the probability that an observer can correctly guess the next treatment assignment \cite{efron1971_forcing_sequential_experiment_balanced,smith1984_sequential_treatment_allocation_biased_coin,atkinson2002_sequential_clinical_trials_covariate_information}. In the special $d=2$ case with uniform initialization and uniform bias, we prove below that the weak-bias correction to the baseline prediction accuracy is of order $\sqrt{\beta}$. More generally, the diffusion heuristics suggest the same order of correction when several coordinates maximize $p^*$.
 
@@ -1194,8 +1246,8 @@ In this Appendix, we collect the formal proofs of all the main results of the pa
 %%%%%%%%%%%%%%%%%%%%%%%%%
 % Potential-Based Sampling
 %%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Section 2.2 Proofs: Potential-Based Sampling}
-\label{appendix:2_2_proofs_potential_based_sampling}
+\subsubsection{Proofs for Model and Structural Properties}
+\label{appendix:model_and_structural_proofs}
 
 \proofappendixheading{Proof of Proposition~\ref{prop:projection_centered_counts_are_markovian}}
 \proofappendixstatement{Proposition}{If $\pi$ is $v$-invariant and
@@ -1255,14 +1307,16 @@ $\mathrm{gcd}(v_1,..., v_d) = 1$ then $v_dN_i(n) - v_i N_d(n),$ is a Markov chai
 
 \proofappendixheading{Proof of Lemma~\ref{lem:projection_centered_has_stationarity}}
 \proofappendixstatement{Lemma}{
-       For $\beta_i = cv_i^{-1}$ for $v \in \N^d$ and $c > 0$, the projection-centered chain $\tilde{Y}^v(n) = v_dN_i(n) - v_i N_d(n)$ associated to the self-balancing sampler~\eqref{eqn:self_balancing_sampler_transition_probs} is irreducible and
-    positive recurrent, and thus has a unique stationary distribution $\eta$ on some subset of $\Z^{d-1}$.}
+       For $\beta_i = rv_i^{-1}$ for $v \in \N_{>0}^d$ and $r > 0$, the projection-centered chain $\tilde{Y}^v(n) = (v_dN_i(n) - v_i N_d(n))_{i=1}^{d-1}$ associated 
+       to the self-balancing sampler~\eqref{eqn:self_balancing_sampler_transition_probs} is irreducible and
+       positive recurrent, and thus has a unique stationary distribution $\eta$ on some subset of $\Z^{d-1}$.}
 
 
     \begin{proof}
-        Clearly the state-space of $\tilde{Y}^v$ is
+        Without loss of generality, assume $\mathrm{gcd}(v) = 1$, as we can always absorb
+        shared factors into the constant $r$. Clearly the state-space of $\tilde{Y}^v$ is
         the subset of $\Z^{d-1}$ generated by nonnegative integer combinations of the vectors $\{v_d e_i\}_{i=1}^{d-1} \cup \{-v\}$.
-        Of course, this does not always span $Z^{d-1}$, even when $\mathrm{gcd}(v_i) = 1$. For example, if $v_1 = 2, v_2 = 3, v_3 = 4$ then the first coordinate
+        This does not always span $\Z^{d-1}$, even when $\mathrm{gcd}(v_i) = 1$. For example, if $v_1 = 2, v_2 = 3, v_3 = 4$ then the first coordinate
         of $\tilde{Y}^v$ is always a multiple of $2$.
 
         Nonetheless, we show the chain is still irreducible on this state-space. To see why, suppose
@@ -1271,57 +1325,69 @@ $\mathrm{gcd}(v_1,..., v_d) = 1$ then $v_dN_i(n) - v_i N_d(n),$ is a Markov chai
         %
         \noindent Clearly we can go from $0$ to $x$ by sampling $a_i$ times from index $i$ for each $i \in [d-1]$ and sampling $a_d$ times
         from index $d$. Conversely, we can go from $x$ to $0$ by sampling index $i \in [d-1]$ a total of $k v_i - a_i$ times, for some $k$ large enough so $k v_i \geq a_i$ for all $i \in [d - 1]$ and $kv_d \geq a_d$.
-        Then sample coordinate $d$ a total of $k v_d - a_d$ times.
+        Then sample coordinate $d$ a total of $k v_d - a_d$ times. Every such finite path has positive probability since $p_i(0)>0$ for every $i$.
 
         Lastly, we show the chain is positive recurrent by developing a suitable Lyapunov function and 
-        proving a Foster-Lyapunov drift condition. See, for example, \cite{meyn2009_markov_chains_stochastic_stability}, 
-        for more information about this technique.
-
-
-        Let $\beta_i = v_i^{-1}$ and define
+        proving a Foster-Lyapunov drift condition. See, for example, \cite[Theorem 11.3.4]{meyn2009_markov_chains_stochastic_stability}, 
+        for more information about this technique. To this end, define
         %
-        \[Q_i := \beta_i N_i - \log(p_i(0) \beta_i), \quad \overline{Q} = \frac{1}{d} \sum_{i=1}^{d} Q_i.\]
+        \[Q_i := \beta_i N_i - \log(p_i(0) \beta_i), \quad \overline{Q} = \frac{1}{d} \sum_{i=1}^{d} Q_i,\]
         %
-        \noindent The constants $\log(p_i(0) \beta_i)$ serve an analogous role to $c_\beta$ in our diffusive limit:
-        the shift the chain so it is centered at the zero-drift location. Note
+        \noindent and let $Z_i := Q_i - \bar{Q}$. These new coordinates $Z$ are merely the projection-centered version of 
+        the weighted counts $(\beta_iN_i)$ appearing in equation~\eqref{eqn:v_invariance_through_centering_by_weighted_mean}, 
+        and translated so that $Z=0$ is the zero-drift location. After projection-centering, this translation agrees 
+        exactly with the correction $c_\beta$ appearing in Proposition~\ref{prop:projection_centered_diffusion_limit}. Note
         %
-        \[p_i = \frac{p_i(0)e^{-\beta_i N_i}}{\sum_j p_j(0)e^{-\beta_j N_j}} = \frac{v_i e^{-Q_i}}{\sum_j v_j e^{-Q_j}},\]
+        \[p_i = \frac{p_i(0)e^{-\beta_i N_i}}{\sum_j p_j(0)e^{-\beta_j N_j}} = \frac{\beta_i^{-1} e^{-Z_i}}{\sum_j \beta_j^{-1} e^{-Z_j}},\]
         %
-        \noindent is a function of $Q$. Using this, define the Lyapunov function
+        \noindent is a function of $Z$, which itself is a function of the projection-centered counts $(v_d N_i - v_i N_d)_{i=1}^{d-1}$. 
+        In fact, as \eqref{eqn:v_invariance_through_centering_by_weighted_mean} highlights, the map $x \mapsto Z(x)$
+        is a bijection from the reachable state space $\cX_v\subseteq\Z^{d-1}$ to a discrete affine lattice contained in $\{z : \sum_i z_i = 0\}\subseteq\R^d$. 
+        For $x \in \cX_v$, define the Lyapunov function
         %
-        \[V(Q) := \sum_{i=1}^{d} Z_i^2, \quad Z_i := Q_i - \overline{Q}.\]
+        \[V(x) := \sum_{i=1}^{d} Z_i(x)^2,\]
         %
-        \noindent Then $V$ is a function of the projection-centered counts $v_d N_i - v_i N_d$ alone. Moreover, $V(Q) = V(Q + c 1)$ for all $c \in \R$, so
-        it suffices to consider the case $Q_d = 0$.
-        We will show $V$ has negative drift outside some finite set. First, note as $\sum Z_i = 0$
+        \noindent which of course can be viewed as a function of $Z$ directly. As
         %
-        \[V(Q + \Delta Q) = 2 \sum_{i=1}^{d} Z_i \Delta Q_i + \sum_{i=1}^{d} (\Delta Q_i - \overline{\Delta Q})^2\]
+        \[(\Delta Z)_i = \begin{cases}
+            \frac{d-1}{d}\beta_i & \mathrm{w.p.} \quad p_i, \\
+            -\frac{\beta_j}{d} & \mathrm{w.p.} \quad \; p_j \text{ for } i \neq j,
+        \end{cases}\]
         %
-        \noindent Thus $V$ has expected drift
-        %
-        \[\E[ \Delta V(Q) \mid Q = q] = 2 \sum_{i=1}^d Z_i p_i(q)\beta_i + \frac{d-1}{d} \sum_{i=1}^d p_i(q) \beta_i^2\]
-        %
-        \noindent The second term is at most $C = \max \beta_i^2$. The first term is sufficiently negative on
-        %
-        \[F := \left\{Q \in \N^d : \max_i Q_i - \min_i Q_i > R, \quad Q_d = 0\right\}.\]
-        %
-        \noindent To see why, suppose $M = \arg\max_i Q_i$ and $m = \arg\min_i Q_i$.
+        \noindent Therefore, using the fact $\sum Z_i = 0$, the expected drift of $V$ is
         %
         \begin{align*}
-            \sum_{i=1}^d Z_i p_i\beta_i & = \frac{1}{d} \sum_{i < j} (q_i - q_j)(p_i \beta_i - p_j\beta_j).\\
+            \E[\Delta V\mid Z=z] & =2\sum_{i=1}^d z_i\E[\Delta Z_i\mid Z=z] +\sum_{i=1}^d\E[(\Delta Z_i)^2\mid Z=z], \\
             %
-            & = \frac{1}{d \sum_j v_j e^{-q_j}} \sum_{i < j} (q_i - q_j)(e^{-q_i} -  e^{-q_j}).\\
-            %
-            & \leq \frac{(q_m - q_M)(e^{-q_m} -  e^{-q_M})}{d \sum_j v_j e^{-q_j}} \\
-            %
-            & \leq \frac{(q_m - q_M)(e^{-q_m} -  e^{-q_M})}{d^2 e^{-q_m} \max_i v_i} \\
-            %
-            & \leq - \frac{R(1-e^{-R})}{d^2 \max_i v_i} \cdot \\
+            & =2\sum_{i=1}^d z_i p_i(z)\beta_i +\frac{d-1}{d}\sum_{i=1}^d p_i(z)\beta_i^2. 
         \end{align*}
-
         %
-        \noindent where in the first inequality we observed every term in the sum is nonpositive. The complement $F^c$ is a finite subset of $\Z^{d-1}$,
-        so we have the desired drift condition.
+        \noindent The latter term is at most $C = \max_i \beta_i^2$. The first term is sufficiently negative on
+        %
+        \[F := \left\{x \in \cX_v : \max_i Z_i(x) - \min_i Z_i(x) > R\right\}.\]
+        %
+        \noindent To see why, choose $M \in \arg\max_i Z_i$ and $m \in \arg\min_i Z_i$. The idea is that for
+        the imbalance $z_M - z_m$ to be large, some coordinate must be significantly under-sampled, and hence 
+        be exponentially favored, reducing the imbalance. Specifically, for $x \in F$ and $z=Z(x)$, we have
+        %
+        \begin{align*}
+            \sum_{i=1}^d z_i p_i\beta_i & = \frac{1}{\sum_j \beta_j^{-1} e^{-z_j}} \sum_{i} z_i e^{-z_i}\\
+            %
+            & = \frac{1}{d \sum_j \beta_j^{-1} e^{-z_j}} \sum_{i < j} (z_i - z_j)(e^{-z_i} -  e^{-z_j})\\
+            %
+            & \leq \frac{(z_m - z_M)(e^{-z_m} -  e^{-z_M})}{d \sum_j \beta_j^{-1} e^{-z_j}} \\
+            %
+            & \leq \frac{(z_m - z_M)(e^{-z_m} -  e^{-z_M})}{d^2 e^{-z_m} \max_i \beta_i^{-1}} \\
+            %
+            & \leq - \frac{R(1-e^{-R})}{d^2 \max_i \beta_i^{-1}}, 
+        \end{align*}
+        %
+        \noindent where in the second line we use $\sum z_i = 0$ and in the third line we observed 
+        every term in the sum is nonpositive. Choose $R$ so that
+        \[\frac{2R(1-e^{-R})}{d^2\max_i\beta_i^{-1}}>C+\epsilon\]
+        for some $\epsilon>0$. Then the drift is at most $-\epsilon$ on $F$. On $F^c$, the zero-sum condition gives
+         $|z_i|\leq R$ for every $i$, so discreteness of the reachable $Z$-states makes $F^c$ finite. This gives the desired drift 
+         condition.
     \end{proof}
 
 
@@ -1355,8 +1421,8 @@ $\mathrm{gcd}(v_1,..., v_d) = 1$ then $v_dN_i(n) - v_i N_d(n),$ is a Markov chai
 
 
 \newpage
-\subsubsection{Section 2.3 Proofs: Convergence Rates}
-\label{appendix:2_3_convergence_rate_proofs}
+\subsubsection{Proofs for Fast Convergence of the Empirical Distribution}
+\label{appendix:convergence_rate_proofs}
 
 %%%%%%%%%%%%%%%%%%%%%%%
 % Average-Case Convergence Rates Result
@@ -1677,8 +1743,8 @@ To control these moments, we will develop a Foster-Lyapunov drift condition for 
 % Optimization Problem Formulation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\subsubsection{Section 2.4 Proofs: Optimization Formulation}
-\label{appendix:2_4_optimization_proofs}
+\subsubsection{Proofs for Optimization Characterizations}
+\label{appendix:optimization_proofs}
 
 % Entropy regularized
 \proofappendixheading{Proof of Theorem~\ref{thm:general_optimization_problem} (Entropy-Regularized + Squared-Error Optimization)}
@@ -1742,8 +1808,8 @@ has unique solution $q_i\propto p_i(0)e^{-\beta_iN_i(n)}$.}
 % Expected Cover Time
 %%%%%%%%%%%%%%
 \newpage
-\subsubsection{Section 2.5 Proofs: Expected Cover Time}
-\label{appendix:2_5_expected_cover_time}
+\subsubsection{Proofs for Expected Cover Time}
+\label{appendix:expected_cover_time_proofs}
 
 
 \proofappendixheading{Proof of Theorem~\ref{thm:expected_cover_time} (Expected Cover Time)}
@@ -1811,8 +1877,8 @@ has unique solution $q_i\propto p_i(0)e^{-\beta_iN_i(n)}$.}
 % Diffusion Limits Proofs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\subsubsection{Section 3.1 Proofs: Diffusion Limits}
-\label{appendix:3_1_diffusion_limit_proofs}
+\subsubsection{Proofs for Weak-Bias Diffusive Limits}
+\label{appendix:diffusion_limit_proofs}
 
 
 
@@ -1957,8 +2023,8 @@ Hence this process has drift
 % 2D stationary distribution
 %%%%%%%%%%%
 \newpage
-\subsubsection{Section 3.3 Proofs: Adversarial Accuracy}
-\label{appendix:3_3_adversarial_accuracy_proof}
+\subsubsection{Proofs for Adversarial Accuracy}
+\label{appendix:adversarial_accuracy_proofs}
 
 \proofappendixheading{Proof of Lemma~\ref{lem:2d_stationary_project_centered} ($d=2$ Stationary Distribution)}
 \proofappendixstatement{Lemma}{When $d=2$ and $\beta_1=\beta_2=\beta>0$, the projection-centered chain $\tilde Y(n)$ is reversible on $\Z$ with stationary distribution

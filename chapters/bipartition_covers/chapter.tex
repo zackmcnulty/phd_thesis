@@ -113,6 +113,7 @@ More concretely, let
 Under the MSC model, \cite{uricchio2016_bipartition_cover} establishes the following bound.
 
 \begin{theorem}[Original Bipartition Cover upper bound]
+\label{thm:uricchios_bipartition_cover_bound}
 %
 \begin{equation}
      M_o(k,T_{\mathrm{min}}) := \frac{\log\left(\frac{1-q}{k-3}\right)}{\log \left(1-g_{k-2, 1}(T_{\mathrm{min}})\right)}
@@ -120,7 +121,6 @@ Under the MSC model, \cite{uricchio2016_bipartition_cover} establishes the follo
 \end{equation}
 %
 \noindent satisfies $N_{\mathrm{cov}}(q;\cT^*)\leq \lceil M_o(k,T_{\mathrm{min}})\rceil$.
-\label{thm:uricchios_bipartition_cover_bound}
 \end{theorem}
 
 
@@ -308,9 +308,9 @@ a topology-free bound we must assume these $\alpha_i$ are in a sense as large
 as possible. The following makes this precise.
 
 \begin{lemma}[Caterpillars Maximize Increasing Sums]
+\label{lem:caterpillar_maximize_increasing_sums}
 Suppose $\{\alpha_{i}\}_{i=1}^{k-3}$ are the descendant counts of our rooted binary tree $T$. Moreover, suppose $f: \N \to \R$ is nondecreasing. Then $\sum_i f(\alpha_{i})$ is maximized when $T$ is the caterpillar tree, in which case $\{\alpha_{i}\} = \{2,3,..., k-2\}$.
 
-\label{lem:caterpillar_maximize_increasing_sums}
 \end{lemma}
 
 \noindent The proof of Lemma \ref{lem:caterpillar_maximize_increasing_sums} can be found
@@ -319,11 +319,11 @@ This result implies
 
 % Corollary %%%
 \begin{corollary}
+\label{corr:bipartitions_corollary}
 Suppose $h: \N \to [0,1]$ is decreasing and $\P(E_{i,1}) \geq h(\alpha_i)$. Then
 %
 \[\P(E_n) \geq 1 - \sum_{\ell = 2}^{k-2} \Big[1 - h(\ell)\Big]^n.\]
 %
-\label{corr:bipartitions_corollary}
 \end{corollary}
 
 % proof
@@ -339,6 +339,7 @@ Suppose $h: \N \to [0,1]$ is decreasing and $\P(E_{i,1}) \geq h(\alpha_i)$. Then
 
 % Main Theorem %%%%%%%%
 \begin{theorem}
+\label{thm:caterpillar_bound}
     Suppose $h: \N \to [0,1]$ is decreasing and $\P(E_{i,1}) \geq h(\alpha_i)$. Then
 %
 \begin{equation}
@@ -347,7 +348,6 @@ Suppose $h: \N \to [0,1]$ is decreasing and $\P(E_{i,1}) \geq h(\alpha_i)$. Then
 \end{equation}
 %
 \noindent satisfies $N_{\mathrm{cov}}(q;\cT^*)\leq n_h$.
-\label{thm:caterpillar_bound}
 \end{theorem}
 
 \noindent If $h$ is independent of the species tree topology,
@@ -359,13 +359,13 @@ of \citet{uricchio2016_bipartition_cover} give a new topology-free bound.
 
 % Caterpillar Bound %%%%%%%
 \begin{corollary}[Caterpillar Bipartition Cover Bound]
+\label{cor:improved_bipartition_cover_bound_caterpillar}
 \begin{equation}
     M_c(k, T_{\mathrm{min}}):=  \inf\left\{n \in \N : \sum_{\ell=2}^{k-2}\left[1-g_{\ell,1 }(T_{\mathrm{min}})\right]^n \leq 1-q\right\}
     \label{eqn:caterpillar_bound_eqn}
 \end{equation}
 %
 \noindent satisfies $N_{\mathrm{cov}}(q;\cT^*)\leq M_c(k,T_{\mathrm{min}})$.
-\label{cor:improved_bipartition_cover_bound_caterpillar}
 \end{corollary}
 
 \noindent As with the original bound~\eqref{eqn:uricchios_bipartition_cover_bound}, equation~\eqref{eqn:caterpillar_bound_eqn}
@@ -403,8 +403,8 @@ by $X \geq_{sst} Y$. First-order stochastic dominance naturally implies second-o
  Since $x \mapsto g_{x,1}(T)$ is decreasing, convex (Corollary \ref{corr:g_i1_is_decreasing}, 
  Lemma~\ref{lem:g_i1_is_convex}), we see
 \begin{lemma}
-If $U_{e_i} \geq_{sst} X_{e_i}$ then $\P(E_{i,1}) \geq \E g_{U_{e_i}, 1}(T_{\mathrm{min}})$.
 \label{lem:bounding_prob_with_second_order_stochastic_dominance}
+If $U_{e_i} \geq_{sst} X_{e_i}$ then $\P(E_{i,1}) \geq \E g_{U_{e_i}, 1}(T_{\mathrm{min}})$.
 \end{lemma}
 
 \begin{remark}
@@ -477,11 +477,11 @@ we show more balanced splits $(m, k-m)$ tend to have less coalescence.
 \end{figure}
 
 
-\begin{lemma}[Deterministic Balancing Lemma] Let $k$ and $T$ be fixed. Then
+\begin{lemma}[Deterministic Balancing Lemma]
+\label{lem:deterministic_balancing_lemma} Let $k$ and $T$ be fixed. Then
     \[\quad Z^T_{i} + Z^T_{k-i} \leq_{st}  Z^T_{j} + Z^T_{k-j}, \quad\forall 1 \leq i \leq j \leq \frac{k}{2}.\]
     %
     \noindent In particular, the stochastic maximizer is $i = \lfloor k/2\rfloor$.
-    \label{lem:deterministic_balancing_lemma}
 \end{lemma}
 
 \noindent The proof can be found in Appendix~\ref{app:deterministic-balancing-proof}.
@@ -510,8 +510,8 @@ lineages that have not coalesced by the time they reach the root. Then
 
 % Balanced is worst case
 \begin{lemma}
+\label{lem:balanced_is_worse_case}
     If $\cB_k$ is the balanced tree with $k$ leaves and all branch lengths equal to $T_{\mathrm{min}}$ then $X_{\cB_k} \geq_{st} X_\cT$ for any other tree $\cT$ with $k$ leaves and minimum branch length $T_{\mathrm{min}}$.
-    \label{lem:balanced_is_worse_case}
 \end{lemma}
 %
 \noindent The proof is postponed to Appendix~\ref{app:balanced-worst-case-proof}, reducing
@@ -526,6 +526,7 @@ the number of lineages $X_e$ entering a given edge $e$: $X_e \leq_{st} X_{\cB_{\
 
 % Balanced bipartition cover bound %%%%%%%%%%
 \begin{theorem}[Balanced Bipartition Cover Bound]
+\label{thm:improved_bipartition_cover_bound_balanced}
     Let
 \begin{equation}
     M_b(k, T_{\mathrm{min}}):=  \inf\left\{n \in \N : \sum_{\ell=2}^{k-2}\left[1-w_\ell\right]^n \leq 1-q\right\}
@@ -533,7 +534,6 @@ the number of lineages $X_e$ entering a given edge $e$: $X_e \leq_{st} X_{\cB_{\
 \end{equation}
 %
 \noindent where $w_\ell := \P(Z_{X_{\cB_\ell}} = 1)$. Then $N_{\mathrm{cov}}(q;\cT^*)\leq M_b(k,T_{\mathrm{min}})$.
-\label{thm:improved_bipartition_cover_bound_balanced}
 \end{theorem}
 
 
@@ -702,6 +702,7 @@ incorporating even partial topological information might be necessary.
  Here we confirm our intuition that our new bounds drastically improve performance in the small $T$ regime. For fixed $T$, we show that all the bounds are $\Theta_T(\log(k))$, and that this is essentially the best one can do while relying on the union bound. We start with a result that specifies the asymptotics of the function $g_{k,1}(T)$ underlying all our bounds.
 
 \begin{lemma}[Asymptotics of $g_{k,1}(T)$]
+\label{lem:asymptotics_g_k1(T)}
 The function $T \mapsto g_{k,1}(T)$ has asymptotics
 \begin{equation}
      \begin{cases} 1 - g_{k,1}(T) \sim \frac{3(k-1)}{k+1} \exp(-T), & T \uparrow \infty, \\
@@ -713,13 +714,13 @@ The function $T \mapsto g_{k,1}(T)$ has asymptotics
 %
 \[\Delta_k(T) = \frac{2f_{S_\infty}(T)}{k} + o\left(\frac{1}{k}\right) \sim \frac{2f_{S_\infty}(T)}{k}.\]
 %
-\label{lem:asymptotics_g_k1(T)}
 \end{lemma}
 
 \noindent The proof can be found in Appendix~\ref{app:coalescent-asymptotics-proof}.
 Using this, we develop the following asymptotics for our two bounds. Recall that $M_o(k,T)$ denotes the original bound of \citet{uricchio2016_bipartition_cover} and $M_b(k,T)$ our balanced bound (Theorem~\ref{thm:improved_bipartition_cover_bound_balanced}).
 
 \begin{lemma}[Bound Asymptotics]
+\label{lem:bound_asymptotics}
     Let $\kappa_{q,k} := \log((k-3)/(1-q))$ and $u(T) := \frac{2-\exp(-T/2)}{1-\exp(-T/2)}$. Then
     %
     \[M_o(k,T)  \sim \begin{cases}
@@ -742,7 +743,6 @@ Using this, we develop the following asymptotics for our two bounds. Recall that
     \quad\text{as }T\downarrow0.
     \]
     %
-    \label{lem:bound_asymptotics}
 \end{lemma}
 
 \noindent The proof can be found in Appendix~\ref{app:bound-asymptotics}.
@@ -876,16 +876,16 @@ provides a natural direction for obtaining sharper finite-sample guarantees.
     In order to apply Theorem \ref{thm:convolutions_and_likelihood_ratio_order}, we will need to determine whether various variables of interest are log-concave. For this purpose, we introduce a few basic closure properties of log-concave random variables. It will turn out to be useful to work with a strengthening of log-concavity. We say a sequence $\{x_k\}$ is \textit{ultra log-concave (ULC)} if the sequence $\{k! \cdot x_k\}$ is log-concave, or equivalently $kx_k^2 \geq (k+1)x_{k-1}x_{k+1}$. Clearly ultra log-concavity implies log-concavity. The following result, and much more, can be found in Chapter 4 of \cite{saumard2014_log_concavity_strong_log_concavity_review}.
 
     \begin{theorem}[Pr\'ekopa]
+\label{thm:prekopas_theorem}
         If $X, Y$ are independent, (ultra) log-concave, integer-valued random variables, then $X+Y$ is (ultra) log-concave. Equivalently, the class of (ultra) log-concave distributions is closed under convolution.
-        \label{thm:prekopas_theorem}
     \end{theorem}
 
     \noindent The following shows us that Kingman's coalescent preserves log-concavity in our setting of interest.
 
     % C log concavity
 \begin{theorem}[Preservation of Ultra Log-Concavity]
-\noindent Suppose $P_t$ is the transition semigroup of a pure-death process with death rates $\lambda_i$ so that (a) $\lambda_i$ is convex (b) $\eta_i := \lambda_i/i$ is concave and (c) at least one of these is strictly convex/concave. Moreover, suppose that $\pi$ is ultra log-concave with either $\mathrm{supp}(\pi) = \{2,..., M\}$ or $\mathrm{supp}(\pi) = \{1,..., M\}$ for some $M \in \N \cup \{\infty\}$. Then $\pi(t) := \pi P_t$ is ultra log-concave for all $t \geq 0$. In particular, this is true for Kingman's coalescent with $\lambda_i = \binom{i}{2}$.
 \label{thm:kingman_preserves_ultralogconcave}
+\noindent Suppose $P_t$ is the transition semigroup of a pure-death process with death rates $\lambda_i$ so that (a) $\lambda_i$ is convex (b) $\eta_i := \lambda_i/i$ is concave and (c) at least one of these is strictly convex/concave. Moreover, suppose that $\pi$ is ultra log-concave with either $\mathrm{supp}(\pi) = \{2,..., M\}$ or $\mathrm{supp}(\pi) = \{1,..., M\}$ for some $M \in \N \cup \{\infty\}$. Then $\pi(t) := \pi P_t$ is ultra log-concave for all $t \geq 0$. In particular, this is true for Kingman's coalescent with $\lambda_i = \binom{i}{2}$.
 \end{theorem}
 
 % proof
@@ -938,8 +938,8 @@ We will start by proving some basic properties about the function $g_{i,j}(T)$ a
 Moreover, recall $X_{\cB_k}$ denotes the number of lineages reaching the root of a balanced tree with $k$ leaves and branch lengths all equal to $T$. For convenience, we denote $X_k := X_{\cB_k}$. Using the above, we will show that all the variables of interest in this chapter are log-concave.
 
 \begin{lemma}
-The random variables $X_m, Z_{X_m}$ are ultra log-concave, and hence log-concave.
 \label{lem:xm_zxm_are_ultra_log_concave}
+The random variables $X_m, Z_{X_m}$ are ultra log-concave, and hence log-concave.
 \end{lemma}
 
 \begin{proof}
@@ -954,8 +954,8 @@ The random variables $X_m, Z_{X_m}$ are ultra log-concave, and hence log-concave
 
 % lemma
 \begin{lemma}
+\label{lem:cdf_of_Zi}
     Let $i \leq j$ and $t \leq T$. Then $Z_i^T \leq_{st} Z_j^T$ and $Z_{i}^T \leq_{st} Z_i^t$.
-    \label{lem:cdf_of_Zi}
 \end{lemma}
 
 \noindent Heuristically this just states the obvious: the more lineages we start with at the beginning of a branch and the less time we have to coalesce, the more lineages we tend to end with.
@@ -971,15 +971,15 @@ The random variables $X_m, Z_{X_m}$ are ultra log-concave, and hence log-concave
 
 % g is decreasing
 \begin{corollary}
+\label{corr:g_i1_is_decreasing}
     The function $g_{i1}(T)$ is decreasing in $i$ and increasing in $T$.
-    \label{corr:g_i1_is_decreasing}
 \end{corollary}
 
  Thus $g_{i,j}(T)$ has some natural monotonicity properties. The following Lemmas show that most of the variability in $g_{i,j}(T)$ occurs when both $T$ and $i$ are small.
 
     \begin{lemma}
+\label{lem:log_concavity_gi(T)_in_T}
         For fixed $n,k$, the function $\P(Z^T_n = k) = g_{n,k}(T)$ is log-concave in $T$.
-    \label{lem:log_concavity_gi(T)_in_T}
     \end{lemma}
 
     \begin{proof}[Proof of Lemma \ref{lem:log_concavity_gi(T)_in_T}]
@@ -991,8 +991,8 @@ The random variables $X_m, Z_{X_m}$ are ultra log-concave, and hence log-concave
     \end{proof}
 
     \begin{lemma}
+\label{lem:g_i1_is_convex}
         For fixed $T$, the function $i \mapsto g_{i,1}(T)$ is convex.
-        \label{lem:g_i1_is_convex}
     \end{lemma}
 
     \begin{proof}[Proof of Lemma \ref{lem:g_i1_is_convex}]
@@ -1003,12 +1003,12 @@ The random variables $X_m, Z_{X_m}$ are ultra log-concave, and hence log-concave
     \noindent Next, we study the expected number of lineages that survive under Kingman's coalescent when the number of starting lineages is large. Since the initial coalescent rate $\binom{i}{2}$ grows so fast in the number of lineages, eventually adding more lineages has barely any influence on the number remaining at time $T$. This is essentially the well-known observation that Kingman's coalescent can come down from infinity in any positive time.
 
     \begin{lemma}[Upper Bound for Expected Number of Lineages]
+\label{lem:expected_number_lineages}
         For any $i \in N$ and $T > 0$
         %
             \[\E Z_i^T \leq \frac{1}{1-(1-1/i)\exp(-\frac{T}{2})} \leq\frac{1}{1-\exp\left(-\frac{T}{2}\right)}.\]
         %
         In particular, for any fixed $T > 0$ we see $\E Z_i^T = \Theta_T(1)$.
-        \label{lem:expected_number_lineages}
     \end{lemma}
 
     \noindent Note that in the small $T$ regime, where $\exp(-T/2) \approx 1-T/2$, this bound is roughly $2/T$, recovering the well-known asymptotics of Kingman's coalescent as it comes down from infinity. Hence in a sense this bound is roughly tight in that regime.
@@ -1035,11 +1035,11 @@ The random variables $X_m, Z_{X_m}$ are ultra log-concave, and hence log-concave
 
 
     \begin{corollary}
+\label{corr:upperbound_lineages_balanced}
         Suppose that $k \in (2^{m-1}, 2^m]$. Then
         %
         \[\E X^T_{\cB_k} \leq \frac{2-\exp(-T/2)}{1-\exp(-T/2) + \exp(-mT/2)/2^m} \leq \frac{2-\exp(-T/2)}{1-\exp(-T/2)} \]
         %
-        \label{corr:upperbound_lineages_balanced}
     \end{corollary}
 
     \begin{proof}[Proof of Corollary \ref{corr:upperbound_lineages_balanced}]
@@ -1076,6 +1076,7 @@ In this section, we prove some lemmas relating to first-order stochastic dominan
 
 % compositions
 \begin{corollary}[Stochastic Dominance of Compositions]
+\label{corollary:stochastic_dominance_composition}
     If $X \geq_{st} Y$ then
 
     \[Z_X \geq_{st} Z_{Y}.\]
@@ -1084,7 +1085,6 @@ In this section, we prove some lemmas relating to first-order stochastic dominan
     %
         \[Z_X + Z_{Y} \geq_{st} Z_{X'}+ Z_{Y'}.\]
     %
-\label{corollary:stochastic_dominance_composition}
 \end{corollary}
 
 \noindent In our context, the first statement above just says that if we tend to have more lineages entering a given edge of our tree, then we tend to also have more lineages exiting it. The second statement says that if an edge $e$ tends to have more lineages uncoalesced in both its subtrees, then the edge $e$ tends to have more lineages entering it.
@@ -1110,6 +1110,7 @@ In this section, we prove some lemmas relating to first-order stochastic dominan
 % Stochastic dominance and conditionals
 \noindent The following tells us that increasing mixtures of increasing variables are again increasing.
 \begin{lemma}
+\label{lem:mixtures_and_stochastic_dominance}
     Suppose that we have collections of random variables $\{V_i\}_{i \in \N}, \{\Theta_i\}_{i \in \N}$ so that for each $i \leq j$ we have:
     \begin{enumerate}[label=\alph*)]
         \item $\Theta_i \leq_{st} \Theta_j$,
@@ -1117,7 +1118,6 @@ In this section, we prove some lemmas relating to first-order stochastic dominan
          \item $V_i \mid \{\Theta_i = \theta\} \leq_{st} V_i \mid \{\Theta_i = \theta'\}$ for every $\theta \leq \theta'$ and $i$.
     \end{enumerate}
     \noindent Then $V_i \leq_{st} V_j$ for $i \leq j$.
-\label{lem:mixtures_and_stochastic_dominance}
 \end{lemma}
 
 \begin{proof}[Proof of Lemma \ref{lem:mixtures_and_stochastic_dominance}]
@@ -1146,22 +1146,22 @@ In this section, we prove some lemmas relating to first-order stochastic dominan
     \noindent It is not hard to see that $X \leq_{lr} Y$ implies $X \leq_{st} Y$, so this is a strictly stronger ordering than that of first-order stochastic dominance. The LRO has some convenient closure properties. The following appear as Theorems 1.C.9 and 1.C.17 of \cite{shaked2007_stochastic_orders}, respectively.
 
     \begin{theorem}[LRO preserved by Convolutions]
+\label{thm:convolutions_and_likelihood_ratio_order}
         Suppose we have two collections of independent, log-concave random variables,
         $\{X_i\}_{i=1}^n$ and $\{Y_i\}_{i=1}^n$. If $X_i \leq_{lr} Y_i$ for all
         $i$, then $\sum_{i=1}^n X_i \leq_{lr} \sum_{i=1}^n Y_i$.
-        \label{thm:convolutions_and_likelihood_ratio_order}
     \end{theorem}
 
 \begin{theorem}[LRO preserved by Mixtures]
-Suppose we have a collection $\{V_i\}_{i\in \N}$ of random variables so that $V_i \leq_{lr} V_j$ for $i \leq j$. Moreover, suppose that we have random variables $M,N$ independent of $\{V_i\}$ with $M \leq_{lr} N$. Then $V_M \leq_{lr} V_N$.
 \label{thm:mixtures_and_likelihood_ratio_order}
+Suppose we have a collection $\{V_i\}_{i\in \N}$ of random variables so that $V_i \leq_{lr} V_j$ for $i \leq j$. Moreover, suppose that we have random variables $M,N$ independent of $\{V_i\}$ with $M \leq_{lr} N$. Then $V_M \leq_{lr} V_N$.
 \end{theorem}
 
 \noindent Using these results gives the following monotonicity lemma for our random variables of interest.
 
 \begin{lemma}
-For $i \leq j$ we have $Z_i \leq_{lr} Z_j$, $X_i \leq_{lr} X_j$ and $Z_{X_i} \leq_{lr} Z_{X_j}$.
 \label{lem:xi_zxi_increasing_in_lro}
+For $i \leq j$ we have $Z_i \leq_{lr} Z_j$, $X_i \leq_{lr} X_j$ and $Z_{X_i} \leq_{lr} Z_{X_j}$.
 \end{lemma}
 
 \begin{proof}
@@ -1313,8 +1313,8 @@ nondecreasing. Then $\sum_i f(\alpha_{i})$ is maximized when $T$ is the caterpil
 \noindent We can provide a partial complement to the above Lemma \ref{lem:caterpillar_maximize_increasing_sums} analyzing the other extreme. More concretely, we will show that the more balanced the tree is, the smaller these sums tend to be. We will not use this result in this chapter, but it adds to the idea that the balanced tree and the caterpillar tree are in a sense the two extreme points in our space of trees.
 
 \begin{lemma}
+\label{lem:balanced_trees_minimize_increasing_convex_sums}
  Suppose $\{\alpha_{i}\}_{i=1}^{2k-2}$ are the descendant counts of our rooted binary tree $T$ corresponding to \textit{all} the edges of our tree (not just ones corresponding to nontrivial bipartitions). Moreover, suppose $f: \N \to \R$ is nondecreasing and convex. Then $\sum_i f(\alpha_{i})$ is minimized when $T$ is the balanced tree.
- \label{lem:balanced_trees_minimize_increasing_convex_sums}
 \end{lemma}
 
 \begin{proof}[Proof of Lemma \ref{lem:balanced_trees_minimize_increasing_convex_sums}]
@@ -1469,23 +1469,23 @@ Recall we aim to prove:
   The basic idea is that if we start with $k$ lineages, we can reduce to $k-1$ lineages by just waiting for the first coalescence event to occur in either subpopulation. There is of course the chance no coalescent event occurs, so we must handle this separately. The proof then relies on a few main ideas. Firstly, for more balanced splits we tend to wait longer until the first coalescent event.
   % claim: first coalescent time
   \begin{proofclaim}
+\label{claim:even_split_waits_longest_for_first_coalescent}
       For fixed $k$, $\tau_{k,m}$ is stochastically increasing in $m$ for $1 \leq m \leq k/2$.
-      \label{claim:even_split_waits_longest_for_first_coalescent}
   \end{proofclaim}
   %
   \noindent Next, conditional on a specific first coalescent time, the more balanced our split is, the more lineages tend to remain uncoalesced by the end of the branch.
   % claim: cond first coalescent
   \begin{proofclaim}
-      For fixed $k, x,t$, $\P(S_{k,m}^T \geq x \; | \; \tau_{k,m} = t)$ is an increasing function of $m$ for $1 \leq m \leq k/2$.
 \label{claim:cond_first_coalescent_even_split_dominates}
+      For fixed $k, x,t$, $\P(S_{k,m}^T \geq x \; | \; \tau_{k,m} = t)$ is an increasing function of $m$ for $1 \leq m \leq k/2$.
   \end{proofclaim}
     %
   \noindent Lastly, the more time we wait until the first coalescent event, the less time the remaining lineages have to coalesce and the more lineages we tend to have by the end of the branch.
   %
   % claim:
   \begin{proofclaim}
+\label{claim:more_time_to_coalesce_is_better}
       For fixed $k, x, m$, $\P(S_{k,m}^T \geq x \; | \; \tau_{k,m} = t)$ is an increasing function of $t$.
-      \label{claim:more_time_to_coalesce_is_better}
   \end{proofclaim}
   %
   % proof claim 1
@@ -1560,10 +1560,10 @@ Recall we aim to prove:
 \noindent To simplify notation a bit, denote $X_m := X_{\cB_m}$.  To start, we will prove two extensions of our deterministic balancing lemma \ref{lem:deterministic_balancing_lemma}. The first allows the difference between the subpopulation sizes to be random. Heuristically, it  says that conditional on the total number of species in the two subtrees below a given vertex, the more even the split tends to be, the more lineages tend to reach the vertex.
 %% Sum - Difference Lemma
 \begin{lemma}
+\label{lem:stochastic_dominance_with_differences}
     Suppose for $s \in \N$ that $0 \leq_{st} D \leq_{st} D' < s$ and $D,D' \equiv s \; \mathrm{mod}(2)$. Then
     %
     \[Z_{\frac{s + D}{2}} + Z_{\frac{s - D}{2}} \geq_{st} Z_{\frac{s + D'}{2}} + Z_{\frac{s - D'}{2}}.\]
-\label{lem:stochastic_dominance_with_differences}
 \end{lemma}
 %
 \begin{proof}[Proof of Lemma \ref{lem:stochastic_dominance_with_differences}]
@@ -1619,8 +1619,8 @@ Recall we aim to prove:
 
 % Lemma: more balanced is better
 \begin{lemma}
+\label{lem:the_more_balanced_the_better}
     For fixed $k \in \N$, then $Z_{X_i} + Z_{X_{k-i}} \leq_{st} Z_{X_{\lfloor k/2\rfloor}} + Z_{X_{\lceil k/2\rceil}}$ for $1 \leq i \leq \lfloor k/2\rfloor$.
-    \label{lem:the_more_balanced_the_better}
 \end{lemma}
 
 \noindent We conjecture that $Z_{X_i} + Z_{X_{k-i}}$ is increasing in $i$ rather than just maximized at the even split. But for our current purposes, the above suffices. Assuming Lemma \ref{lem:the_more_balanced_the_better} for now, it is easy to prove our desired Lemma \ref{lem:balanced_is_worse_case}.
@@ -1726,6 +1726,7 @@ In this section, we develop some asymptotics for the time $g_{k,1}(T)$ to coales
 Since $S_k$ are monotonically increasing, we see $S_k \uparrow S_\infty := \sum_{i=1}^\infty X_i$ almost surely, where the limit may be infinite. To quantify the rate of convergence, define the partial sums $s_k  = \sum_{i=1}^k \lambda_i$, the remainder $R_k := \sum_{i=k+1}^\infty X_i$, and the remainder's expectation $r_k := \E R_k= \sum_{i=k+1}^\infty \lambda_i^{-1}$. We begin with explicit formulas for the derivatives of the CDF in terms of these rates $\{\lambda_i\}$.
 
 \begin{lemma}
+\label{lem:hypoexponential_derivative_properties}
     If we have positive, distinct rates $\{\lambda_i\}_{i = 1}^\infty$:
 
     \begin{enumerate}[label=(\roman*)]
@@ -1747,7 +1748,6 @@ Since $S_k$ are monotonically increasing, we see $S_k \uparrow S_\infty := \sum_
     \end{enumerate}
 
 
-    \label{lem:hypoexponential_derivative_properties}
 \end{lemma}
 
 

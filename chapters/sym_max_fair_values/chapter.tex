@@ -200,6 +200,7 @@ $z_k\in[A_{j-1},A_j)$. We are now ready to relate these quantities to the
 symmetry-maximizing fair value.
 %
 \begin{theorem}
+\label{thm:wasserstein_solution}
     For any $p \geq 1$, the transformed fair value $x_{s,\phi}$ solves the convex optimization problem
 
     \begin{equation}
@@ -216,7 +217,6 @@ symmetry-maximizing fair value.
         \label{eqn:explicit_soln_sym_fv}
     \end{equation}
     %
-    \label{thm:wasserstein_solution}
 \end{theorem}
 %
 \begin{remark}
@@ -329,6 +329,7 @@ nonpositive. The following identifies the optimal pairing when one of the latent
 distributions is sufficiently more log-concave than the other.
 
 \begin{lemma}
+\label{lem:optimal_pairing_bids_and_asks_gaussian}
     Suppose the transformed fair-value distribution is $\mu=N(0,\sigma^2)$ and the transformed half-spread distribution has density $\nu=e^{f(x)}\,dx$. If for all $z \in \R$
     and $t,r > 0$
     %
@@ -346,7 +347,6 @@ distributions is sufficiently more log-concave than the other.
      Moreover, if the reverse inequality is true the optimal pairing is from left to
      right.
 
-    \label{lem:optimal_pairing_bids_and_asks_gaussian}
 \end{lemma}
 
 \noindent Note, ignoring the constant depending on $\theta$, the right hand side of equation \eqref{eqn:gaussian_concavity_condition} is just the second
@@ -380,6 +380,7 @@ condition is saying that our fair value distribution is more log-concave than ou
 \noindent Note that our above proof of Lemma \ref{lem:optimal_pairing_bids_and_asks_gaussian} actually shows something slightly stronger.
 
 \begin{corollary}
+\label{cor:optimal_pairing_bids_and_asks_general}
     If $\widetilde b_n \leq \cdots \leq \widetilde b_1 \leq \widetilde a_1 \leq \cdots \leq \widetilde a_n$ and for all $t,r > 0$
     %
     \[\Delta_{\theta t} \, \Delta_{(1-\theta) r} \, f(z) \geq \Delta_{r} \Delta_{t} g(w),\]
@@ -389,7 +390,6 @@ condition is saying that our fair value distribution is more log-concave than ou
     \[\mathrm{id} = \argmax_{\tau \in S_n} \sum_{i=1}^n f\Big(\theta(1-\theta) \cdot (\widetilde a_{\tau(i)} - \widetilde b_i) \Big ) + g\Big(\theta \widetilde b_i + (1-\theta) \widetilde a_{\tau(i)}\Big). \]
     %
     \noindent Namely, the optimal pairing is moving from inside the spread outwards.
-        \label{cor:optimal_pairing_bids_and_asks_general}
 \end{corollary}
 
 
@@ -451,6 +451,7 @@ Theorem~\ref{thm:wasserstein_solution} by an average weighted
  by the imbalance.
 
 \begin{theorem}
+\label{thm:imbalanced_wasserstein_solution}
     Let $\theta \in (0,1)$. Then for any $p \geq 1$, the transformed fair value
     $x_{s,\phi}^\theta$ solves the convex problem
 %
@@ -468,7 +469,6 @@ Theorem~\ref{thm:wasserstein_solution} by an average weighted
     \qquad v_{s,\phi}^\theta=\phi^{-1}(x_{s,\phi}^\theta).
     \label{eqn:w2_imbalanced_symmetric_fair_value}
 \end{equation}
-    \label{thm:imbalanced_wasserstein_solution}
 \end{theorem}
 
 %
@@ -525,10 +525,10 @@ problem which is strictly convex in $c$ for $p > 1$ and depends smoothly on the 
 $z_\ell,\theta,\widetilde a_i,\widetilde b_j$. Hence we still expect some level of stability, which the following makes precise.
 
 \begin{lemma}
+\label{lem:wp_fv_stability}
     For any $p > 1$, if $\mu_n \xrightarrow{W_p} \mu, \nu_n \xrightarrow{W_p} \nu$, and $\theta_n \to \theta$, then
       \[x_{s,\phi}^{\theta_n}(\mu_n, \nu_n) \to x_{s,\phi}^\theta(\mu, \nu),
       \qquad v_{s,\phi}^{\theta_n}(\mu_n,\nu_n)\to v_{s,\phi}^\theta(\mu,\nu).\]
-      \label{lem:wp_fv_stability}
 \end{lemma}
 
 The difficulty in obtaining a quantitative bound analogous to Lemma~\ref{lem:fv_continuity_w2}
@@ -593,11 +593,11 @@ in our analysis. More details can be found in \cite{panaretos2020_statistics_was
 \subsection{Properties of Wasserstein Spaces}
 
 \begin{lemma}
+\label{lem:conv_Wp_implies_means_conv}
     If $\mu_n \xrightarrow{W_p} \mu$ then $\E_{\mu_n} X \to \E_\mu X$. More specifically
 %
     \[\Big| \E_{\mu_n} X - \E_\mu X \Big| \leq d_{W_p}(\mu_n, \mu).\]
 %
-    \label{lem:conv_Wp_implies_means_conv}
 \end{lemma}
 \begin{proof}
     \noindent Since for any coupling $\pi \in \Pi(\mu_n, \mu)$ we have for $p \geq 1$ by Jensen's inequality
@@ -613,21 +613,21 @@ In fact, more is true: as shown in \cite{panaretos2020_statistics_wasserstein_sp
  can be found in \cite{panaretos2020_statistics_wasserstein_space}.
 
 \begin{lemma}
+\label{lem:quantile_fns_are_isometry}
     For any $p \geq 1$ the map $\mu \mapsto Q_\mu$ from $W_p(\R)$ to $L_p([0,1], \mathrm{Leb})$ is an isometry. Namely for $\mu, \nu \in W_p(\R)$
     %
     \[d_{W_p}(\mu, \nu) = \left(\int_0^1 |Q_\mu(z) - Q_\nu(z)|^p \; dz \right)^{1/p}.\]
     %
-    \label{lem:quantile_fns_are_isometry}
 \end{lemma}
 
 \begin{lemma}
+\label{lem:quantile_of_w2_barycenter}
     Given $\{\mu_i\}_{i=1}^n \in W_2(\R)$ its (weighted) empirical barycenter satisfies
     %
     \[\overline{\mu} := \argmin_{\nu \in W_2} \sum_{i=1}^n \omega_i \cdot d_{W_2}(\nu, \mu_i)^2 \quad \to \quad Q_{\overline{\mu}} =  \sum_{i=1}^n \omega_i \cdot Q_{\mu_i}.\]
     %
     \noindent In particular, $\E_{\overline{\mu}} X =  \sum \omega_i \cdot \E_{\mu_i} X$.
 
-    \label{lem:quantile_of_w2_barycenter}
 \end{lemma}
 
 \begin{proof}
@@ -712,12 +712,12 @@ Lemma~\ref{lem:quantile_of_w2_barycenter}. Thus, in the case of $p=2$, our trans
 (imbalance-weighted) $W_2$ barycenter of $\mu, \nu$. Namely
 %
 % Corollary: the fair value is the mean of the barycenter
-\begin{corollary} For any transformed price measures $\mu,\nu\in W_2(\mathbb R)$
+\begin{corollary}
+\label{corr:w2_fv_is_mean_barycenter} For any transformed price measures $\mu,\nu\in W_2(\mathbb R)$
 %
     \[x_{s,\phi}^\theta = \argmin_{c \in \mathbb R} d_{W_2}\left((c-2\theta\,\cdot)_\#\mu, \; (2(1-\theta)\,\cdot-c)_\#\nu\right)
     = \int_\mathbb R x\,\bar{\mu}_\theta(dx),
     \qquad v_{s,\phi}^\theta=\phi^{-1}(x_{s,\phi}^\theta).\]
-    \label{corr:w2_fv_is_mean_barycenter}
 \end{corollary}
 %
 For $p \neq 2$, we lose the linearity of the $p^{th}$ mean. However, we can still

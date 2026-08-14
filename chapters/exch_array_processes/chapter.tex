@@ -165,9 +165,9 @@ that the Markov property is preserved.
 
 % lemmma
 \begin{lemma}[Markov Property of the Unlabeled Chain]
+\label{lem:index_equivalence}
     When the state space $S$ is countable, the process $M_n$ is a Markov chain.
 
-    \label{lem:index_equivalence}
 \end{lemma}
 %
 
@@ -179,6 +179,7 @@ a representation through sampling from some hypercube.
 
 
 \begin{theorem}[Representation Theorem]
+\label{thm:representation_theorem_of_exchangeable_arrays}
 \noindent An exchangeable array on $d$-subsets of $\N$ has a representation of the form
 
 \[\left(X_e\right)_{e \in \binom{\N}{d}} \overset{d}{=}
@@ -187,7 +188,6 @@ a representation through sampling from some hypercube.
 
 \noindent for some middle-symmetric $f:[0,1]^{2^d} \to S$ and i.i.d. uniform random variables. Moreover, any array of this form is exchangeable.
 
-\label{thm:representation_theorem_of_exchangeable_arrays}
 \end{theorem}
 
 \noindent A middle-symmetric function satisfies the following for any $\sigma \in \operatorname{Sym}([d])$
@@ -207,9 +207,9 @@ $f$, it gives us a simple procedure for generating the corresponding combinatori
 Next, we point out a simple way of generating new exchangeable arrays from old ones.
 
 \begin{lemma}[State-Space Projections of Exchangeable Arrays]
+\label{lem:state_equivalence}
     If $(X_e)$ is an exchangeable array with entries in $S$ and $g:S \to S'$ is measurable, then $(g(X_e))$ is an exchangeable array of the same dimension. Moreover, if $f$ is the representing function of $(X_e)$, then $g \circ f$ is the representing function of $(g(X_e))$.
 
-    \label{lem:state_equivalence}
 \end{lemma}
 
 \noindent Here we are essentially defining an equivalence relation on the entries of the array where we let $s \sim s'$ if $g(s) = g(s')$.
@@ -234,6 +234,7 @@ Combined with Definition~\ref{def:exchangeable_array_process}, this gives three 
 \end{example}
 
 \begin{example}[Graphon Chain]
+\label{example:graphon_chain}
     Given any graphon $w$ there is a sequence of finite graphs $G_n$ converging to $w$ in the
     cut metric (equivalently the Doob-Martin topology by~\cite{grubel2015_persisting_randomness_graphs_search_trees})
     constructed via sampling $U_i \sim \operatorname{Unif}[0,1]$ and then connecting vertex $i$ to vertex
@@ -243,7 +244,6 @@ Combined with Definition~\ref{def:exchangeable_array_process}, this gives three 
     \[X_e = \ind \{U_e \leq w(U_i, U_j)\} \quad \text{for } e = \{i,j\} \in \binom{\N}{2}.\]
     %
     \noindent Here the representation function $f(x_\emptyset, x_i, x_j, x_{ij})$ does not depend on $x_\emptyset$.
-    \label{example:graphon_chain}
 \end{example}
 
 \begin{example}[d-Uniform Hypergraph Chain]
@@ -312,11 +312,11 @@ Recalling the correspondence \eqref{eqn:K_alpha_processes_char_h_processes} betw
  we obtain the following lemma.
 
 \begin{lemma}[Exchangeable Bridges of the Labeled Chain]
+\label{lem:harmonic_functions_labeled}
     Any infinite bridge of the labeled exchangeable array process is an array
     process, and it is exchangeable if and only if the corresponding harmonic
     function $h$ is constant on the equivalence classes of $\sim$.
 
-    \label{lem:harmonic_functions_labeled}
 \end{lemma}
 
 \noindent This immediately implies the harmonic functions $\tilde{h}$ of the
@@ -347,6 +347,7 @@ The following shows these properties characterize the minimal Doob--Martin bound
 the unlabeled chain.
 
 \begin{theorem}[Extremal Bridges and Ergodic Arrays]
+\label{thm:boundary_is_ergodic_arrays}
     For any infinite bridge of the unlabeled exchangeable array process $M_n$, the following are equivalent:
 
     \begin{enumerate}
@@ -355,7 +356,6 @@ the unlabeled chain.
         \item Its corresponding exchangeable array is dissociated.
         \item Its corresponding exchangeable array admits a representation function $f$ that does not depend on $U_\emptyset$ almost surely.
     \end{enumerate}
-    \label{thm:boundary_is_ergodic_arrays}
 \end{theorem}
 
 
@@ -403,6 +403,7 @@ Theorem 7.28 in~\cite{kallenberg2005_probabilistic_symmetries}, which proves
  Theorem 2.1' of \cite{kallenberg1989_representation_exchangeable_arrays}.
 %
 \begin{theorem}[Uniqueness of Representation Functions]
+\label{thm:uniqueness_of_rep_functions}
     The following are equivalent:
     \begin{enumerate}
         \item $f,g:[0,1]^{2^d} \to S$ generate the same exchangeable array (in distribution).
@@ -414,19 +415,18 @@ Theorem 7.28 in~\cite{kallenberg2005_probabilistic_symmetries}, which proves
           & = g\Big(  T'_0(x_\emptyset), (T'_1(x_\emptyset, x_i))_{i \in [d]}, \dots,  T'_d(x_\emptyset, (x_i)_{i \in [d]}, \dots, x_{[d]}) \Big).
         \end{align*}
     \end{enumerate}
-    \label{thm:uniqueness_of_rep_functions}
 \end{theorem}
 %
 In the $d=2$ case, this exactly recovers the uniqueness statement for graphons discussed above.
 An immediate corollary of Theorem~\ref{thm:uniqueness_of_rep_functions} is that, in a sense, the $d$-uniform hypergraph chain mentioned in the previous examples is the \textit{only} binary exchangeable array process.
 
 \begin{corollary}[Binary Representation Functions]
+\label{cor:classification_binary_array_processes}
     Any binary exchangeable array admits a (not necessarily unique) representation function of the form
     %
     \[f = \ind \Big\{x_{[d]} \leq w\left(x_\emptyset, (x_i)_{i \in [d]}, \ldots, (x_e)_{e \in \binom{[d]}{d-1}} \right)\Big\},\]
     %
     \noindent for some $w:[0,1]^{2^d - 1} \to [0,1]$.
-    \label{cor:classification_binary_array_processes}
 \end{corollary}
 
 Again, we are primarily interested in the extremal representation functions, which
@@ -516,6 +516,7 @@ $emb^W$ by replacing $\leq$ with $\lesssim$. The exact and weak embedding
 densities satisfy the following relationships.
 
 \begin{lemma}[Exact and Weak Embedding Densities]
+\label{lem:relating_different_notions_of_embedding}
     For binary arrays $x,y$ we have
 
     \begin{enumerate}[label=(\roman*)]
@@ -524,7 +525,6 @@ densities satisfy the following relationships.
         \item $emb(x,y) = \sum_{x' \geq x} (-1)^{|\ind(x')| - |\ind(x)|} \cdot emb^W(x',y)$.
     \end{enumerate}
 
-    \label{lem:relating_different_notions_of_embedding}
 \end{lemma}
 
 \noindent Given any notion $t(x,y)$ of the embedding density of $x$ into $y$, we can topologize our collection
@@ -539,6 +539,7 @@ Such convergence and its associated topology is often referred to as \textit{lef
 in the graphon literature. In fact, left-convergence is closely related to the Doob-Martin topology.
 
 \begin{lemma}[Doob-Martin Convergence and Embedding Densities]
+\label{lem:equivalence_of_dm_and_density_convergence}
     Let $y_N\in E_N$. The following are equivalent:
         \begin{enumerate}[label=(\roman*)]
             \item The sequence $y_N$ converges in the Doob-Martin topology.
@@ -547,7 +548,6 @@ in the graphon literature. In fact, left-convergence is closely related to the D
 
     \noindent For binary arrays, convergence of the weak embedding density is also equivalent.
 
-    \label{lem:equivalence_of_dm_and_density_convergence}
 \end{lemma}
 
 \noindent In the case of our graphon and permuton chains, the notion of
@@ -578,6 +578,7 @@ exchangeable arrays. This suggests
 have an integral representation analogous to the embedding density of graphons.
 
 \begin{lemma}[Embedding Densities of Representation Functions]
+\label{lem:integral_representations_of_embedding_densities}
 Suppose $d \leq k \leq n$. If $F$ is a size-$k$, $d$-dimensional array and
 $f$ represents an exchangeable array $X$, then, independently of $n$,
 
@@ -609,7 +610,6 @@ If $F$ and $f$ are binary-valued, then also
 \noindent In particular, the results of Lemma~\ref{lem:relating_different_notions_of_embedding} (i)--(iii) extend to $emb^W(F,f)$ and $emb(F,f)$.
 
 
-\label{lem:integral_representations_of_embedding_densities}
 \end{lemma}
 
 \noindent This is analogous to the graphon identity
@@ -872,6 +872,7 @@ First, we need to extend the notion of a weak embedding to the nonbinary case. F
   \ref{lem:equivalence_of_dm_and_density_convergence}.
 
 \begin{lemma}[Weak Embeddings for Nonbinary Arrays]
+\label{lem:weak_embeddings_for_nonbinary_arrays}
     For finite $S$ and any $C \subseteq S$:
 
     \begin{enumerate}[label=(\roman*)]
@@ -891,7 +892,6 @@ First, we need to extend the notion of a weak embedding to the nonbinary case. F
 
     In particular, this shows that convergence of $emb(\cdot, y_N)$ implies convergence of $emb^C(\cdot, y_N)$ for any $C$, and the converse is true if $C = S \setminus \{s\}$.
 
-    \label{lem:weak_embeddings_for_nonbinary_arrays}
 \end{lemma}
 
 \begin{proof}
@@ -944,6 +944,7 @@ state space and embeddings of the corresponding binary arrays.
 
 % Lemma %
 \begin{lemma}[Binary Projections of Nonbinary Arrays]
+\label{lem:reducing_nonbinary_conv_to_binary}
     For $d$-dimensional arrays $x,y$ with values in some finite set $S$,
     %
         \[\operatorname{Emb}(x,y)
@@ -951,7 +952,6 @@ state space and embeddings of the corresponding binary arrays.
     %
     \noindent Moreover, if $y_N$ left-converges to $f$, then $g_A(y_N)$ left
     converges to $g_A \circ f$ for all $A \subseteq S$.
-    \label{lem:reducing_nonbinary_conv_to_binary}
 \end{lemma}
 
 \begin{proof}
@@ -1085,12 +1085,12 @@ d(y,z) := \sum_{i=1}^{\infty} 2^{-i}
 
 %
 \begin{remark}
+\label{rmk:conv_in_dm}
     By construction, a sequence $\{y_n\} \in E$ converges to a point
     $\alpha \in \overline{E}$ if and only if $\{K(\cdot, y_n)\}$ converges
     in $\R^E_{\geq 0}$, namely if and only if $K(x, y_n)$ converges in $\R_{\geq 0}$
      for all $x \in E$. Thus for fixed $x$ the function
      $K(x, \cdot) : E \to \R_{\geq 0}$ extends continuously to $\overline{E}$.
-    \label{rmk:conv_in_dm}
 \end{remark}
 %
 %

@@ -236,6 +236,7 @@ First, we show for a fixed policy $\pi$, we get
 convergence to the exploratory dynamics \eqref{eqn:exploratory_dynamics}.
 
 \begin{lemma}[Fixed-Policy Convergence to Exploratory Dynamics]
+\label{lem:convergence_fixed_policy_to_exploratory_dynamics}
 	Suppose $\pi$ satisfies
 	%
 	\[\sup_{||y|| \leq R} \bigg| \int_U b_i(y, u) b_j(y,u) \; \pi(du \mid y) \bigg| < \infty, \quad \sup_{||y|| \leq R} \bigg|\int_U \mathrm{Tr}(\sigma\sigma^T)^{1+\delta/2} \; \pi(du \mid y) \bigg| < \infty.\]
@@ -245,7 +246,6 @@ convergence to the exploratory dynamics \eqref{eqn:exploratory_dynamics}.
 	\eqref{eqn:exploratory_dynamics}. If $Y^h_0 = x_h \to x$, then $Y^h_t \Rightarrow X^\pi_t$ with $X^\pi_0 = x$ as
 	$h \downarrow 0$ weakly in the Skorokhod space $D([0,T], \R^d)$ for any $T < \infty$.
 
-	\label{lem:convergence_fixed_policy_to_exploratory_dynamics}
 \end{lemma}
 
 \begin{proof}[Proof of Lemma \ref{lem:convergence_fixed_policy_to_exploratory_dynamics}]
@@ -339,6 +339,7 @@ and variance.
 to the analogous continuous-time value function defined by the exploratory dynamics under the proper scalings of the relevant parameters. More precisely, we obtain the following result.
 %
 \begin{lemma}[Convergence of Value Functions]
+\label{lem:convergence_of_value_functions}
 	Given policy $\pi: \R^d \to \mathcal{P}(U)$, loss $\ell: \R^d \times U \to \R$, discount $\gamma = e^{-\rho}$, and regularization parameter $\tau$, define for each $h > 0$
 	%
 	\[V^h_\pi(x) = \E\left[ \sum_{t=0}^\infty e^{-\rho h t} \cdot h g_\pi(X^h_t)\;\bigg\vert\; X^h_0 = x\right].\]
@@ -364,7 +365,6 @@ to the analogous continuous-time value function defined by the exploratory dynam
 	\end{enumerate}
 
 	\noindent Then as $h \to 0$, we have $V^h_\pi \to V_\pi$ uniformly on compact sets, where $V_\pi$ is given by the exploratory dynamics \eqref{eqn:exploratory_value_function}.
-	\label{lem:convergence_of_value_functions}
 \end{lemma}
 
 \zack{Possibly also have to assume the moment bounds from the convergence result? As we use below the fact that we have weak convergence of the discrete chain to the limiting diffusion.}
@@ -686,6 +686,7 @@ for all sufficiently small $h$, which proves the result.
 \noindent A standard localization argument gives the following corollary.
 
 \begin{corollary}
+\label{corr:conv_value_with_local_lipschitz}
 	Suppose $b, \sigma, g_\pi,$ and $\pi$ are only locally Lipschtiz. If we additionally
 	assume the global growth conditions:
 
@@ -695,7 +696,6 @@ for all sufficiently small $h$, which proves the result.
 		\item $|g_\pi(x)| \leq C(1 + |x|^2)$.
 	\end{enumerate}
 	\noindent then the conclusion of Lemma \ref{lem:convergence_of_value_functions} still holds.
-	\label{corr:conv_value_with_local_lipschitz}
 \end{corollary}
 
 \begin{proof}

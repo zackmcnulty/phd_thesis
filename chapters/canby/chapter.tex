@@ -215,11 +215,11 @@ For the true quartet topology, \cite[Theorem 1]{evans2026_canby_identifiability}
 the two alternatives, as summarized in the following lemma.
 %
 \begin{lemma}
+\label{lem:correct_topo_max_expected_support}
     If $\cT_q^* = uv||xy$ is the quartet topology of the leaves $(u,v,x,y)$ in $\cT^*$ then
     \[\E |M_{uv || xy}| > \E |M_{ux || vy}| = \E |M_{uy || vx}|,\]
     %
     \noindent so the correct topology has the highest expected support.
-    \label{lem:correct_topo_max_expected_support}
 \end{lemma}
 %
 \noindent For each quartet $q$, they define its (empirical) support via
@@ -248,8 +248,8 @@ directly implies the following. Recall, a phylogenetic tree (with branch lengths
 the same distance from the root. When this holds, the supports for the two incorrect topologies are identically distributed.
 
 \begin{corollary}
+\label{corr:wrong_quartet_supports_identically_distributed}
     If $\cT^*$ is ultrametric, then $M_{ux||vy} \overset{d}{=}M_{uy||vx}.$
-    \label{corr:wrong_quartet_supports_identically_distributed}
 \end{corollary}
 
 
@@ -595,6 +595,7 @@ along an edge $e$ and does not die at all. More precisely,
 
 % bipartition cover bound
 \begin{theorem}[Bipartition Cover Bounds for PCH With No Borrowing]
+\label{thm:canby_bipartition_cover_bounds_no_borrowing}
 Let $\cB$ be the set of bipartitions of a phylogenetic tree $\cT^*$ with $k$ leaves
 and minimum/maximum branch lengths $f_{min}, f_{max}$ respectively. Suppose further
 we have independent PCH characters with parameters
@@ -621,7 +622,6 @@ on $\cT^*$ with no borrowing and whose rates follow an immigration-death process
 %
 \[\lim_{|\cC_N| \to \infty} \P(\cB \subseteq \cX_1) = 1.\]
 %
-\label{thm:canby_bipartition_cover_bounds_no_borrowing}
 \end{theorem}
 %
 In particular, this implies if we run the ASTRAL as proposed in \cite{evans2026_canby_identifiability},
@@ -704,6 +704,7 @@ we say the PCH model is in the \textit{anomaly-free zone}. When this occurs, the
 ASTRAL-based procedure is asymptotically consistent and has sample-complexity essentially quadratic in the margin
 
 \begin{theorem}[Sample Complexity PCH-ASTRAL(sc)]
+\label{thm:sample_complexity_separate_characters}
     Suppose we have a collection of $n$ iid characters $\{c_i\}$ in the anomaly-free zone, and let $0<\varepsilon<1$. If
         \[n > \frac{8}{p_{\min}\Delta^2} \log\left(\frac{3\binom{k}{4}}{\varepsilon}\right),\]
         %
@@ -712,7 +713,6 @@ ASTRAL-based procedure is asymptotically consistent and has sample-complexity es
         \[\Delta := \min_{s \in {[k] \choose 4}} \min_{t \in A_s\setminus\{\cT_s^*\}} \left[\P(\tau_s^{(c)} = \cT_s^* \mid I_s) - \P(\tau_s^{(c)} = t \mid I_s) \right], \quad p_{\min} := \min_{s \in {[k] \choose 4}} \P(I_s),\]
         %
     \noindent then the above ASTRAL-based procedure recovers $\cT^*$ with probability at least $1-\varepsilon$.
-    \label{thm:sample_complexity_separate_characters}
 \end{theorem}
 
 \noindent The proof is analogous to the proof of Theorem 2.1 in~\cite{shekhar2018_how_many_genes_are_enough}, which union bounds over quartets and
@@ -735,6 +735,7 @@ $ID(\theta, \lambda, \mu; \cT^*)$ on the true species tree $\cT^*$ rather than t
 consequence of our concentration bound Lemma~\ref{lem:canby_concentration_of_scores}.
 
 \begin{lemma}[Sample Complexity PCH-ASTRAL under ID Process]
+\label{lem:sample_complexity_pch_astral}
     Suppose we have a collection $\{c_i\}_{i=1}^n$ of iid characters whose macro-states are distributed according to the
     $ID(\theta, \lambda, \mu; \cT^*)$ process. Let $\zeta = \theta \vee \frac{\lambda}{\mu}$ and
     %
@@ -749,7 +750,6 @@ consequence of our concentration bound Lemma~\ref{lem:canby_concentration_of_sco
     \[n \gtrsim \max\left\{\frac{\kappa^2}{L^2} t_\delta, \; \frac{\kappa}{L} t_\delta^2 \right\}, \quad t_\delta := \log\left(\frac{4{k \choose 4}}{\delta} \right), \]
     %
     \noindent characters, we recover the true species tree with probability at least $1-\delta$.
-    \label{lem:sample_complexity_pch_astral}
 \end{lemma}
 
 \noindent Note that $L > 0$ by Lemma~\ref{lem:correct_topo_max_expected_support}. As discussed in the proof, the parameter $\kappa$ in a sense measures how heavy-tailed the support sizes $|M_{uv||xy}|$ are.
@@ -1024,6 +1024,7 @@ per-state death rates $\lambda,\mu>0$. Then
 under the ID process coupling.
 
 \begin{lemma}[Quartet Supports under ID Process]
+\label{lem:quartet_supports_under_ID_process}
     Suppose $Y_t \sim ID(\theta, \lambda, \mu)$ on the underlying tree $\cT^*$. For any subset $\mathcal U$
     of the leaves of $\cT^*$, for each $A \subseteq \mathcal U$ define
     %
@@ -1039,7 +1040,6 @@ under the ID process coupling.
         \[|M_{uv||xy}| = N^{(s)}_{uv} \cdot N^{(s)}_{xy}.\]
     %
     \noindent Thus, $|M_{uv||xy}|$ is the product of two independent Poisson random variables.
-    \label{lem:quartet_supports_under_ID_process}
 \end{lemma}
 
 \noindent This Lemma makes analyzing the expected margin
@@ -1079,6 +1079,7 @@ the second term thins these to only those reaching both $u,v$.
 %%%%%%%%%%%%%%%
 
 \begin{lemma}[Tail Bounds for Quartet Supports]
+\label{lem:canby_concentration_of_scores}
     Let $\zeta = \theta \vee \frac{\lambda}{\mu}$. Under $ID(\theta, \lambda, \mu; \cT^*)$
     %
     \[\P(|M_{uv||xy}| > t) \leq 2\exp\left(- \zeta \min\{\eta_{uv}, \eta_{xy}\}  \cdot h\left(\zeta^{-1}\sqrt{\frac{t}{\eta_{uv} \eta_{xy}}}\right)\right),\]
@@ -1088,7 +1089,6 @@ the second term thins these to only those reaching both $u,v$.
     %
     \[\bigl\||M_{uv||xy}|\bigr\|_{\Psi_{1/2}} \lesssim \left(1 + \zeta \cdot \eta_{uv} \right) \left(1 + \zeta \cdot \eta_{xy} \right).\]
     %
-    \label{lem:canby_concentration_of_scores}
 \end{lemma}
 
 \begin{proof}[Proof of Lemma~\ref{lem:canby_concentration_of_scores} (quartet-support tail bound)]

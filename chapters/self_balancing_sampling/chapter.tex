@@ -792,29 +792,42 @@ Note
 \subsection{Adversarial Interpretation of Predictability}
 \label{sec:adversarial_interpretation}
 
-In order to develop a notion of how
-``predictable'' such a sampler is, consider the case where an adversary attempts to guess the next sample given the current sample history. Then one way of quantifying the predictability of the sampler is to study how accurate such an adversary can be if they behave optimally. In this section, we formalize this idea. Proofs can be found in Appendix~\ref{appendix:adversarial_accuracy_proofs}.
+In order to develop a notion of how ``predictable'' such a sampler is, consider the case 
+where an adversary attempts to guess the next sample given the current sample history. 
+Then one way of quantifying the predictability of the sampler is to study how accurate 
+such an adversary can be if they behave optimally. In this section, we formalize this 
+idea. Proofs can be found in Appendix~\ref{appendix:adversarial_accuracy_proofs}.
 
-Predictability criteria of this form have been studied extensively for restricted randomization designs, where selection bias is commonly measured by the probability that an observer can correctly guess the next treatment assignment \cite{efron1971_forcing_sequential_experiment_balanced,smith1984_sequential_treatment_allocation_biased_coin,atkinson2002_sequential_clinical_trials_covariate_information}. In the special $d=2$ case with uniform initialization and uniform bias, we prove below that the weak-bias correction to the baseline prediction accuracy is of order $\sqrt{\beta}$. More generally, the diffusion heuristics suggest the same order of correction when several coordinates maximize $p^*$.
+Predictability criteria of this form have been studied extensively for restricted 
+randomization designs, where selection bias is commonly measured by the probability 
+that an observer can correctly guess the next treatment assignment~\cite{efron1971_forcing_sequential_experiment_balanced,smith1984_sequential_treatment_allocation_biased_coin,atkinson2002_sequential_clinical_trials_covariate_information}. 
+In the special $d=2$ case with uniform initialization and uniform bias, we prove below 
+the adversary's accuracy is of order $\sqrt{\beta}$ above the naive baseline in the weak-biasing $\beta \downarrow 0$ 
+regime. We conjecture this to be true in general whenever several coordinates maximize $p^*$, and we provide
+some heuristic evidence of this conjecture using our diffusive limits.
 
 
-Given the sample history, the adversary's optimal strategy is to guess an index maximizing the next-step sampling probability. We define the resulting asymptotic accuracy as
+Given the sample history, the adversary's optimal strategy is to guess an index maximizing the next-step 
+sampling probability. The resulting asymptotic accuracy is
 %
 \[A_\beta := \liminf_{n \to \infty} \frac{1}{n}\sum_{k=0}^{n-1} \E_{y \sim \tilde{Y}(k)} \left[\max_{i\in[d]} p_i(y)\right].\]
 
-\noindent Here $\tilde{Y}(k)$ denotes our projection-centered counts. Lemma \ref{lem:projection_centered_has_stationarity} shows these centered counts form an ergodic Markov chain, so it has a stationary distribution $\eta$. Moreover, the ergodic theorem implies the finite-sample accuracy converges to the expected accuracy at stationarity:
+\noindent Here $\tilde{Y}(k)$ denotes our projection-centered counts. Lemma~\ref{lem:projection_centered_has_stationarity}
+shows these centered counts form an ergodic Markov chain with stationary distribution $\eta$.
+By the Markov-chain ergodic theorem \cite[Theorem~17.0.1]{meyn2009_markov_chains_stochastic_stability} and the bounded convergence theorem
 %
-    \[A_\beta = \E_{y \sim \eta} \left[\max_{i\in[d]} p_i(y)\right].\]
+    \[A_\beta = \E_{y \sim \eta} \left[\max_{i\in[d]} p_i(y)\right],\]
 %
-In general, it is hard to determine what the stationary distribution of the projection-centered counts $\tilde{Y}$ is. However, in the special case of $d=2$, then $\tilde{Y}$ becomes a simple birth-death process on $\Z$ which makes this a lot more tractable.
+\noindent for any initial state. In general, determining the stationary distribution $\eta$ is difficult. 
+However, in the special case of $d=2$, then $\tilde{Y}$ becomes a simple birth-death process 
+on $\Z$, giving
 
 % Stationary in d=2
-\begin{lemma}
+\begin{lemma} \label{lem:2d_stationary_project_centered}
     When $d=2$ and uniform $\beta_1 = \beta_2 = \beta > 0$, the projection-centered counts $\tilde{Y}(n)$ form a reversible Markov chain on $\beta\Z$ with stationary distribution
     %
     \[\eta(\beta z) \propto  \frac{p_2(0) + p_1(0)e^{-\beta z}}{p_1(0) + p_2(0)} \left(\frac{p_1(0)}{p_2(0)}\right)^z e^{-\beta \binom{z}{2}}\]
     %
-    \label{lem:2d_stationary_project_centered}
 \end{lemma}
 
 \noindent In the case $p_1(0) = p_2(0) = \frac{1}{2}$, we get the symmetric and especially simple form
@@ -822,7 +835,7 @@ In general, it is hard to determine what the stationary distribution of the proj
 \[\eta(\beta z) \propto \cosh\left(\frac{\beta z}{2}\right)  e^{-\frac{\beta z^2}{2}}.\]
 %
 
-\noindent In the $d=2$ case, we can quantify how this accuracy depends on $\beta$ in the weak-biasing regime.
+\noindent When $d=2$, we can quantify how this accuracy depends on $\beta$ in the weak-biasing regime.
 
 % Lemma
 \begin{lemma}\label{lem:small_beta_adversarial}

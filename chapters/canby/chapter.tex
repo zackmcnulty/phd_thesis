@@ -435,12 +435,11 @@ of micro-states at location $t \in \cT^*$. This is a simple birth-death process 
 $\lambda_i \equiv \lambda$ and death rates $\mu_i = i\mu \cdot 1\{i > 1\}$. Hence
 
 % stationary distribution
-\begin{lemma}
+\begin{lemma}\label{lem:stationary_dist_state_cardinality_process}
     The stationary distribution of $S_t$ is $ \pi = (Z | Z > 0)$ for $Z \sim \mathrm{Poisson}(\lambda/\mu)$.
     %
     \[\pi_i = \frac{(\lambda/\mu)^i}{i!(e^{\lambda/\mu}-1)}, \quad \forall i \geq 1.\]
     %
-    \label{lem:stationary_dist_state_cardinality_process}
 \end{lemma}
 
 \noindent The ergodic theorem tells us as $T \to \infty$ the fraction of the time $\{S_t\}_{t \in [0,T]}$ spends in state 1
@@ -458,13 +457,12 @@ ID process coupling.
 To bound our quartet supports $|M_q|$, we will need two-sided bounds on the probability a given state $\alpha$
 dies along a specific branch, which the next lemma provides.
 
-\begin{lemma}[Survival and Death Bounds]
+\begin{lemma}[Survival and Death Bounds]    \label{lem:death_rate_prob_bounds}
 
     Let $p_{n,T}$ be the probability that, starting with $n$ micro-states, a given state $\alpha$ dies along a branch of length $T$ in the PCH model. Then
     %
     \[\frac{1}{2} (1-e^{-\lambda T/2}) (1-e^{-\mu T}) =:\xi_{T}\leq p_{n,T} \leq 1-\eta_{T} := 1-e^{-\mu T}.\]
     %
-    \label{lem:death_rate_prob_bounds}
 \end{lemma}
 
 Thus $\xi_T, \eta_T$ give lower bounds on the death and survival rates respectively.
@@ -544,7 +542,7 @@ Let $i,j,k$ denote the most recent common ancestors of these leaves, as depicted
 \end{figure}
 
 
-\begin{lemma}[Expected Margin Lower Bound]
+\begin{lemma}[Expected Margin Lower Bound]\label{lem:canby_expected_margin}
 
     If $q$ induces a balanced tree in $\cT^*$, then
     \[\Delta^{(c)}_q \geq \left(\frac{\lambda_N}{\mu} \right)^2(1-\eta_{ij})(1-\eta_{ik}) \eta_{uv} \eta_{xy}.   \]
@@ -553,7 +551,7 @@ Let $i,j,k$ denote the most recent common ancestors of these leaves, as depicted
 %
 \[\Delta^{(c)}_q \geq  \frac{\lambda_N}{\mu} \left[\rho_N \eta_{ri} + \frac{\lambda_N}{\mu}(1-\eta_{ri})\right]  (1-\eta_{jk})\xi_{jk} \eta_{uv}\eta_{xy}. \]
 %
-    \label{lem:canby_expected_margin}
+
 \end{lemma}
 
 \noindent More granular bounds can be found in the proof of Lemma~\ref{lem:canby_expected_margin} in the Appendix.

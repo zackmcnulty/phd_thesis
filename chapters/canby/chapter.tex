@@ -212,15 +212,15 @@ quartet topology that groups $u$ with $v$ and $x$ with $y$.
 %
 where $U := c(u)$, and so on. Namely, $M_q$ consists of the pairs of non-homoplastic states that are seemingly ``split'' across the quartet $q$.
 For the true quartet topology, \cite[Theorem 1]{evans2026_canby_identifiability} shows this support is larger in expectation than the support assigned to
-the two alternatives, as summarized in the following lemma.
+the two alternatives:
 %
-\begin{lemma}
-\label{lem:correct_topo_max_expected_support}
+\begin{theorem}
+\label{thm:correct_topo_max_expected_support}
     If $\cT_q^* = uv||xy$ is the quartet topology of the leaves $(u,v,x,y)$ in $\cT^*$ then
     \[\E |M_{uv || xy}| > \E |M_{ux || vy}| = \E |M_{uy || vx}|,\]
     %
     \noindent so the correct topology has the highest expected support.
-\end{lemma}
+\end{theorem}
 %
 \noindent For each quartet $q$, they define its (empirical) support via
 %
@@ -229,7 +229,7 @@ the two alternatives, as summarized in the following lemma.
     \label{eqn:quartet_support_averaged}
 \end{equation}
 %
-\noindent For each $s = \{u,v,x,y\} \in {[k] \choose 4}$ they then let
+\noindent Moreover, for each $s = \{u,v,x,y\} \in {[k] \choose 4}$ they then let
 %
 \begin{equation}
     q_s := \argmax_{q \in A_s} S_q,
@@ -237,13 +237,13 @@ the two alternatives, as summarized in the following lemma.
 \end{equation}
 %
 \noindent with ties broken uniformly, where $A_s$ is the set of three quartets with leaf-set $s$. Namely, $q_s$ is the quartet topology with maximal empirical support.
-By the law of large numbers and Lemma~\ref{lem:correct_topo_max_expected_support}, the correct
+By the law of large numbers and Lemma~\ref{thm:correct_topo_max_expected_support}, the correct
 topology becomes overwhelmingly likely for large $n$. They then run ASTRAL on the quartet set $\{q_s\}$
 to generate an estimate $\hat{\cT}$ of $\cT^*$. The authors of \cite{evans2026_canby_identifiability} call this algorithm \textit{PCH-ASTRAL}, and
 additionally propose a weighted version, although we will
 only focus on the unweighted version described above.
 
-Although not directly mentioned in \cite{evans2026_canby_identifiability}, the proof of Lemma~\ref{lem:correct_topo_max_expected_support}
+Although not directly mentioned in \cite{evans2026_canby_identifiability}, the proof of Lemma~\ref{thm:correct_topo_max_expected_support}
 directly implies the following. Recall, a phylogenetic tree (with branch lengths) is said to be \textit{ultrametric} if every leaf is
 the same distance from the root. When this holds, the supports for the two incorrect topologies are identically distributed.
 
@@ -326,8 +326,9 @@ For ease of notation, when it is clear from context we will denote the macro-sta
 In particular, we will use $I := c(i), J := c(j),$ and $K := c(k)$ down below.
 
 Given two points $i, j \in \cT^*$, let $[i, j]$ denote the unique path from $i$ to $j$, and let $\ell_{ij}$ denote
-the length of this path.
+the length of this path. Unless otherwise specified, let $r$ denote the root of $\cT^*$.
 
+Let $m_\theta(\ell) := \theta \exp(-\mu \ell) + \frac{\lambda}{\mu} (1-\exp(-\mu \ell)),$ for parameters $\mu, \lambda$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Basic Results
@@ -432,7 +433,7 @@ coupling we introduced in the previous section.
 
 Given a path $[r, \ell]$ from the root $r$ of $\cT^*$ to some leaf $\ell$, let $S_t = |c(t)|$ be the number
 of micro-states at location $t \in \cT^*$. This is a simple birth-death process with birth rates
-$\lambda_i \equiv \lambda$ and death rates $\mu_i = i\mu \cdot 1\{i > 1\}$. Hence
+$\lambda_i \equiv \lambda$ and death rates $\mu_i = i\mu 1\{i > 1\}$. Hence
 
 % stationary distribution
 \begin{lemma}\label{lem:stationary_dist_state_cardinality_process}
@@ -486,7 +487,7 @@ for the ID process coupling.
     \quad q = \cT_s^*,\quad t \in A_s \setminus \{\cT_s^*\}.\]
     %
 \noindent This definition does not depend on the choice of incorrect topology $t$, by
-Lemma~\ref{lem:correct_topo_max_expected_support}, and quantifies the expected-support gap.
+Lemma~\ref{thm:correct_topo_max_expected_support}, and quantifies the expected-support gap.
 Let $\rho_N = \E |c(r) \cap \Sigma_N|$ be the
 expected number of non-homoplastic states present at the root. Note for a given (rooted) quartet, there
 are two possible topologies, as shown in Figure~\ref{fig:canby_quartet_topologies}.
@@ -549,16 +550,33 @@ Let $i,j,k$ denote the most recent common ancestors of these leaves, as depicted
 
 \noindent If $q$ induces a caterpillar tree in $\cT^*$, then
 %
-\[\Delta^{(c)}_q \geq  \frac{\lambda_N}{\mu} \left[\rho_N \eta_{ri} + \frac{\lambda_N}{\mu}(1-\eta_{ri})\right]  (1-\eta_{jk})\xi_{jk} \eta_{uv}\eta_{xy}. \]
+\[\Delta^{(c)}_q \geq \left[\rho_N \eta_{ri} + \frac{\lambda_N}{\mu}(1-\eta_{ri})\right]
+\frac{\lambda_N}{2\mu}(1-\eta_{jk})^2\eta_{uv}\eta_{xy}. \]
 %
 
 \end{lemma}
+
+\begin{remark}
+The same argument gives analogous expected-margin bounds under the standalone $ID(\theta, \mu, \lambda \; \cT^*)$ process; see Corollary~\ref{cor:expected_margin_under_id}.
+\end{remark}
 
 \noindent More granular bounds can be found in the proof of Lemma~\ref{lem:canby_expected_margin} in the Appendix.
 The above highlights exactly the quartets that are hard to recover:
 those where $u,v$ and $x,y$ are far from their respective most
 recent common ancestors $j,k,$ and where these common ancestors
 $j,k$ are close to their least common ancestor $i$.
+
+
+In both cases, we see that the margin lower bound as a function of the minimal branch length $f$
+is of order $f^2$, assuming all other tree parameters, such as the tree height, are held fixed. To see why
+this is natural, note that for a balanced quartet, the main outcome that produces support for the correct topology
+but not the incorrect topologies is if $\alpha$ is born on $[i,j]$ and  $\beta$ is born on $[i,k]$. When these branches
+are small, the probability each such birth occurs is $O(f)$.
+
+Likewise, for a caterpillar quartet, the main additional support for the correct topology comes from when
+$\alpha$ dies along $[j,k]$ and $\beta$ is born along $[j,k]$. Again if branch $[j,k]$ is short, these events
+both have probability $O(f)$. Hence when $\cT^*$ has short branches, the expected margin for the true
+topology can be quite small.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -699,9 +717,11 @@ each quartet, the correct topology is the most likely one. Namely
 topology probability $1/3$. Consequently, property~\eqref{eqn:anomaly_free_property}
 is equivalent to the corresponding strict inequalities conditional on $I_s$.
 
-\noindent If property~\eqref{eqn:anomaly_free_property} holds for every quartet $\cT^*_s \in \cQ(\cT^*)$,
+If property~\eqref{eqn:anomaly_free_property} holds for every quartet $\cT^*_s \in \cQ(\cT^*)$,
 we say the PCH model is in the \textit{anomaly-free zone}. When this occurs, the above
-ASTRAL-based procedure is asymptotically consistent and has sample-complexity essentially quadratic in the margin
+ASTRAL-based procedure is asymptotically consistent and has sample-complexity essentially 
+quadratic in the margin. Note the following makes no assumptions on the distribution of the characters
+beyond the anomaly-free property, so it applies equally to the PCH-model as well as our $ID(\theta, \mu, \lambda \; \cT^*)$ process.
 
 \begin{theorem}[Sample Complexity PCH-ASTRAL(sc)]
 \label{thm:sample_complexity_separate_characters}
@@ -717,7 +737,8 @@ ASTRAL-based procedure is asymptotically consistent and has sample-complexity es
 
 \noindent The proof is analogous to the proof of Theorem 2.1 in~\cite{shekhar2018_how_many_genes_are_enough}, which union bounds over quartets and
 utilizes simple concentration bounds for the multinomial distribution. In Appendix~\ref{app:anomaly-free_zone}, we briefly discuss the
-anomaly-free zone.
+anomaly-free zone and show at least for the $ID(\theta, \mu, \lambda \; \cT^*)$ it occurs
+in the low-polymorphism setting.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Sample Complexity
@@ -743,7 +764,7 @@ consequence of our concentration bound Lemma~\ref{lem:canby_concentration_of_sco
     %
     \noindent Define our worst-case margin
         \[
-            L:=\min_{s\in {[k]\choose 4}}\min_{t\in A_s\setminus\{\cT_s^*\}}\E\left[|M_{\cT_s^*}|-|M_t|\right].
+            L:=\min_{s\in {[k]\choose 4}}\min_{t\in A_s\setminus\{\cT_s^*\}}\E\left[|M_{\cT_s^*}|-|M_t|\right]>0.
         \]
     \noindent Then if we have at least
     %
@@ -752,34 +773,34 @@ consequence of our concentration bound Lemma~\ref{lem:canby_concentration_of_sco
     \noindent characters, we recover the true species tree with probability at least $1-\delta$.
 \end{lemma}
 
-\noindent Note that $L > 0$ by Lemma~\ref{lem:correct_topo_max_expected_support}. As discussed in the proof, the parameter $\kappa$ in a sense measures how heavy-tailed the support sizes $|M_{uv||xy}|$ are.
+\noindent As discussed in the proof, the parameter $\kappa$ in a sense measures how heavy-tailed the support sizes $|M_{uv||xy}|$ are.
 It has the trivial upper bound $\kappa \leq (1 + \zeta)^2$, which is a function merely of the expected number of
-states in a leaf of the $ID(\theta, \lambda, \mu)$ process. Hence the worst-case margin $L$ is the main parameter
-of interest. Analogous to Lemma~\ref{lem:canby_expected_margin}, under $ID(\theta, \lambda, \mu; \cT^*)$ we can lower bound $L$
+states in a leaf of the $ID(\theta, \lambda, \mu; \cT^*)$ process. Hence the worst-case margin $L$ is the main parameter
+of interest. Corollary~\ref{cor:expected_margin_under_id} lower bounds $L$ under $ID(\theta, \lambda, \mu; \cT^*)$
 purely in terms of the underlying model parameters.
 
 
-The worst-case margin $L$ certainly depends on the topology of $\cT^*$, although we can roughly analyze
-Lemma~\ref{lem:canby_expected_margin} to generate a heuristic topology-free bound. If $f$ is the minimal branch
+The worst-case margin $L$ certainly depends on the topology of $\cT^*$, although
+Corollary~\ref{cor:expected_margin_under_id} gives a heuristic topology-free bound. If $f$ is the minimal branch
 length in $\cT^*$ and
 %
     \[d := \max_{uv||xy \in \cQ(\cT^*)} \ell_{uv} \vee \ell_{xy},\]
 %
 \noindent is the maximal distance between any two leaves on the same side of a quartet,
-then the margin bounds in Lemma~\ref{lem:canby_expected_margin} roughly become
+then the margin bounds in Corollary~\ref{cor:expected_margin_under_id} roughly become
 %
     \[\Delta_q \geq \left(\frac{\lambda}{\mu}\right)^2 (1-e^{-\mu f})^2 (e^{-\mu d})^2 \gtrsim \lambda^2 f^2 e^{-2\mu d}, \]
 %
 \noindent when the induced subtree of $q$ in $\cT^*$ is balanced and similarly
 %
-        \[\Delta_q \gtrsim \lambda^2 \mu f^3 e^{-2\mu d} \left(\rho_N \wedge \frac{\lambda}{\mu}\right), \]
+        \[\Delta_q \gtrsim \lambda\mu f^2 e^{-2\mu d} \left(\theta \wedge \frac{\lambda}{\mu}\right), \]
 %
-\noindent when the induced subtree is a caterpillar. Thus the worst-case margins are dictated by its caterpillar trees,
-and for a tree of a fixed height the bound scales roughly like
+\noindent when the induced subtree is a caterpillar. Thus, for a tree of fixed height and fixed model parameters,
+both bounds scale quadratically in $f$, and the sample-complexity bound becomes
 %
-    \[n \gtrsim \max\left\{f^{-6} \log(k), \; f^{-3} \log^2(k)\right\},\]
+    \[n \gtrsim \max\left\{f^{-4} \log(k), \; f^{-2} \log^2(k)\right\}.\]
 %
-\noindent significantly worse than the $\Theta(f^{-2} \log(k))$ of ASTRAL under the multi-species coalescent model~\cite{shekhar2018_how_many_genes_are_enough}. Of course, our bound is naturally quite loose, and future
+\noindent This remains significantly worse than the $\Theta(f^{-2} \log(k))$ of ASTRAL under the multi-species coalescent model~\cite{shekhar2018_how_many_genes_are_enough}. Of course, our bound is naturally quite loose, and future
 improvements may significantly improve the rate.
 
 
@@ -849,7 +870,7 @@ coverage properties.
     \label{app:anomaly-free_zone}
 
     In this section, we briefly discuss the anomaly-free property~\eqref{eqn:anomaly_free_property}.
-    Lemma~\ref{lem:correct_topo_max_expected_support} shows $\E |M_t|$ is maximized over $q \in A_s$
+    Lemma~\ref{thm:correct_topo_max_expected_support} shows $\E |M_t|$ is maximized over $q \in A_s$
     when $q = \cT_s^*$, but this does not imply $\cT^*_s$ maximizes
     %
         \[\P\left(q = \argmax_{t' \in A_s} |M_{t'}|\right),\]
@@ -874,7 +895,7 @@ coverage properties.
     regime $\lambda \ll \mu$, where these means are all close to zero, the latter issue simplifies drastically. In this regime,
     the supports are heavily concentrated on $\{0,1\}$, and the maximum support is typically the unique nonzero one.
 
-    \begin{lemma}[Low Polymorphism Implies Anomaly-Free Zone]
+    \begin{lemma}[Low Polymorphism Implies Anomaly-Free]
         For an $ID(\epsilon \theta, \epsilon \lambda, \mu ; \cT^*)$ process, let $s = \{u,v,x,y\}$ be any set of four leaves.
         If
         %
@@ -920,7 +941,7 @@ coverage properties.
             & =  \frac{\omega_q}{\omega_* + \omega_1 + \omega_2} + O(\epsilon),
         \end{align*}
         %
-        \noindent as desired. Since the true topology has the highest expected support by Lemma~\ref{lem:correct_topo_max_expected_support},
+        \noindent as desired. Since the true topology has the highest expected support by Lemma~\ref{thm:correct_topo_max_expected_support},
         this implies the anomaly-free property when $\epsilon$ is sufficiently small.
     \end{proof}
 
@@ -1284,9 +1305,8 @@ Figure~\ref{fig:canby_quartet_topologies}. If the induced quartet is balanced,
 If it is a caterpillar, then
 \[
  \Delta_q^{(c)}\geq
- \frac{\lambda_N}{\mu}
  \left[\rho_N\eta_{ri}+\frac{\lambda_N}{\mu}(1-\eta_{ri})\right]
- (1-\eta_{jk})\xi_{jk}\eta_{uv}\eta_{xy}.
+ \frac{\lambda_N}{2\mu}(1-\eta_{jk})^2\eta_{uv}\eta_{xy}.
 \]}
 \begin{proof}[Proof of Lemma \ref{lem:canby_expected_margin} (Expected support margin)]
 
@@ -1435,18 +1455,73 @@ For $(\alpha, \beta) \in \tilde{\cB}(I, J, K)$ we see $(\alpha,\beta) \in M_{uv|
 %
 \[\E(I_{uv||xy}(\alpha, \beta) \mid I, J, K) \geq \eta_{iu}\eta_{jv} \eta_{kx} \eta_{ky}.\]
 %
-\noindent Note $(\alpha, \beta) \in \tilde{\cB}(I,J,K)$ can occur only if $\alpha$ is born before $i$, survives along $(i, j]$ and dies on $(j,k]$,
-and $\beta$ is born on $(j,k]$ and survives until $k$. Let $r$ denote the root of the tree. Note for $\alpha$, any
-non-homoplastic state born at the root survives to $i$ with probability at least $\eta_{ri}$. Independently from this, we have at
-least $\mathrm{Poisson}(m_0(\ell_{ri}))$ born along the path $[r, i]$. Of these, at least a $\eta_{ij}\xi_{jk}$ fraction survive until they
- reach $j$ but die before reaching $k$. Independently of this, at least $\mathrm{Poisson}(m_0(\ell_{jk}))$ non-homoplastic states $\beta$ are born
- along $(j,k]$ and do not die on this branch. Hence if we let $\rho_N := \E |c(r) \cap \Sigma_N|$ be the expected number of
-  non-homoplastic states present at the root
+\noindent Note $(\alpha, \beta) \in \tilde{\cB}(I,J,K)$ can occur only if
 %
-\[\E |\tilde{\cB}(I,J,K)| \geq \eta_{ij} \xi_{jk}\left[\rho_N \cdot \eta_{ri} + \frac{\lambda_N}{\mu}(1-e^{-\mu \ell_{ri}})\right] \cdot \left[\frac{\lambda_N}{\mu} (1-e^{-\mu \ell_{jk}})\right],\]
+\begin{itemize}
+    \item $\alpha$ is born before $i$, survives along $(i,j]$, and dies on $(j,k]$.
+    \item $\beta$ is born on $(j,k]$ and survives until $k$.
+\end{itemize}
+
+\noindent Let $\rho_N := \E |c(r) \cap \Sigma_N|$ be the expected number of
+non-homoplastic states present at the root. Clearly we have
+%
+    \[\E |I\cap\Sigma_N| \geq \rho_N \eta_{ri} + m_0(\ell_{ri})\]
+%
+\noindent as non-homoplastic states in $I$ can come either from the root or be born along $[r,i]$. Of these, at
+least
+%
+    \[\E |I \cap J\cap\Sigma_N| \geq \left(\rho_N \eta_{ri} + m_0(\ell_{ri})\right) \eta_{ij}. \]
+%
+\noindent survive until they reach $j$, giving our candidates for $\alpha$. Condition on $I \cap J\cap\Sigma_N$ and
+fix $\alpha \in I \cap J\cap\Sigma_N$. Let
+%
+    \[X_\alpha := \# \{\beta : (\alpha, \beta) \in \tilde{\cB}(I, J, K)\}\]
+%
+\noindent be the number of pairs that $\alpha$ contributes to $\tilde{\cB}$. If a non-homoplastic state
+$\beta$ is born at location $s \in [j, k]$, it appears in $X_\alpha$ with probability at least
+%
+    \[p(s):= \exp(-\mu \ell_{sk} ) \cdot (1- \exp(-\mu \ell_{sk})),\]
+%
+\noindent since this is the probability $\beta$'s death clock does not ring in $[s,k]$,
+but that $\alpha$'s does. If $N$ represents the coupled rate-$\lambda_N$ Poisson process of
+non-homoplastic births in $[j,k]$, which is independent of the death clocks, then Campbell's formula gives
+%
+    \[\E X_\alpha \geq \E \left(\sum_{s \in N} p(s)\right) = \lambda_N \int_{0}^{\ell_{jk}} \exp(-\mu s) (1 - \exp(-\mu s)) \; ds = \frac{\lambda_N}{2\mu} (1-\exp(-\mu \ell_{jk}))^2. \]
+%
+\noindent Hence we see
+%
+    \[\E |\tilde{\cB}(I,J,K)| \geq \left[\rho_N \eta_{ri} + \frac{\lambda_N}{\mu}(1-e^{-\mu \ell_{ri}})\right] \eta_{ij} \cdot \left[\frac{\lambda_N}{2\mu} (1-\eta_{jk})^2\right],\]
 %
 \noindent giving the desired bound.
 \end{proof}
+
+\begin{corollary}[Expected Margin under the ID Process]
+\label{cor:expected_margin_under_id}
+Suppose characters are generated under $ID(\theta,\lambda,\mu;\cT^*)$. If $q$ induces a balanced quartet, then
+\[
+    \Delta_q \geq \left(\frac{\lambda}{\mu}\right)^2
+    (1-\eta_{ij})(1-\eta_{ik})\eta_{uv}\eta_{xy}.
+\]
+If $q$ induces a caterpillar quartet, then
+\[
+    \Delta_q \geq
+    \left[\theta\eta_{ri}+\frac{\lambda}{\mu}(1-\eta_{ri})\right]
+    \frac{\lambda}{\mu}(1-\eta_{jk})^2\eta_{uv}\eta_{xy}.
+\]
+\end{corollary}
+
+\begin{proof}
+The balanced bound follows from the proof of Lemma~\ref{lem:canby_expected_margin} with
+$\lambda_N=\lambda$ and $\rho_N=\theta$. For a caterpillar quartet, a candidate state $\alpha$
+dies along $[j,k]$ with probability $1-\eta_{jk}$, independently of the number of states $\beta$
+born along this branch and surviving to $k$, whose mean is
+$m_0(\ell_{jk})=\lambda\mu^{-1}(1-\eta_{jk})$. Multiplying these quantities and the relevant
+survival probabilities gives the result.
+\end{proof}
+
+
+
+
 \canbyproofstatement{Lemma~\ref{lem:sample_complexity_pch_astral}}{
 Let $\{c_i\}_{i=1}^n$ be iid characters generated by
 $ID(\theta,\lambda,\mu;\cT^*)$, let $0<\delta<1$, and define

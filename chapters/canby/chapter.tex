@@ -158,7 +158,7 @@ Using a clever dynamic-programming principle, ASTRAL efficiently solves this bip
 optimization problem. For polynomially-sized $\cX$, the optimization problem~\eqref{eqn:astral_heuristic_optimization_problem}
 can be feasibly solved for trees with thousands of leaves. Moreover, when the trees $g_i$ are generated under the
 multispecies coalescent (MSC) model~\cite{rannala2020_multispecies_coalescent_species_tree_inference}, \cite{hill2020_species_tree_joint_coalescence_duplication}, its statistical properties
-are well-understood. In particular, it is asymptotically consistent whenever $\cX_g \subseteq \cX$.
+are well-understood. In particular, $\cX_g \subseteq \cX$ is sufficient to guarantee asymptotic consistency.
 
 The paper~\cite{shekhar2018_how_many_genes_are_enough} showed for the exact version~\eqref{eqn:astral_quartet_support_optimization_problem}
 that $n = \Theta(f^{-2} \log(k))$ independent gene trees $g_i$ are required to recover $\cT^*$ with high probability under the MSC model, where $f$ is the minimum
@@ -237,13 +237,13 @@ the two alternatives:
 \end{equation}
 %
 \noindent with ties broken uniformly, where $A_s$ is the set of three quartets with leaf-set $s$. Namely, $q_s$ is the quartet topology with maximal empirical support.
-By the law of large numbers and Lemma~\ref{thm:correct_topo_max_expected_support}, the correct
+By the law of large numbers and Theorem~\ref{thm:correct_topo_max_expected_support}, the correct
 topology becomes overwhelmingly likely for large $n$. They then run ASTRAL on the quartet set $\{q_s\}$
 to generate an estimate $\hat{\cT}$ of $\cT^*$. The authors of \cite{evans2026_canby_identifiability} call this algorithm \textit{PCH-ASTRAL}, and
 additionally propose a weighted version, although we will
 only focus on the unweighted version described above.
 
-Although not directly mentioned in \cite{evans2026_canby_identifiability}, the proof of Lemma~\ref{thm:correct_topo_max_expected_support}
+Although not directly mentioned in \cite{evans2026_canby_identifiability}, the proof of Theorem~\ref{thm:correct_topo_max_expected_support}
 directly implies the following. Recall, a phylogenetic tree (with branch lengths) is said to be \textit{ultrametric} if every leaf is
 the same distance from the root. When this holds, the supports for the two incorrect topologies are identically distributed.
 
@@ -278,7 +278,7 @@ separate by converting each informative character-quartet pair into a single top
  distributions.
 
 Lastly, in Section~\ref{sec:pch_astral_sample_complexity}, we develop sample complexity bounds for the two ASTRAL-based procedures
-when characters are sampled under the simplified immigration-death process $ID(\theta, \lambda, \mu)$.
+when characters are sampled under the simplified immigration-death process $ID(\theta, \lambda, \mu; \cT^*)$.
 We show PCH-ASTRAL requires $O(L^{-2} \log(k) + L^{-1} \log^2(k))$ characters to recover $\cT^*$ with high probability, where
 %
     \[L := \min_{s \in {[k] \choose 4}} \min_{t \in A_s \setminus \{\cT_s^*\}} \E \left[|M_{\cT_s^*}| - |M_t|\right]\]
@@ -416,12 +416,80 @@ shows bounding the quartet-supports reduces to bounding the means of
 some Poisson random variables.
 
 \begin{corollary}
-    Under the coupled $ID(\theta, \lambda, \mu; \cT^*)$ process, the quartet-supports equal
+    Under the standalone $ID(\theta, \lambda, \mu; \cT^*)$ process, the quartet-supports equal
     %
         \[|M_{uv||xy}| = N_{uv} \cdot N_{xy}, \quad |M_{ux||vy}| = N_{ux} \cdot N_{vy}, \quad |M_{uy||vx}| = N_{uy} \cdot N_{vx}, \]
     %
     \noindent for $\{N_{uv}, ..., N_{vx}\}$ mutually independent Poisson random variables.
 \end{corollary}
+
+The coupling also gives a simple long-term estimate of its discrepancy from the
+non-homoplastic states of the PCH process. Along a branch, let
+%
+\[
+    D_t:=\left|(X_t\cap\Sigma_N)\setminus Y_t\right|,
+    \qquad \lambda_H:=\lambda\bigl(1-\nu(\Sigma_N)\bigr).
+\]
+%
+\begin{proposition}[Coupling discrepancy]
+\label{prop:long_term_id_coupling_discrepancy} If $\E D_0 < \infty$, then 
+%
+\[
+    \E D_t
+    \leq e^{-\mu t}\E D_0
+    +\frac{\lambda_H}{\mu}(1-e^{-\mu t})
+    +\mu\int_0^t e^{-\mu(t-s)}\P(|X_s|=1)\,ds.
+\]
+%
+Moreover,
+%
+\[
+    \limsup_{t\to\infty}\E D_t
+    \leq
+    \frac{\lambda_H}{\mu}
+    +\frac{\lambda/\mu}{e^{\lambda/\mu}-1}.
+\]
+%
+\end{proposition}
+
+\begin{proof}
+
+Note that $D_t \mapsto D_t + 1$ when either a birth occurs in $X_t$ which is ignored in $Y_t$ 
+due to the renormalization or when the final state in both $X_t, Y_t$ dies. This occurs at rate
+%
+    \[\frac{\lambda_N \nu(X_t)}{1-\nu(X_t)} + \mu 1\{|X_t| = |Y_t| = 1\}.\]
+%
+\noindent Similarly, we see $D_t \mapsto D_t - 1$ when one of the states in $X_t \setminus Y_t$ dies,
+which occurs at rate
+%
+    \[\mu D_t 1\{|X_t| > 1\}.\]
+%
+\noindent Thus we see
+%
+    \[\frac{d}{dt} \E D_t = \lambda_N \E \left(\frac{\nu(X_t)}{1-\nu(X_t)}\right) - \mu \E D_t + \mu \P(|X_t| = 1).\]
+%
+Since $\nu$ is diffuse on $\Sigma_N$, $\nu(X_t)\leq1-\nu(\Sigma_N)$. Thus
+%
+\[
+    \frac{d}{dt}\E D_t
+    \leq \lambda_H+\mu\P(|X_t|=1)-\mu\E D_t.
+\]
+%
+Gr\"onwall's inequality gives the finite-time bound. By
+Lemma~\ref{lem:stationary_dist_state_cardinality_process},
+%
+\[
+    \P(|X_t|=1)\longrightarrow
+    \frac{\lambda/\mu}{e^{\lambda/\mu}-1},
+\]
+%
+so taking the limit superior gives the asymptotic bound.
+\end{proof}
+
+Thus the coupled process is close in expected population discrepancy when
+homoplasy is rare and $\lambda/\mu$ is large. In the low-polymorphism regime,
+the singleton term is instead close to one, reflecting the fact that the ID
+process may lose its final state while the PCH process cannot.
 
 %%%%%%%%%%%%%%%%%%%%%
 % properties of PCH Model
@@ -478,7 +546,7 @@ Thus $\xi_T, \eta_T$ give lower bounds on the death and survival rates respectiv
  how closely related $u,v$ are with $x,y$. This suggests tails $\P(|M_q| > t) \leq \exp(-O(\sqrt{t} \log t))$, namely
 slightly lighter tails than Weibull($1/2$) essentially. The paper \cite{kuchibhotla2022_beyond_sub_gaussian_high_dimensional_statistics} develops many useful concentration inequalities
 for such random variables, which we rely on in Lemma~\ref{lem:canby_concentration_of_scores} to prove an analogous statement
-for the ID process coupling.
+for the standalone ID model.
 
  Later on, we will need to develop some control over the expected margin
  between the species tree topology and the other topologies
@@ -487,7 +555,7 @@ for the ID process coupling.
     \quad q = \cT_s^*,\quad t \in A_s \setminus \{\cT_s^*\}.\]
     %
 \noindent This definition does not depend on the choice of incorrect topology $t$, by
-Lemma~\ref{thm:correct_topo_max_expected_support}, and quantifies the expected-support gap.
+Theorem~\ref{thm:correct_topo_max_expected_support}, and quantifies the expected-support gap.
 Let $\rho_N = \E |c(r) \cap \Sigma_N|$ be the
 expected number of non-homoplastic states present at the root. Note for a given (rooted) quartet, there
 are two possible topologies, as shown in Figure~\ref{fig:canby_quartet_topologies}.
@@ -557,7 +625,7 @@ Let $i,j,k$ denote the most recent common ancestors of these leaves, as depicted
 \end{lemma}
 
 \begin{remark}
-The same argument gives analogous expected-margin bounds under the standalone $ID(\theta, \mu, \lambda \; \cT^*)$ process; see Corollary~\ref{cor:expected_margin_under_id}.
+The same argument gives analogous expected-margin bounds under the standalone $ID(\theta, \lambda, \mu; \cT^*)$ process; see Corollary~\ref{cor:expected_margin_under_id}.
 \end{remark}
 
 \noindent More granular bounds can be found in the proof of Lemma~\ref{lem:canby_expected_margin} in the Appendix.
@@ -721,7 +789,7 @@ If property~\eqref{eqn:anomaly_free_property} holds for every quartet $\cT^*_s \
 we say the PCH model is in the \textit{anomaly-free zone}. When this occurs, the above
 ASTRAL-based procedure is asymptotically consistent and has sample-complexity essentially 
 quadratic in the margin. Note the following makes no assumptions on the distribution of the characters
-beyond the anomaly-free property, so it applies equally to the PCH-model as well as our $ID(\theta, \mu, \lambda \; \cT^*)$ process.
+beyond the anomaly-free property, so it applies equally to the PCH model and the standalone $ID(\theta, \lambda, \mu; \cT^*)$ process.
 
 \begin{theorem}[Sample Complexity PCH-ASTRAL(sc)]
 \label{thm:sample_complexity_separate_characters}
@@ -737,7 +805,7 @@ beyond the anomaly-free property, so it applies equally to the PCH-model as well
 
 \noindent The proof is analogous to the proof of Theorem 2.1 in~\cite{shekhar2018_how_many_genes_are_enough}, which union bounds over quartets and
 utilizes simple concentration bounds for the multinomial distribution. In Appendix~\ref{app:anomaly-free_zone}, we briefly discuss the
-anomaly-free zone and show at least for the $ID(\theta, \mu, \lambda \; \cT^*)$ it occurs
+anomaly-free zone and show that, at least for the $ID(\theta, \lambda, \mu; \cT^*)$ process, it occurs
 in the low-polymorphism setting.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -787,7 +855,7 @@ length in $\cT^*$ and
     \[d := \max_{uv||xy \in \cQ(\cT^*)} \ell_{uv} \vee \ell_{xy},\]
 %
 \noindent is the maximal distance between any two leaves on the same side of a quartet,
-then the margin bounds in Corollary~\ref{cor:expected_margin_under_id} roughly become
+then the margin lower bounds in Corollary~\ref{cor:expected_margin_under_id} roughly become
 %
     \[\Delta_q \geq \left(\frac{\lambda}{\mu}\right)^2 (1-e^{-\mu f})^2 (e^{-\mu d})^2 \gtrsim \lambda^2 f^2 e^{-2\mu d}, \]
 %
@@ -796,7 +864,7 @@ then the margin bounds in Corollary~\ref{cor:expected_margin_under_id} roughly b
         \[\Delta_q \gtrsim \lambda\mu f^2 e^{-2\mu d} \left(\theta \wedge \frac{\lambda}{\mu}\right), \]
 %
 \noindent when the induced subtree is a caterpillar. Thus, for a tree of fixed height and fixed model parameters,
-both bounds scale quadratically in $f$, and the sample-complexity bound becomes
+the displayed lower bounds scale quadratically in $f$, and the sample-complexity bound becomes
 %
     \[n \gtrsim \max\left\{f^{-4} \log(k), \; f^{-2} \log^2(k)\right\}.\]
 %
@@ -816,14 +884,14 @@ collections of languages. Although restricting the search space reduces sample e
 we proposed several heuristics designed to mitigate this loss in performance.
 
 Beyond this, we derived sample-complexity bounds under the immigration-death
-process model $ID(\theta,\lambda,\mu)$, both for the original PCH-ASTRAL procedure and for
+process model $ID(\theta,\lambda,\mu;\cT^*)$, both for the original PCH-ASTRAL procedure and for
 the character-voting procedure PCH-ASTRAL(sc). In both cases, the rates depend explicitly on a
 quartet-level margin measuring the advantage of the correct quartet topology over the
 incorrect ones. We further gave partial bounds relating these margins to the underlying
 model parameters.
 
 There are several natural directions for future work. First, one would like to extend the
- sample-complexity results from the simplified $ID(\theta,\lambda,\mu)$ process to the
+ sample-complexity results from the simplified $ID(\theta,\lambda,\mu;\cT^*)$ process to the
  full PCH model. The main obstacle is concentration. The immigration-death coupling
  provides a convenient lower bound on non-homoplastic state counts, which is enough
  for expected-margin estimates, but the concentration argument also requires an
@@ -870,14 +938,14 @@ coverage properties.
     \label{app:anomaly-free_zone}
 
     In this section, we briefly discuss the anomaly-free property~\eqref{eqn:anomaly_free_property}.
-    Lemma~\ref{thm:correct_topo_max_expected_support} shows $\E |M_t|$ is maximized over $q \in A_s$
+    Theorem~\ref{thm:correct_topo_max_expected_support} shows $\E |M_t|$ is maximized over $q \in A_s$
     when $q = \cT_s^*$, but this does not imply $\cT^*_s$ maximizes
     %
         \[\P\left(q = \argmax_{t' \in A_s} |M_{t'}|\right),\]
     %
     \noindent as it is possible $|M_{\cT_s^*}|$ is zero most of the time, but takes on large values
     rarely. To avoid this, we must show the supports $|M_{\cT_q^*}|$ are reasonably concentrated.
-    We focus on the simpler $ID(\theta, \lambda, \mu)$ setting.
+    We focus on the simpler $ID(\theta, \lambda, \mu; \cT^*)$ setting.
 
     Lemma~\ref{lem:quartet_supports_under_ID_process} shows in this setting that the supports take the particular form
     %
@@ -896,7 +964,7 @@ coverage properties.
     the supports are heavily concentrated on $\{0,1\}$, and the maximum support is typically the unique nonzero one.
 
     \begin{lemma}[Low Polymorphism Implies Anomaly-Free]
-        For an $ID(\epsilon \theta, \epsilon \lambda, \mu ; \cT^*)$ process, let $s = \{u,v,x,y\}$ be any set of four leaves.
+        Suppose $\theta>0$. For an $ID(\epsilon \theta, \epsilon \lambda, \mu ; \cT^*)$ process, let $s = \{u,v,x,y\}$ be any set of four leaves.
         If
         %
             \[\omega_*^{(\epsilon)} = \E |M_{\cT_s^*}^{(\epsilon)}|, \quad \{ \omega_1^{(\epsilon)}, \omega_2^{(\epsilon)}\} = \{ \E|M_{q'}^{(\epsilon)}| \; :\; q' \in A_s \setminus \{\cT_s^*\}\},\]
@@ -941,12 +1009,12 @@ coverage properties.
             & =  \frac{\omega_q}{\omega_* + \omega_1 + \omega_2} + O(\epsilon),
         \end{align*}
         %
-        \noindent as desired. Since the true topology has the highest expected support by Lemma~\ref{thm:correct_topo_max_expected_support},
+        \noindent as desired. Since the true topology has strictly highest expected support by Corollary~\ref{cor:expected_margin_under_id},
         this implies the anomaly-free property when $\epsilon$ is sufficiently small.
     \end{proof}
 
 
-    \noindent Hence, the anomaly-free property holds in this low-polymorphism regime, at least under the simpler $ID(\theta, \lambda, \mu)$ model.
+    \noindent Hence, the anomaly-free property holds in this low-polymorphism regime, at least under the simpler $ID(\theta, \lambda, \mu; \cT^*)$ model.
     Of course, this is also the regime where the immigration-death process approximation is the least accurate, so it is not clear how this result
     translates to the full PCH model. Nevertheless, we see this as evidence the anomaly-free property is a reasonable
     constraint, and conjecture it holds in the low-polymorphism regime of the full PCH model. 
@@ -1042,11 +1110,11 @@ per-state death rates $\lambda,\mu>0$. Then
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \noindent The following shows that our quartet supports $|M_{uv||xy}|$ take a particularly simple form
-under the ID process coupling.
+under the standalone ID model.
 
 \begin{lemma}[Quartet Supports under ID Process]
 \label{lem:quartet_supports_under_ID_process}
-    Suppose $Y_t \sim ID(\theta, \lambda, \mu)$ on the underlying tree $\cT^*$. For any subset $\mathcal U$
+    Suppose $Y_t \sim ID(\theta, \lambda, \mu; \cT^*)$. For any subset $\mathcal U$
     of the leaves of $\cT^*$, for each $A \subseteq \mathcal U$ define
     %
         \[N_A^{\mathcal U} := \left|\left\{\alpha :
@@ -1067,7 +1135,7 @@ under the ID process coupling.
 %
     \[\Delta_t := \E |M_{\cT^*_s}| - \E |M_t|, \quad t \in A_s \setminus \{\cT_s^*\}\]
 %
-\noindent particularly easy under the $ID(\theta, \lambda, \mu)$ process: we just must try to
+\noindent particularly easy under the $ID(\theta, \lambda, \mu; \cT^*)$ process: we just must try to
 understand the means $m^{(s)}_{uv}$ of these Poisson random variables $N^{(s)}_{uv}$. Calculating these exactly
 can be challenging, but Lemma~\ref{lem:pop_sizes_in_ID_processes} gives a simple upper bound
 %
@@ -1268,8 +1336,9 @@ then PCH-ASTRAL(sc) recovers $\cT^*$ with probability at least $1-\varepsilon$.}
         \P\left(\sum_{i=1}^{n_s}Z_i^{(j)}\leq0\,\middle|\,n_s\right)
         \leq \exp\left(-\frac{n_s\Delta^2}{2}\right).
     \]
-    On the event $F_s$ the unique modal topology for $s$ is not $\cT_s^*$, then the above event
-    occurs for at least one $j\in\{1,2\}$. Thus, on $n_s\geq np_{\min}/2$,
+    Let $F_s$ be the event that $\cT_s^*$ is not the unique empirical maximizer for $s$.
+    On $F_s$, the above event occurs for at least one $j\in\{1,2\}$. Thus, on
+    $n_s\geq np_{\min}/2$,
     \[
         \P\left(F_s\,\middle|\,n_s\right)
         \leq 2\exp\left(-\frac{np_{\min}\Delta^2}{4}\right).
@@ -1379,7 +1448,7 @@ clearly independent. This produces on average $m_0(\ell_{ij}) \cdot m_0(\ell_{ik
 
 The contributions from (ii), (iii), (iv) can similarly be calculated using the death rate lower bound
 found in Lemma~\ref{lem:death_rate_prob_bounds}. If we let $\theta = \E|R \cap \Sigma_N|$ be the expected
-number of non-homoplastic states at the root, then by Poisson thinning we get contributions
+number of non-homoplastic states at the root, then thinning and linearity of expectation give contributions
 %
 \begin{enumerate}
     \item[(ii)] $m_\theta(\ell_{ri}) \xi_{ik} \eta_{ij} \cdot m_0(\ell_{ik})$.
@@ -1392,7 +1461,7 @@ number of non-homoplastic states at the root, then by Poisson thinning we get co
 \end{enumerate}
 %
 \noindent Formula (iv) comes from the fact that $|I| \sim \mathrm{Poisson}(m_\theta(\ell_{ri}))$, and so there are $\E |I| (|I| - 1) = m_\theta(\ell_{ri})^2$ ordered pairs
-of distinct states on average at $i$. Hence when the subtree induced by the quartet is balanced
+of distinct states on average at $i$. Hence, under this additional Poisson assumption,
 %
 \[\E |\cB(J,K)|
 \geq
@@ -1407,8 +1476,9 @@ m_0(\ell_{ik})
 m_\theta(\ell_{ri})\xi_{ij}\eta_{ik}
 \right] \geq m_0(\ell_{ij})  m_0(\ell_{ik}).\]
 %
-\noindent where the right hand side is always a valid lower bound even without the Poisson
-assumption on $|R|$. With our above work, this gives the desired bound on $\Delta_q^{(c)}$ when the induced subtree is balanced.
+\noindent Without the Poisson assumption on $|R|$, the simpler lower bound
+$\E|\cB(J,K)|\geq m_0(\ell_{ij})m_0(\ell_{ik})$ remains valid. With our above work,
+this gives the desired bound on $\Delta_q^{(c)}$ when the induced subtree is balanced.
 
 If the subtree induced by $q$ is a caterpillar tree like so
 
@@ -1455,7 +1525,7 @@ For $(\alpha, \beta) \in \tilde{\cB}(I, J, K)$ we see $(\alpha,\beta) \in M_{uv|
 %
 \[\E(I_{uv||xy}(\alpha, \beta) \mid I, J, K) \geq \eta_{iu}\eta_{jv} \eta_{kx} \eta_{ky}.\]
 %
-\noindent Note $(\alpha, \beta) \in \tilde{\cB}(I,J,K)$ can occur only if
+\noindent In particular, $(\alpha, \beta) \in \tilde{\cB}(I,J,K)$ can occur if
 %
 \begin{itemize}
     \item $\alpha$ is born before $i$, survives along $(i,j]$, and dies on $(j,k]$.
@@ -1523,7 +1593,7 @@ survival probabilities gives the result.
 
 
 \canbyproofstatement{Lemma~\ref{lem:sample_complexity_pch_astral}}{
-Let $\{c_i\}_{i=1}^n$ be iid characters generated by
+Let $\{c_i\}_{i=1}^n$ be iid from
 $ID(\theta,\lambda,\mu;\cT^*)$, let $0<\delta<1$, and define
 \[
  \zeta=\theta\vee\frac{\lambda}{\mu},\qquad

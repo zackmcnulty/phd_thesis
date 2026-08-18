@@ -454,13 +454,13 @@ Moreover,
 
 \begin{proof}
 
-Note that $D_t \mapsto D_t + 1$ when either a birth occurs in $X_t$ which is ignored in $Y_t$ 
-due to the renormalization or when the final state in both $X_t, Y_t$ dies. This occurs at rate
+Note $D_t \mapsto D_t + 1$ when either a non-homoplastic birth occurs in $X_t$ and is ignored in $Y_t$ 
+or when $X_t = Y_t = \{\alpha\}$ for $\alpha \in \Sigma_N$, and a death clock rings. This occurs at rate
 %
     \[\frac{\lambda_N \nu(X_t)}{1-\nu(X_t)} + \mu 1\{|X_t| = |Y_t| = 1\}.\]
 %
-\noindent Similarly, we see $D_t \mapsto D_t - 1$ when one of the states in $X_t \setminus Y_t$ dies,
-which occurs at rate
+\noindent Similarly, we see $D_t \mapsto D_t - 1$ when one of the states in $(X_t \cap \Sigma_N) \setminus Y_t$ dies,
+at rate
 %
     \[\mu D_t 1\{|X_t| > 1\}.\]
 %
@@ -543,7 +543,7 @@ Thus $\xi_T, \eta_T$ give lower bounds on the death and survival rates respectiv
  Next, we aim to get some control over the tails of our supports $|M_q|$. For $q = uv ||xy$, it is easy
  to see $M_q \subseteq (U \cap V) \times (X \cap Y)$. By Lemma~\ref{lem:stationary_dist_state_cardinality_process},
  we roughly see then that $|M_q|$ is the product of two Poisson random variables, whose correlation depends on
- how closely related $u,v$ are with $x,y$. This suggests tails $\P(|M_q| > t) \leq \exp(-O(\sqrt{t} \log t))$, namely
+ how closely related $u,v$ are with $x,y$. This suggests tails $\P(|M_q| > t) \leq \exp(-\Omega(\sqrt{t} \log t))$, namely
 slightly lighter tails than Weibull($1/2$) essentially. The paper \cite{kuchibhotla2022_beyond_sub_gaussian_high_dimensional_statistics} develops many useful concentration inequalities
 for such random variables, which we rely on in Lemma~\ref{lem:canby_concentration_of_scores} to prove an analogous statement
 for the standalone ID model.

@@ -1,4 +1,5 @@
 \chapter[Improved Bipartition Cover Bound]{An Improved Bipartition Cover Bound for the Multispecies Coalescent Model}
+\setcounter{secnumdepth}{2}
 
 % Background
 \section{Introduction}
@@ -34,7 +35,7 @@ family: ASTRAL \cite{mirarab2014_astral_species_tree_estimation}, ASTRAL-II
     a \textit{bipartition cover} of the species tree. When this occurs, ASTRAL comes with some strong
     finite-sample guarantees \cite{shekhar2018_how_many_genes_are_enough}. When it does not occur,
     ASTRAL provides no guarantees on how the estimated tree will relate to the true species tree. As a result,
-    it is important to know how likely such a bipartition cover is to occur when assessing whether these finite-sample guarantees apply.
+    it is important to understand the likelihood of such a cover when assessing whether these finite-sample guarantees apply.
     Moreover, since an experimenter must decide how many loci to collect before the underlying species
     tree topology is known, they cannot calibrate the required sample size to that topology. A topology-free upper bound
     provides a conservative benchmark for the sample size required to obtain a bipartition cover with a prescribed
@@ -50,24 +51,21 @@ family: ASTRAL \cite{mirarab2014_astral_species_tree_estimation}, ASTRAL-II
     the growth rates of these bounds as functions of these parameters in a few natural regimes.
 
 Throughout, suppose we have a species tree $\cT^*$ with $k$ species and minimum branch
-length $T_{\mathrm{min}}$. For $q\in(0,1)$, let
+length $T_{\mathrm{min}}$. For $q\in(0,1)$, define
 \[
 N_{\mathrm{cov}}(q;\cT^*)
 :=\inf\{n\in\N:\P(G_1,\ldots,G_n\text{ form a bipartition cover of }\cT^*)\geq q\},
 \]
 where the $G_i$ are independent gene trees generated from $\cT^*$ under
-the MSC model, described below. Namely, $N_{\mathrm{cov}}(q;\cT^*)$ represents the minimal number of
+the MSC model, as described below. Namely, $N_{\mathrm{cov}}(q;\cT^*)$ represents the minimal number of
 independent gene trees required to recover the underlying species tree $\cT^*$ with the
 prescribed probability $q$. In this chapter, our goal is to upper bound this quantity.
-For an edge $e$, let $\alpha_e$ denote the number of descendant leaves below $e$; when
-$e=e_i$ is indexed, we write $\alpha_i:=\alpha_{e_i}$.
-
 
 
 \subsection{The Multispecies Coalescent Model}
 \label{sec:multispecies-coalescent-model}
 
-We start with a brief discussion of the \textit{multispecies coalescent (MSC) model}, which is
+We start with a brief discussion of the \textit{multispecies coalescent (MSC) model},
 the probabilistic model underlying all the theoretical guarantees of ASTRAL and many other phylogenetic
  inference algorithms. The MSC model describes how gene tree topologies are generated from a
  given species tree \citep{yang2003_bayes_species_divergence_ancestral_population,rannala2020_multispecies_coalescent_species_tree_inference}. It is in a sense the simplest model
@@ -92,9 +90,9 @@ More concretely, let
  denote the rising and falling factorial respectively, and the time $T$ is measured in coalescent units. The function $g_{ij}(T)$
  is the basis of the original bound in \citet{uricchio2016_bipartition_cover} and
   all the new bounds we develop. In the setting of the MSC model, $T$ represents
-   the length of a given branch of the species tree, and $g_{ij}$ describes the
+   the length of a given branch of the species tree, and $g_{ij}(T)$ describes the
    distribution of the number of lineages that remain uncoalesced at the end
-   of that branch.
+   of that branch if we start with $i$ lineages.
 
 
 
@@ -107,7 +105,7 @@ More concretely, let
 
 
 % Original Bound
-\subsection{The Original Bound and Main Results}
+\subsection{The Original Bound and Main Contributions}
 \label{sec:original-bound-main-results}
 
 Under the MSC model, \cite{uricchio2016_bipartition_cover} establishes the following bound.
@@ -189,41 +187,49 @@ These two tree topologies represent opposite extremes for coalescent behavior: o
 This distinction is made precise in Lemma~\ref{lem:caterpillar_maximize_increasing_sums}, which identifies caterpillar trees as extremal for increasing functions of descendant counts, and in Lemma~\ref{lem:balanced_is_worse_case}, which shows that balanced trees are stochastically worst-case for the number of surviving lineages under the multispecies coalescent. Together, these lemmas underpin our main result, which appears as Theorem~\ref{thm:improved_bipartition_cover_bound_balanced} below.
 
 \begin{theorem*}
-For $\ell\geq 2$, let $p_\ell(T)$ denote the probability that the lineages descending
+For $\ell\geq 2$, let $w_\ell(T)$ denote the probability that the lineages descending
 from a balanced $\ell$-taxon tree, with all branch lengths equal to $T$, coalesce to a single
 lineage. Then
 \[
 N_{\mathrm{cov}}(q;\cT^*)\leq
 \inf\left\{n\in\N:
-    \sum_{\ell=2}^{k-2}\bigl(1-p_\ell(T_{\min})\bigr)^n\leq 1-q
+    \sum_{\ell=2}^{k-2}\bigl(1-w_\ell(T_{\min})\bigr)^n\leq 1-q
 \right\}.
 \]
 In particular,
 \[
 N_{\mathrm{cov}}(q;\cT^*)\leq \left\lceil
     \frac{\log\!\left(\frac{k-3}{1-q}\right)}
-         {-\log\!\left(1-p_{k-2}(T_{\min})\right)}
+         {-\log\!\left(1-w_{k-2}(T_{\min})\right)}
 \right\rceil.
 \]
 \end{theorem*}
 
-\noindent In the short-branch regime, the balanced bound improves on the original topology-free bound by a factor exponential in the inverse minimum branch length; Lemma~\ref{lem:improvement_ratio_asymptotics} makes this precise.
-
-\noindent Due to the recursive structure of a balanced tree, these probabilities $p_\ell$ are easy
+\noindent Due to the recursive structure of a balanced tree, these probabilities $w_\ell$ are easy
 to compute. Empirically, we observe this improves over Theorem \ref{thm:uricchios_bipartition_cover_bound} by
 several orders of magnitude in some regimes, especially when the minimum branch length $T_{\mathrm{min}}$ is small.
 
+Analytically, we show in this short-branch regime this new bound improves upon the original
+by a factor exponential in the inverse minimum branch length; Lemma~\ref{lem:improvement_ratio_asymptotics} makes
+this precise.
+
+For clarity of exposition, we postpone several short technical results and their proofs to the appendix.
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Results and Discussion
+% Topology-free improvements
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Results and Discussion}
-\label{sec:results-discussion}
+\section{Topology-Free Improvements to the Original Bound}
+\label{sec:topology-free-improvements}
+
+\subsection{Sources of Loss in the Original Bound}
+\label{sec:sources-of-loss}
 
 To guide our work, we outline the proof of the original bound, and identify where it is lossy.
 
 \begin{proof}[Proof Outline of Theorem \ref{thm:uricchios_bipartition_cover_bound}]
-Every tree contains the trivial bipartitions $\{x\} | (\cL - \{x\})$, so we may
-restrict attention to nontrivial bipartitions. There are $k-3$ nontrivial bipartitions in a
+Every tree contains the \emph{trivial bipartitions} $\{x\} | (\cL - \{x\})$, so we may
+restrict attention to nontrivial bipartitions. There are $k-3$ \emph{nontrivial bipartitions} in a
 species tree: one for each internal edge\footnote{There are $k-2$ internal edges, but the two
 edges adjacent to the root induce the same, possibly trivial, bipartition.}.
 \begin{enumerate}
@@ -253,14 +259,23 @@ If we let $E_n$ be the event all bipartitions occur in $n$ gene trees and $E_{i,
 
 
 % Improvement 1
-\subsection{Bookkeeping of Descendant Counts}
+\subsection{Descendant Counts and Caterpillar Extremality}
 \label{sec:first-improvement-descendant-counts}
+
+For an edge $e$, let $\alpha_e$ denote the number of leaves below $e$, namely leaves in the
+connected component of $\cT^* \setminus \{e\}$ not containing the root. When an edge $e_i$ is
+indexed, we define $\alpha_i := \alpha_{e_i}$. We call the set
+%
+    \[\{\alpha_i\}_{i=1}^{k-3} := \{\alpha_e : \text{e generates a nontrivial bipartition}\}\]
+%
+\noindent the \emph{descendant counts} of $\cT^*$. Since both edges adjacent to the root generate
+the same bipartition, there is some ambiguity in how we define the descendant counts. To resolve this,
+we always choose the edge adjacent to the root with fewer descendants, although this choice is inconsequential.
+An example is given in Figure \ref{fig:example_descendants_alpha_i}.
 
 One step at which the proof of Theorem \ref{thm:uricchios_bipartition_cover_bound} is lossy is that we essentially bound
 
 \[\P(E_{i,1}) \geq g_{\alpha_{i}, 1}(T_{e_i}) \geq g_{k-2, 1}(T_{\mathrm{min}}),\]
-
-\noindent Since both edges adjacent to the root generate the same bipartition, there is some ambiguity in the descendant count set $\{\alpha_i\}$. To resolve this, we always choose the edge adjacent to the root with fewer descendants. An example is given in Figure \ref{fig:example_descendants_alpha_i}.
 
 % Example alpha_i
 \begin{figure}[h]
@@ -313,29 +328,101 @@ Suppose $\{\alpha_{i}\}_{i=1}^{k-3}$ are the descendant counts of our rooted bin
 
 \end{lemma}
 
-\noindent The proof of Lemma \ref{lem:caterpillar_maximize_increasing_sums} can be found
-in Appendix~\ref{app:caterpillar-maximization-proof}.
-This result implies
+\noindent The result is true regardless of our convention for choosing the edge adjacent to the root.
+Moreover, it is clearly also true if we use \textit{all} descendant counts
+$\{\alpha_i\}_{i=1}^{2k-2}$ rather than just those corresponding to nontrivial bipartitions:
+all but one of the additional $\alpha_i$ are equal to one, and it is clear from the proof below
+that we can handle the exceptional value as well.
 
-% Corollary %%%
-\begin{corollary}
-\label{corr:bipartitions_corollary}
-Suppose $h: \N \to [0,1]$ is decreasing and $\P(E_{i,1}) \geq h(\alpha_i)$. Then
-%
-\[\P(E_n) \geq 1 - \sum_{\ell = 2}^{k-2} \Big[1 - h(\ell)\Big]^n.\]
-%
-\end{corollary}
+\begin{proof}[Proof of Lemma \ref{lem:caterpillar_maximize_increasing_sums}]
+    Since $f$ is nondecreasing, it suffices to show we can reindex $\{\alpha_i\}_{i=1}^{k-3}$ so
+    $\alpha_i \leq i + 1$. Heuristically, we are just pairing up each edge $e$ in our
+    tree $T$ with an edge $e'$ in our caterpillar tree so that $e$ has at most as many descendants as $e'$.
+    We induct on $k$.
 
-% proof
-\begin{proof}[Proof of Corollary~\ref{corr:bipartitions_corollary}]
-    By union bound and independence of the gene trees
+    % Base case
+    If $k=4$, the two unique rooted trees, shown in Figure~\ref{fig:caterpillar_and_balanced_tree},
+    both have $\alpha_1 = 2$ for their only nontrivial bipartition, so the
+    statement is trivially true.
 
-    \[1-\P(E_n)  \leq  \sum_{i=1}^{k-3} (1-\P(E_{i,n})) =  \sum_{i=1}^{k-3} \Big[1-\P(E_{i,1})\Big]^n \leq  \sum_{i=1}^{k-3} \Big[1-h(\alpha_i)\Big]^n. \]
-%
-\noindent  As $h$ is decreasing and bounded in $[0,1]$, the function $f(x) = [1-h(x)]^n$ is increasing. Applying Lemma \ref{lem:caterpillar_maximize_increasing_sums} to this $f$ gives the desired result.
+    Otherwise, suppose we have a tree $\cT$ with $k > 4$ leaves. Suppose the two subtrees of the root contain
+    $m,r$ leaves respectively. There are two cases:
+
+    \begin{enumerate}[label=(\alph*)]
+        \item \textit{Either $m \leq 2$ or $r \leq 2$}. If $\cT'$ is the larger subtree of the root, by induction we can reindex
+        its descendant counts $\{\alpha_i\}_{i=1}^{k-4}$ so $\alpha_i \leq i+1$. The edge $e$ connecting $\cT'$ to the root
+        trivially has $\alpha_e \leq k-2$, as all nontrivial bipartitions in $\cT$ do, we can pair this remaining edge $e$ with
+        the top nontrivial edge of our caterpillar tree.
+
+        \item \textit{Both $m, r \geq 3$}. Let $\cT', \cT''$ be the two subtrees of
+               the root with $m,r$ leaves respectively, and
+               let $\{\kappa_i\}_{i=1}^{r-3}$ and $\{\beta_j\}_{j=1}^{m-3}$ be their descendant
+               counts. If $r<4$ (respectively, $m<4$), the corresponding subtree has no nontrivial
+               bipartitions, and we take the family $\{\kappa_i\}$ (respectively, $\{\beta_j\}$) to be empty.
+               By induction, these can be ordered so $\kappa_i \leq i+1$ and $\beta_j \leq j+1$.
+               Clearly then defining
+
+        \[\alpha_i = \begin{cases}
+            \kappa_i, & 1 \leq i \leq r-3, \\
+            \beta_{i-r+3}, & r-3 < i  \leq k-6. \\
+        \end{cases}\]
+
+        \noindent Namely, we list the edges of $\cT'$ first, and then the edges of $\cT''$. This accounts
+        for all but three of the edges of $\cT$: one of the edges $e$ adjacent to the root of $\cT$, one edge $e'$ in $\cT'$,
+        and one edge $e''$ in $\cT''$.
+
+        The descendant counts $\alpha_{e'}, \alpha_{e''}$ of $e', e''$ are at most
+        $r-1, m-1$ respectively. Moreover,
+        %
+        \[r-1 = k-m-1 \leq k-4, \qquad m-1 = k-r-1 \leq k-4.\]
+        %
+        \noindent Thus we can let $\alpha_{k-5}, \alpha_{k-4}$ correspond to edges $e', e''$ respectively.
+        Trivially $e$ has descendant count at most $k-2$, as all nontrivial bipartitions do. Thus we can let
+        $\alpha_{k-3}$ correspond to edge $e$.
+    \end{enumerate}
+
+        % Example alpha_i
+    \begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[scale=0.7]
+
+    \node[circle, fill=black, inner sep=1.5pt] (root) at (0,0) {};
+    \node[circle, fill=black, inner sep=1.5pt] (n1) at (-2,-1.2) {};
+    \node[circle, fill=black, inner sep=1.5pt] (n2) at (2,-1.2) {};
+    \node[circle, fill=black, inner sep=1.5pt] (n3) at (-3,-2.4) {};
+    \node[circle, fill=black, inner sep=1.5pt] (n4) at (-1,-2.4) {};
+    \node[circle, fill=black, inner sep=1.5pt] (n5) at (1,-2.4) {};
+    \node[circle, fill=black, inner sep=1.5pt] (n6) at (3,-2.4) {};
+    \node[circle, fill=black, inner sep=1.5pt] (n7) at (-3.5,-3.6) {};
+    \node[circle, fill=black, inner sep=1.5pt] (n8) at (-2.5,-3.6) {};
+    \node[circle, fill=black, inner sep=1.5pt] (n9) at (-1.5,-3.6) {};
+    \node[circle, fill=black, inner sep=1.5pt] (n10) at (-0.5,-3.6) {};
+    \node[circle, fill=black, inner sep=1.5pt] (n11) at (0.5,-3.6) {};
+    \node[circle, fill=black, inner sep=1.5pt] (n12) at (1.5,-3.6) {};
+
+    \draw (root) -- (n1) node[midway, above left] {\tiny $\alpha_e = 4$};
+    \draw (root) -- (n2) ;
+    \draw (n1) -- (n3) node[midway, above left] {\tiny $\alpha_{e'} = 2$};
+    \draw (n1) -- (n4) node[midway, above right] {\tiny 2};
+    \draw (n2) -- (n5) node[midway, above left] {\tiny $\alpha_{e''} = 2$};
+    \draw (n2) -- (n6);
+    \draw (n3) -- (n7);
+    \draw (n3) -- (n8);
+    \draw (n4) -- (n9);
+    \draw (n4) -- (n10);
+    \draw (n5) -- (n11);
+    \draw (n5) -- (n12);
+    \end{tikzpicture}
+    \caption{Example of the inductive step in Lemma \ref{lem:caterpillar_maximize_increasing_sums}}
+    \label{fig:inductive_step_case_b}
+    \end{figure}
+    % end fig
 \end{proof}
 
-\noindent From this, the main bound follows shortly.
+\subsection{The Caterpillar Bipartition Cover Bound}
+\label{sec:caterpillar-bipartition-cover-bound}
+
+\noindent Lemma~\ref{lem:caterpillar_maximize_increasing_sums} immediately implies the following main bound.
 
 % Main Theorem %%%%%%%%
 \begin{theorem}
@@ -350,10 +437,28 @@ Suppose $h: \N \to [0,1]$ is decreasing and $\P(E_{i,1}) \geq h(\alpha_i)$. Then
 \noindent satisfies $N_{\mathrm{cov}}(q;\cT^*)\leq n_h$.
 \end{theorem}
 
+\begin{proof}
+By the union bound and independence of the gene trees,
+\[
+1-\P(E_n)
+\leq \sum_{i=1}^{k-3} \bigl(1-\P(E_{i,n})\bigr)
+= \sum_{i=1}^{k-3} \Big[1-\P(E_{i,1})\Big]^n
+\leq \sum_{i=1}^{k-3} \Big[1-h(\alpha_i)\Big]^n.
+\]
+Since $h$ is decreasing and bounded in $[0,1]$, the function
+$f(x)=[1-h(x)]^n$ is increasing. Applying
+Lemma~\ref{lem:caterpillar_maximize_increasing_sums} to this $f$ gives
+\[
+\P(E_n) \geq 1-\sum_{\ell=2}^{k-2}\Big[1-h(\ell)\Big]^n.
+\]
+Thus, for every $n$ in the set defining $n_h$, we have
+$\P(E_n)\geq q$, and hence $N_{\mathrm{cov}}(q;\cT^*)\leq n_h$.
+\end{proof}
+
 \noindent If $h$ is independent of the species tree topology,
-then so is equation~\eqref{eqn:caterpillar_bound_eqn}. Letting
+then so is equation~\eqref{eqn:caterpillar_bound_formula}. Letting
 $h(x) = g_{x,1}(T_{\mathrm{min}}) \in [0,1]$, which is decreasing by
-Corollary~\ref{corr:g_i1_is_decreasing}, then Theorem~\ref{thm:caterpillar_bound} and the 
+Corollary~\ref{corr:g_i1_is_decreasing}, then Theorem~\ref{thm:caterpillar_bound} and the
 original bound $\P(E_{i,1}) \geq g_{\alpha_i,1}(T_{\mathrm{min}})$
 of \citet{uricchio2016_bipartition_cover} give a new topology-free bound.
 
@@ -374,24 +479,27 @@ replaces the worst-case $g_{k-2, 1}(T_{\mathrm{min}})$ with the corresponding
 order-$n$ power mean of $\{g_{\ell, 1}(T_{\mathrm{min}})\}_{\ell = 2}^{k-2}.$
 
 % Balanced bound %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Accounting for Coalescent Events Below an Edge}
+\section{The Balanced-Tree Bound}
+\label{sec:balanced-tree-bound}
+
+\subsection{Coalescence Below an Edge}
 \label{sec:coalescent-events-below-edge}
 
-\subsubsection{Local balancing} Theorem \ref{thm:caterpillar_bound} suggests another avenue for improvement is to
+Theorem \ref{thm:caterpillar_bound} suggests another avenue for improvement is to
 obtain a tighter bound $\P(E_{i,1}) \geq h(\alpha_i)$ than the original $h(x) = g_{x,1}(T_{\mathrm{min}})$.
-For small values of $T_{\mathrm{min}}$ the bound in Theorem \ref{cor:improved_bipartition_cover_bound_caterpillar}
+For small values of $T_{\mathrm{min}}$ the bound in Corollary~\ref{cor:improved_bipartition_cover_bound_caterpillar}
 is dominated by the terms $g_{\alpha_i,1}$ for which $\alpha_i$ are quite large. These are the bipartitions
  corresponding to edges $e$ close to the root of the tree which have many descendants. In \citet{uricchio2016_bipartition_cover},
- the authors essentially assume \textit{none} of the descendants coalesce before they reach edge $e$. 
- When $e$ is far from the leaves, descendants have a long distance to travel through 
+ the authors essentially assume \textit{none} of the descendants coalesce before they reach edge $e$.
+ When $e$ is far from the leaves, descendants have a long distance to travel through
  the tree and potentially coalesce, making this estimate very conservative.
 
-Hence to improve this bound we should try to account for coalescent events that occur 
-below the edge $e$. Namely, we ought to somehow replace $g_{\alpha_e,1}(T_{\mathrm{min}})$ 
-by $\E g_{X_e, 1}(T_{\mathrm{min}})$ where $X_e$ is the (random) number of remaining lineages 
-entering edge $e$. Clearly $\P(E_{i,1}) \geq \E g_{X_{e_i}, 1}(T_{\mathrm{min}})$ by the same 
-logic that Theorem \ref{thm:uricchios_bipartition_cover_bound} employs. In general, $X_e$ depends on 
-the topology of $\cT^*$ below the edge $e$. To develop a topology-free bound, 
+Hence to improve this bound we should try to account for coalescent events that occur
+below the edge $e$. Namely, we ought to somehow replace $g_{\alpha_e,1}(T_{\mathrm{min}})$
+by $\E g_{X_e, 1}(T_{\mathrm{min}})$ where $X_e$ is the (random) number of remaining lineages
+entering edge $e$. Clearly $\P(E_{i,1}) \geq \E g_{X_{e_i}, 1}(T_{\mathrm{min}})$ by the same
+logic that Theorem \ref{thm:uricchios_bipartition_cover_bound} employs. In general, $X_e$ depends on
+the topology of $\cT^*$ below the edge $e$. To develop a topology-free bound,
 we must somehow identify the worst-case topology in this setting.
 
 Recall a random variable $X$ is said to \textit{first-order stochastically dominate} $Y$
@@ -400,7 +508,7 @@ functions $u$. We denote this by $X \geq_{st} Y$. Similarly, $X$ is said to \tex
 $Y$ if $\E u(X) \geq \E u(Y)$ for all nondecreasing concave functions, and we denote this
 by $X \geq_{sst} Y$. First-order stochastic dominance naturally implies second-order.
 
- Since $x \mapsto g_{x,1}(T)$ is decreasing, convex (Corollary \ref{corr:g_i1_is_decreasing}, 
+ Since $x \mapsto g_{x,1}(T)$ is decreasing, convex (Corollary \ref{corr:g_i1_is_decreasing},
  Lemma~\ref{lem:g_i1_is_convex}), we see
 \begin{lemma}
 \label{lem:bounding_prob_with_second_order_stochastic_dominance}
@@ -438,7 +546,7 @@ to $e$.  Moreover
 %
     \[Z_{m}^{T_1} + Z_{k-m}^{T_2} \leq_{st} Z_m^{T_{\mathrm{min}}} + Z_{k-m}^{T_{\mathrm{min}}},\]
 %
-\noindent by Lemma~\ref{lem:cdf_of_Zi}. Figure~\ref{fig:coalescent_tree} illustrates the setup. Next, 
+\noindent by Lemma~\ref{lem:cdf_of_Zi}. Figure~\ref{fig:coalescent_tree} illustrates the setup. Next,
 we show more balanced splits $(m, k-m)$ tend to have less coalescence.
 
 % Coalescent tree figure
@@ -477,14 +585,15 @@ we show more balanced splits $(m, k-m)$ tend to have less coalescence.
 \end{figure}
 
 
+\subsection{Deterministic Local Balancing}
+\label{sec:deterministic-local-balancing}
+
 \begin{lemma}[Deterministic Balancing Lemma]
 \label{lem:deterministic_balancing_lemma} Let $k$ and $T$ be fixed. Then
     \[\quad Z^T_{i} + Z^T_{k-i} \leq_{st}  Z^T_{j} + Z^T_{k-j}, \quad\forall 1 \leq i \leq j \leq \frac{k}{2}.\]
     %
     \noindent In particular, the stochastic maximizer is $i = \lfloor k/2\rfloor$.
 \end{lemma}
-
-\noindent The proof can be found in Appendix~\ref{app:deterministic-balancing-proof}.
 
 Heuristically, $i = \lfloor k/2 \rfloor$, where the two subtrees in Figure~\ref{fig:coalescent_tree} are as evenly
 balanced as possible, is the maximizer because it minimizes the total number of pairs $\binom{m}{2} + \binom{k-m}{2}$
@@ -495,30 +604,267 @@ available in the two subpopulations, hampering coalescence. Lemma~\ref{lem:deter
     \label{eqn:local-balancing-Xe-upper-bound}
 \end{equation}
 
+\begin{proof}[Proof of Lemma \ref{lem:deterministic_balancing_lemma}]
+The statement is vacuously true for $k=2,3$, so for induction assume it is true for all $k' < k$. Let $S_{k,m}^T := Z_m^T + Z^T_{k-m}$ denote the total number of lineages entering an edge $e$ with subtrees of size $m,k-m$, the setup in Figure \ref{fig:coalescent_tree}. Let $\tau_{k,m}$ be the time of the first coalescent event in either of our two subpopulations of size $m,k-m$, allowing the possibility $\tau_{k,m} > T$.
+
+The basic idea is that if we start with $k$ lineages, we can reduce to $k-1$ lineages by just waiting for the first coalescence event to occur in either subpopulation. There is of course the chance no coalescent event occurs, so we must handle this separately. The proof then relies on a few main ideas. Firstly, for more balanced splits we tend to wait longer until the first coalescent event.
+\begin{proofclaim}
+\label{claim:even_split_waits_longest_for_first_coalescent}
+For fixed $k$, $\tau_{k,m}$ is stochastically increasing in $m$ for $1 \leq m \leq k/2$.
+\end{proofclaim}
+
+\noindent Next, conditional on a specific first coalescent time, the more balanced our split is, the more lineages tend to remain uncoalesced by the end of the branch.
+\begin{proofclaim}
+\label{claim:cond_first_coalescent_even_split_dominates}
+For fixed $k, x,t$, $\P(S_{k,m}^T \geq x \; | \; \tau_{k,m} = t)$ is an increasing function of $m$ for $1 \leq m \leq k/2$.
+\end{proofclaim}
+
+\noindent Lastly, the more time we wait until the first coalescent event, the less time the remaining lineages have to coalesce and the more lineages we tend to have by the end of the branch.
+\begin{proofclaim}
+\label{claim:more_time_to_coalesce_is_better}
+For fixed $k, x, m$, $\P(S_{k,m}^T \geq x \; | \; \tau_{k,m} = t)$ is an increasing function of $t$.
+\end{proofclaim}
+
+\noindent To prove Claim~\ref{claim:even_split_waits_longest_for_first_coalescent}, let $h_{k,m} := \binom{m}{2} + \binom{k-m}{2}$.
+Then $\tau_{k,m} \sim \mathrm{Exp}\left(h_{k,m}\right)$. Since
+\[
+\P(\tau_{k,m} > t) = \exp\left(-th_{k,m}\right)
+\]
+and $h_{k,m}$ is decreasing in $m$ for $1 \leq m \leq k/2$, these tails are increasing
+in $m$. Hence $\tau_{k,m}$ is stochastically increasing in $m$ as desired.
+
+
+ To prove Claim~\ref{claim:cond_first_coalescent_even_split_dominates}, first suppose $t > T$. No coalescent event occurs before time $T$, so
+\[
+\P(S_{k,m}^T \geq x \mid \tau_{k,m}=t)=\ind\{x\leq k\},
+\]
+which is independent of $m$, so the claim is trivial. For $t \leq T$, by the strong
+memoryless property of the exponential distribution underlying Kingman's coalescent, we know
+\begin{equation}
+\P(S_{k,m}^T \geq x \; | \; \tau_{k,m} = t) = p_{k,m} \cdot \P(S_{k-1,m-1}^{T-t} \geq x) + (1-p_{k, m}) \cdot \P(S_{k-1,m}^{T-t} \geq x),
+\label{eqn:split_on_first_coalescent_event}
+\end{equation}
+where
+\[
+p_{k,m} = \frac{\binom{m}{2}}{\binom{m}{2} + \binom{k-m}{2}}
+\]
+is the probability the first coalescence occurs in the population of size $m$.
+Namely, after the first coalescent event occurs in either subpopulation, what remains
+is a Kingman's coalescent with one less lineage. For $1 \leq m \leq k/2 - 1$, by induction
+\begin{align*}
+& \P(S_{k,m}^T \geq x \; | \; \tau_{k,m} = t)\\
+&= p_{k,m} \cdot \P(S_{k-1,m-1}^{T-t} \geq x) + (1-p_{k, m}) \cdot \P(S_{k-1,m}^{T-t} \geq x) \\
+&\leq \P(S_{k-1,m}^{T-t} \geq x) \\
+&\leq p_{k,m+1} \cdot \P(S_{k-1,m}^{T-t} \geq x) + (1-p_{k, m+1}) \cdot \P(S_{k-1,m+1}^{T-t} \geq x)\\
+&= \P(S_{k,m+1}^T \geq x \; | \; \tau_{k,m+1} = t).
+\end{align*}
+Thus $\P(S_{k,m}^T \geq x \; | \; \tau_{k,m} = t)$ is increasing in $m$ for each fixed $t$.
+
+ To prove Claim~\ref{claim:more_time_to_coalesce_is_better}, by equation~\eqref{eqn:split_on_first_coalescent_event} it suffices
+ to show for fixed $k,m$ that $S^T_{k,m}$ is stochastically decreasing in $T$. But this follows from a
+ simple coupling argument. For $s \leq T$, couple $S_{k,m}^T$ to $S_{k,m}^s$ by using the same
+ exponential clocks for the coalescent events. At time $s$ the number of lineages
+ remaining agree, and $S^T_{k,m}$ can only decrease from here if more coalescents
+  occur between times $s$ and $T$.
+
+ With the claims proved, we are ready to finally finish our proof of
+Lemma \ref{lem:deterministic_balancing_lemma}. Note that our above claims are exactly the
+conditions of the Mixture Lemma (Lemma~\ref{lem:mixtures_and_stochastic_dominance}), which shows first-order stochastic dominance
+is preserved by increasing mixtures, where $\{S_{k,m}^T\}_{m=1}^{\lfloor k/2\rfloor}$ are playing the
+role of our $V_i$ and $\{\tau_{k,m}\}_{m=1}^{\lfloor k/2\rfloor}$ are playing the role of our $\Theta_i$.
+Hence the result just follows from applying this lemma.
+\end{proof}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Recursive balancing %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{From Local Balancing to Balanced Trees}
+\subsection{Recursive Balancing and the Balanced Worst Case}
 \label{sec:recursive-balancing}
 
 By iterating the ideas from the previous section, it is natural to believe the topology
 minimizing coalescence is the one where \textit{all} splits are even, namely when the
-topology below edge $e$ is the balanced tree. This is true in the following sense. 
+topology below edge $e$ is the balanced tree. This is true in the following sense.
 
-Given a binary tree $\cT$ (with branch lengths) let $X_\cT$ denote the number of 
-lineages that have not coalesced by the time they reach the root. Then
+Given a binary tree $\cT$ (with branch lengths) let $X_\cT$ denote the number of
+lineages that have not coalesced by the time they reach the root. We first prove
+an extension of our deterministic balancing lemma,
+Lemma~\ref{lem:deterministic_balancing_lemma}, which allows
+for random subpopulations.
 
-% Balanced is worst case
-\begin{lemma}
-\label{lem:balanced_is_worse_case}
-    If $\cB_k$ is the balanced tree with $k$ leaves and all branch lengths equal to $T_{\mathrm{min}}$ then $X_{\cB_k} \geq_{st} X_\cT$ for any other tree $\cT$ with $k$ leaves and minimum branch length $T_{\mathrm{min}}$.
+To do so, we require a slightly stronger stochastic order than $\leq_{st}$. We say a random variable $X$ is less than $Y$ with respect to the
+\emph{likelihood ratio ordering (LRO)}, and write $X\leq_{lr}Y$, if the
+likelihood ratio $f_Y(t)/f_X(t)$ is nondecreasing in $t$, where $f_X$ and
+$f_Y$ are the respective mass functions. Equivalently,
+\[
+f_X(s)f_Y(t) \geq f_X(t)f_Y(s), \qquad s\leq t.
+\]
+The LRO implies first-order stochastic dominance.
+
+% Balancing Lemma %%%%%%%%%%%%
+\begin{lemma}[Balancing Lemma]
+\label{lem:balancing_lemma}
+If $A,A', B, B'$ are mutually independent, positive integer-valued random variables
+so that $A \leq_{lr} A'$ and $B \leq_{lr} B'$, then
+%
+\[Z_{A + B} + Z_{A' + B'} \leq_{st} Z_{A + B'} + Z_{A' + B}. \]
 \end{lemma}
 %
-\noindent The proof is postponed to Appendix~\ref{app:balanced-worst-case-proof}, reducing
-the result to our \textit{balancing lemma} \ref{lem:balancing_lemma}. This extension of
-Lemma \ref{lem:deterministic_balancing_lemma} allows for random
-subpopulation sizes, and essentially by iteratively applying it we can transform any tree
-$\cT$ to the corresponding balanced tree $\cB_k$.
+\noindent Note when $A,B,A', B'$ are all deterministic, this reduces to Lemma \ref{lem:deterministic_balancing_lemma}.
+
+\begin{proof}[Proof of Balancing Lemma \ref{lem:balancing_lemma}]
+    First observe that for a fixed sum $s$, the deterministic balancing Lemma~\ref{lem:deterministic_balancing_lemma} implies the random variables
+    %
+    \[Y_d := Z_{\frac{s+d}{2}} + Z_{\frac{s-d}{2}}\]
+    %
+    \noindent are decreasing with respect to $\leq_{st}$ for $0 \leq d < s$. By the Mixture Lemma (Lemma~\ref{lem:mixtures_and_stochastic_dominance}),
+    we see $Y_{D} \geq_{st} Y_{D'}$ whenever $0 \leq D \leq_{st} D' < s$. Namely, if we fix the total number of lineages $s$,
+    then if the imbalance $D$ between our two subpopulations tends to be less than imbalance $D'$, we tend
+    to have less coalescence.
+
+    From here, the idea is simple: we condition on the total number of lineages across the two populations, and attempt
+    to control the conditional differences. For convenience, define
+    %
+    \[\Delta_A := A' - A, \quad \Delta_B := B' - B, \quad S_A := A' + A, \quad S_B = B' + B.\]
+    %
+    Now, note in both $Z_{A + B} + Z_{A' + B'}$ and $Z_{A + B'} + Z_{A' + B}$ the total number of
+    lineages $S = S_A + S_B$ is the same. Hence, by conditioning on $S_A,S_B, |\Delta_A|,$ and $|\Delta_B|$, it suffices to show $D' \geq_{st} D$,
+    where $D,D'$ are the conditional differences
+    %
+    \[D' = |\Delta_A + \Delta_B| \mid \{|\Delta_A|, |\Delta_B| , S_A, S_B \}, \qquad D = |\Delta_A - \Delta_B| \mid \{|\Delta_A|, |\Delta_B| , S_A, S_B \}.\]
+    %
+    \noindent After this conditioning, $\{D, D'\} = \{|\Delta_A| + |\Delta_B|, ||\Delta_A| - |\Delta_B||\}$. If $|\Delta_A|=0$ or $|\Delta_B|=0$, then $D=D'$, and the conclusion is immediate. Hence suppose both absolute differences are positive. Let
+
+    \[q = \P(D' = |\Delta_A| + |\Delta_B|) = \P(\Delta_A\Delta_B \geq 0 \mid |\Delta_A|, |\Delta_B| , S_A, S_B)\]
+
+    \noindent be the probability $D'$ takes on the larger of these two values. Then it suffices to show $q \geq 1/2$. Since $\Delta_A, \Delta_B$ are conditionally independent given $S_A, S_B$
+    %
+    \[q = p_Ap_B + (1-p_A)(1-p_B) \geq \frac{1}{2} \iff \left(p_A - \frac{1}{2} \right) \left(p_B - \frac{1}{2} \right) \geq 0,\]
+    %
+    \noindent where $p_A = \P(\Delta_A \geq 0 \mid |\Delta_A|, S_A)$ and likewise for $p_B$. We will show that $p_A, p_B \geq 1/2$, completing the proof. Note conditional on $\{|\Delta_A| = m, S_A = s\}$ then $p_A \geq 1/2$ occurs precisely when
+    %
+    \[\P\left(A'=\frac{s+m}{2}, A = \frac{s-m}{2}\right) \geq \P\left(A'=\frac{s-m}{2}, A = \frac{s+m}{2}\right).\]
+    %
+    \noindent As $A,A'$ are independent, this follows from $A \leq_{lr} A'.$ Similarly, $p_B \geq 1/2$, so $D' \geq_{st} D$. The result
+    follows then by taking expectations with respect to $\Delta_A, \Delta_B, S_A, S_B$.
+\end{proof}
+
+With the random balancing lemma in hand, we can now iterate local balancing
+through the tree. This shows that the balanced topology minimizes coalescence
+among all trees with the same number of leaves. The following result makes this
+precise.
+
+% Balanced is worst case
+\begin{lemma}[Balanced Tree Is Worst Case]
+\label{lem:balanced_is_worse_case}
+    If $\cB_k$ is the balanced tree with $k$ leaves and all branch lengths
+    equal to $T_{\mathrm{min}}$ then $X_{\cB_k} \geq_{st} X_\cT$ for any other
+    tree $\cT$ with $k$ leaves and minimum branch length $T_{\mathrm{min}}$.
+\end{lemma}
+
+\begin{proof}[Proof of Lemma \ref{lem:balanced_is_worse_case}]
+First, replacing every branch length in $\cT$ by $T_{\mathrm{min}}$ can only
+increase the number of lineages reaching the root. It therefore suffices to
+assume that all branch lengths are $T_{\mathrm{min}}$.
+
+Throughout the proof, write $X_r:=X_{\cB_r}$ and $U_r:=Z_{X_r}$, with all
+occurrences of these random variables understood to be independent copies when
+they arise from disjoint subtrees. We first establish the balanced-subtree split
+comparison
+\begin{equation}
+U_m+U_{k-m}
+\leq_{st}
+U_{\lfloor k/2\rfloor}+U_{\lceil k/2\rceil} \overset{d}{=} X_k,
+\qquad 1\leq m\leq\lfloor k/2\rfloor.
+\label{eq:balanced-subtree-split-comparison}
+\end{equation}
+
+The idea of the proof is simple: both $X_m$ and $X_{k-m}$ consist of two subtrees of (approximately)
+the same size. By taking one subtree from each of $X_m, X_{k-m}$ and swapping them using the balancing lemma,
+we create two balanced subpopulations. From there, we can inductively balance these two subpopulations separately to get the result.
+
+More formally, we prove equation~\eqref{eq:balanced-subtree-split-comparison} by strong induction
+on $k$. The cases $k\leq3$ are
+immediate. For $k=4$, the only nontrivial comparison is
+\[
+U_1+U_3=Z_1+Z_{X_3}
+\leq_{st} Z_1+Z_3
+\leq_{st} Z_2+Z_2
+=U_2+U_2,
+\]
+where the first inequality follows from Corollary~\ref{corollary:stochastic_dominance_composition}
+because $X_3\leq3$ almost surely, and the second from the deterministic balancing lemma,
+Lemma~\ref{lem:deterministic_balancing_lemma}.
+
+Now suppose equation~\eqref{eq:balanced-subtree-split-comparison}
+holds for every $k'<k$, and fix $1\leq m < \lfloor k/2\rfloor$. Set
+\[
+a=\lfloor m/2\rfloor,\qquad a'=\lceil m/2\rceil,\qquad
+b=\lfloor(k-m)/2\rfloor,\qquad b'=\lceil(k-m)/2\rceil.
+\]
+Then $a\leq a'\leq b\leq b'$, and the recursive construction of the balanced
+trees gives
+\[
+X_m\stackrel{d}{=}U_a+U_{a'},
+\qquad
+X_{k-m}\stackrel{d}{=}U_b+U_{b'}.
+\]
+By Lemma~\ref{lem:xi_zxi_increasing_in_lro},
+\[
+U_a\leq_{lr}U_{a'}\leq_{lr}U_b\leq_{lr}U_{b'}.
+\]
+
+Suppose first that $k$ is even. Since
+$a+b'=a'+b=k/2$, apply the Balancing Lemma with
+$(A,A',B,B')=(U_a,U_b,U_{a'},U_{b'})$ to obtain
+%
+\begin{equation*}
+U_m+U_{k-m} \stackrel{d}{=}Z_{U_a+U_{a'}}+Z_{U_b+U_{b'}} \leq_{st}Z_{U_a+U_{b'}}+Z_{U_{a'}+U_b}.
+\end{equation*}
+%
+Applying the inductive hypothesis with total $k/2$ shows both $U_a + U_{b'} \leq_{st} X_{k/2}$ and $, U_{a'} + U_b \leq_{st} X_{k/2}$. 
+Hence Corollary~\ref{corollary:stochastic_dominance_composition} yields
+\[
+U_m+U_{k-m}
+\leq_{st}Z_{X_{k/2}}+Z_{X_{k/2}}
+=U_{k/2}+U_{k/2},
+\]
+which proves equation~\eqref{eq:balanced-subtree-split-comparison} for even $k$.
+
+If $k$ is odd, then
+$a+b=(k-1)/2$ and $a'+b'=(k+1)/2$. Applying the Balancing Lemma with
+$(A,A',B,B')=(U_a,U_{b'},U_{a'},U_b)$ gives
+%
+\begin{equation*}
+    U_m+U_{k-m}\stackrel{d}{=}Z_{U_a+U_{a'}}+Z_{U_b+U_{b'}}\leq_{st}Z_{U_a+U_b}+Z_{U_{a'}+U_{b'}}.
+\end{equation*}
+%
+The inductive comparisons with totals $(k-1)/2$ and $(k+1)/2$ bound
+the two inner sums by $X_{(k-1)/2}$ and $X_{(k+1)/2}$, respectively. Therefore
+\[
+U_m+U_{k-m}
+\leq_{st}Z_{X_{(k-1)/2}}+Z_{X_{(k+1)/2}}
+=U_{\lfloor k/2\rfloor}+U_{\lceil k/2\rceil}.
+\]
+This completes the proof of the balanced-subtree split comparison.
+
+We now prove the stated worst-case result, again by induction on $k$. The case $k=1$
+is immediate. Suppose the result holds for every smaller tree, and let $L$ and
+$R$ be the two root subtrees of $\cT$, with $m$ and $k-m$ leaves, respectively,
+where $m\leq k-m$. The inductive hypothesis gives
+$X_L\leq_{st}X_m$ and $X_R\leq_{st}X_{k-m}$. Consequently,
+Corollary~\ref{corollary:stochastic_dominance_composition} and
+equation~\eqref{eq:balanced-subtree-split-comparison} give
+\[
+X_\cT
+=Z_{X_L}+Z_{X_R}
+\leq_{st}U_m+U_{k-m}
+\leq_{st}U_{\lfloor k/2\rfloor}+U_{\lceil k/2\rceil}
+=X_{\cB_k}.
+\]
+\end{proof}
+
+\subsection{The Balanced Bipartition Cover Bound}
+\label{sec:balanced-bipartition-cover-bound}
 
 Lemma \ref{lem:balanced_is_worse_case} suggests a natural way of upper-bounding
 the number of lineages $X_e$ entering a given edge $e$: $X_e \leq_{st} X_{\cB_{\alpha_e}}$. From this, we get our final bound.
@@ -527,18 +873,24 @@ the number of lineages $X_e$ entering a given edge $e$: $X_e \leq_{st} X_{\cB_{\
 % Balanced bipartition cover bound %%%%%%%%%%
 \begin{theorem}[Balanced Bipartition Cover Bound]
 \label{thm:improved_bipartition_cover_bound_balanced}
-    Let
+ Let
 \begin{equation}
-    M_b(k, T_{\mathrm{min}}):=  \inf\left\{n \in \N : \sum_{\ell=2}^{k-2}\left[1-w_\ell\right]^n \leq 1-q\right\}
+    M_b(k, T_{\mathrm{min}}):=  \inf\left\{n \in \N : \sum_{\ell=2}^{k-2}\left[1-w_\ell(T_{\mathrm{min}})\right]^n \leq 1-q\right\}
 \label{eqn:balanced-bound}
 \end{equation}
 %
-\noindent where $w_\ell := \P(Z_{X_{\cB_\ell}} = 1)$. Then $N_{\mathrm{cov}}(q;\cT^*)\leq M_b(k,T_{\mathrm{min}})$.
+\noindent where $w_\ell := \P(Z_{X_{\cB_\ell}} = 1)$. Then $N_{\mathrm{cov}}(q;\cT^*)\leq M_b(k,T_{\mathrm{min}})$. In particular,
+\[
+N_{\mathrm{cov}}(q;\cT^*)\leq \left\lceil
+    \frac{\log\!\left(\frac{k-3}{1-q}\right)}
+         {-\log\!\left(1-w_{k-2}(T_{\mathrm{min}})\right)}
+\right\rceil.
+\]
 \end{theorem}
 
 
 % Proof
-\begin{proof}[Reduction to Lemma \ref{lem:balanced_is_worse_case}]
+\begin{proof}[Proof of Theorem \ref{thm:improved_bipartition_cover_bound_balanced}]
     Lemma \ref{lem:balanced_is_worse_case} implies $X_e \leq_{st} X_{\cB_{\alpha_e}}$
     so by the remark below Lemma \ref{lem:bounding_prob_with_second_order_stochastic_dominance} it
     suffices to show that $U_\ell := X_{\cB_\ell}$ is stochastically increasing in $\ell$. This follows from
@@ -551,15 +903,22 @@ the number of lineages $X_e$ entering a given edge $e$: $X_e \leq_{st} X_{\cB_{\
     Corollary~\ref{corollary:stochastic_dominance_composition} imply
     $U_{\ell+1} \geq_{st} U_\ell$. It follows that
     \[
-        h(\ell):=\E g_{U_\ell,1}(T_{\mathrm{min}})=w_\ell
+        h(\ell):=\E g_{U_\ell,1}(T_{\mathrm{min}})=w_\ell(T_{\mathrm{min}})
     \]
     is decreasing. Applying Theorem~\ref{thm:caterpillar_bound} with this choice of
-    $h$ gives the result.
+    $h$ gives the first bound. Moreover,
+    $w_\ell(T_{\mathrm{min}})\geq w_{k-2}(T_{\mathrm{min}})$ for
+    $2\leq\ell\leq k-2$, so
+    \[
+    \sum_{\ell=2}^{k-2}\left[1-w_\ell(T_{\mathrm{min}})\right]^n
+    \leq (k-3)\left[1-w_{k-2}(T_{\mathrm{min}})\right]^n.
+    \]
+    Solving the resulting inequality for $n$ gives the stated explicit bound.
 \end{proof}
 % end proof
 
-\noindent As the subtrees of a balanced tree are balanced, we can calculate $w_\ell$ easily 
-in a recursive fashion. Letting $W_\ell := Z_{X_{\cB_\ell}}$, we see $W_1 \equiv 1$ and 
+\noindent As the subtrees of a balanced tree are balanced, we can calculate $w_\ell(T_{\mathrm{min}})$ easily
+in a recursive fashion. Letting $W_\ell := Z_{X_{\cB_\ell}}$, we see $W_1 \equiv 1$ and
 $W_\ell =^d Z_{W_{\lfloor \ell/2 \rfloor} + W_{\lceil \ell/2 \rceil}}$, so
 %
 \begin{equation}
@@ -573,133 +932,22 @@ $W_\ell =^d Z_{W_{\lfloor \ell/2 \rfloor} + W_{\lceil \ell/2 \rceil}}$, so
     \label{eqn:balanced-W-recursion}
 \end{equation}
 
-In our asymptotic analysis below, we will discuss the following convenient upper bound
-%
-\[M_b(k,T) \leq \frac{\log\left(\frac{k-3}{1-q}\right)}{-\log\left(1-g_{\E X_{\cB_{k-2}}, 1}(T)\right)}.\]
-%
-\noindent Hence our analysis has allowed us to replace $k-2$ by $\E X_{\cB_{k-2}}$, which depending on
- $T$ may be a large improvement.
-
-
-
-
-% Experimental Results %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Simulations}
-\label{sec:simulations}
-
-In this section we compare the performance of our new bounds both to 
-the original bound of \citet{uricchio2016_bipartition_cover} and to empirical 
-results coming from simulations of the MSC model under various species tree topologies. 
-Code for reproducing the below figures can be found on GitHub \citep{mcnulty2025_msc_bipartition_cover_code}.
-
-
-% Bound growth rates
-\subsection{Bound Growth Rates}
-\label{sec:bound-growth-rates}
-
-First, we empirically explore how all the bounds grow as functions of the two key parameters: 
-the minimum branch length $T_{\mathrm{min}}$ and the species count $k$. We evaluated the 
-bounds at coverage probability $q=0.99$, for $T_{\mathrm{min}}\in\{0.1,0.2,0.5,1,2\}$ 
-and $k\in\{5,10,15,20,25,30\}$. Figure \ref{fig:bound_comparison} highlights our results. 
-All bounds increase with $k$ and decrease with $T_{\mathrm{min}}$ as is 
-natural. However, our newer bounds are dramatically lower in essentially all regimes.
-
-While it varies species to species, the maximal number of independent genes is typically 
-on the order of $10^3$ to $10^5$ \cite{loman2015_bacterial_genome_sequencing, pertea2023_human_gene_catalogue}. 
-One drawback of the original bipartition cover bound \eqref{eqn:uricchios_bipartition_cover_bound} that 
-Figure \ref{fig:bound_comparison} highlights is that it dips above this threshold even for relatively 
-few species $k$, especially when the minimum branch length is short. This can limit its practicability 
-because scientists might not have access to enough genes to achieve their desired coverage probability.
-One attractive feature of our new bound is that it remains below these biologically reasonable 
-thresholds for a much wider parameter range, greatly improving its utility.
-
-
-% Improvement Ratios
-\subsection{Improvement Ratios}
-\label{sec:improvement-ratios}
-
-To quantify how much these new bounds improve on the bound of \cite{uricchio2016_bipartition_cover}, 
-we plot the ratios $I := M_{\mathrm{old}}/M_{\mathrm{new}}$ again as functions of 
-the two nontrivial parameters $T_{\mathrm{min}}, k$. Values of $I > 1$ indicate an improvement over the
- original bound, and values $I < 1$ a degradation. Figure \ref{fig:improvement_ratios} shows
- these improvement ratios over the same parameter range as the previous section.
-
- As Figure \ref{fig:improvement_ratios} highlights, most of the improvement comes from the more 
- sophisticated balanced bound (Theorem \ref{thm:improved_bipartition_cover_bound_balanced}), which
- improves on the original bound by several orders of magnitude in the challenging high $k$ and 
- low $T_{\mathrm{min}}$ regimes.
-
-On the other hand, the caterpillar bound only improves by a small constant factor. This is due to 
-the fact 
-%
-    \[s(T) := \lim_{\ell \to \infty} g_{\ell,1}(T) > 0,\]
-%
-so most terms in the  sum $\sum_{\ell=2}^{k-2} (1-g_{\ell,1}(T))^n$ quickly saturate near $s(T)$ and we 
-gain little by replacing the maximum $g_{k-2,1}(T)$ by $g_{\ell, 1}(T)$.
-
-
-% Empirical Comparison
-\subsection{Quantifying Overestimation}
-\label{sec:quantifying-overestimation}
-
-In this section, we aim to quantify the level to which our bounds 
-overestimate the number of gene trees required to obtain a bipartition cover. 
-If $n_b$ is one of our upper bounds, define the \textit{overestimation ratio} to be the 
-quantity $n_b/N_{cov}(q; \cT^*)$. To estimate $N_{cov}(q; \cT^*)$, we sample gene 
-trees independently from the MSC model until we get a bipartition cover, and repeat 
-this for $N$ independent trials to get an estimate of the desired 
-quantile. We used $N=10^4$ and $q=0.9$. These were chosen so a significant
-number of trials (roughly $1000$) would generate data above the true $90^{th}$ quantile.
-Each trial was capped at $10^5$ gene trees, and we required fewer than $1\%$ of trials in every
-parameter setting to reach this cap.
-
-We explore a few different species tree topologies: the caterpillar 
-tree with equal branch lengths, the balanced tree with equal branch 
-lengths, and trees generated randomly from the Yule model. For the 
-first two topologies, we used $T_{\mathrm{min}}\in\{0.1,0.2,0.5,1\}$ 
-and $k\in\{10,15,20,25,30\}$. We generated $100$ Yule trees with birth rate one for each pair 
-$T_{\mathrm{min}}\in\{0.2,0.5,1\}$ and $k\in\{8,16\}$, and rescaled all branch lengths 
-so that the shortest internal branch had length $T_{\mathrm{min}}$. We then again 
-ran $N$ trials on each tree.
-
-Since caterpillar and balanced trees represent the two worst cases we explored in this chapter, 
-they in a sense measure how close our bound is to optimal in a topology-free sense. We expect our 
-bound to be tighter in these scenarios as compared to the more average case of Yule trees.
- Our results for caterpillar and balanced trees are displayed in Figures~\ref{fig:empirical_overestimation_ratios_for_caterpillar_trees}
-and~\ref{fig:empirical_overestimation_ratios_for_balanced_trees} respectively. The overestimation 
-ratio is significantly higher for balanced trees as compared to caterpillars. Since our bound 
-is topology-free, this aligns with the empirical observation that caterpillar trees are difficult
-to recover under the MSC. 
-
-Examining its dependence on the model parameters, we observe that the overestimation ratio of 
-our new bound varies less with the species parameter $k$ as compared to the original bound, 
-indicating that the balanced bound should scale more favorably to larger values of $k$ compared
- to the original bound. On the other hand, performance appears to deteriorate significantly as
-$T_{\mathrm{min}}$ decreases, suggesting less favorable scaling in the small $T_{\mathrm{min}}$
-regime.
-
-
-Since most trees differ substantially from these worst-case configurations, the performance 
-on Yule trees provides a more realistic measure of the typical behavior of the bound. To assess 
-this, we sample a range of species tree topologies from the Yule model and compute the 
-corresponding overestimation ratios. Figure~\ref{fig:empirical_overestimation_ratios_for_yule_trees} 
-shows the resulting distribution of these ratios across various choices of $k$ and $T_{\min}$.
-
-As expected, performance in this setting is noticeably worse than in the structured worst-case 
-scenarios, but it remains substantially better than that of the original bound. Increasing the 
-species parameter $k$ appears to have a much larger impact than in the previous settings, 
-suggesting worse scaling. Overall, the new bound is still fairly far from tight, suggesting 
-incorporating even partial topological information might be necessary.
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Estimated Growth Rates
+% Asymptotic analysis
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Estimated Growth Rates}
-\label{sec:estimated_growth_rates}
+\section{Asymptotic Growth and Improvement Factors}
+\label{sec:asymptotic-growth}
 
- Since the bounds are complicated functions of $T_{\mathrm{min}}$ and $k$, we develop estimates of their scaling with respect to these two parameters.
+ Since the bounds are complicated functions of $T_{\mathrm{min}}$ and $k$, we develop estimates
+ of their scaling with respect to these two parameters.
 
- Here we confirm our intuition that our new bounds drastically improve performance in the small $T$ regime. For fixed $T$, we show that all the bounds are $\Theta_T(\log(k))$, and that this is essentially the best one can do while relying on the union bound. We start with a result that specifies the asymptotics of the function $g_{k,1}(T)$ underlying all our bounds.
+ Here we confirm our intuition that our new bounds drastically improve performance
+ in the small $T$ regime. For fixed $T$, we show that all the bounds are $\Theta_T(\log(k))$, and that
+ this is essentially the best one can do while relying on the union bound. We start with a
+ result that specifies the asymptotics of the function $g_{k,1}(T)$ underlying all our bounds.
+
+\subsection{Coalescence-Probability Asymptotics}
+\label{sec:coalescence-probability-asymptotics}
 
 \begin{lemma}[Asymptotics of $g_{k,1}(T)$]
 \label{lem:asymptotics_g_k1(T)}
@@ -717,11 +965,29 @@ The function $T \mapsto g_{k,1}(T)$ has asymptotics
 \end{lemma}
 
 \noindent The proof can be found in Appendix~\ref{app:coalescent-asymptotics-proof}.
-Using this, we develop the following asymptotics for our two bounds. Recall that $M_o(k,T)$ denotes the original bound of \citet{uricchio2016_bipartition_cover} and $M_b(k,T)$ our balanced bound (Theorem~\ref{thm:improved_bipartition_cover_bound_balanced}).
+
+\subsection{Asymptotic Growth of the Bounds}
+\label{sec:asymptotic-bound-growth}
+
+Using this, we develop the following asymptotics for our two bounds. Recall
+that $M_o(k,T)$ denotes the original bound of \citet{uricchio2016_bipartition_cover} and $M_b(k,T)$
+our balanced bound (Theorem~\ref{thm:improved_bipartition_cover_bound_balanced}). Let
+%
+    \[u(T) := \frac{2-\exp(-T/2)}{1-\exp(-T/2)} \geq \E X_{\cB_k}^T\]
+%
+\noindent be our upper bound on the number of lineages reaching the root
+of a balanced tree, which we prove in Corollary~\ref{corr:upperbound_lineages_balanced} below.
+
+Jensen's inequality then gives the convenient upper bound
+%
+\[M_b(k,T) \leq \frac{\log\left(\frac{k-3}{1-q}\right)}{-\log\left(1-g_{\E X_{\cB_{k-2}}, 1}(T)\right)}.\]
+%
+Thus the balanced-tree analysis replaces $k-2$ by $\E X_{\cB_{k-2}}$, which may be
+substantially smaller.
 
 \begin{lemma}[Bound Asymptotics]
 \label{lem:bound_asymptotics}
-    Let $\kappa_{q,k} := \log((k-3)/(1-q))$ and $u(T) := \frac{2-\exp(-T/2)}{1-\exp(-T/2)}$. Then
+    Let $\kappa_{q,k} := \log((k-3)/(1-q))$. Then
     %
     \[M_o(k,T)  \sim \begin{cases}
     \frac{\kappa_{q,k}}{T}, & T \uparrow \infty, \\
@@ -732,34 +998,339 @@ Using this, we develop the following asymptotics for our two bounds. Recall that
     \[M_b(k,T) \lesssim
         \frac{\kappa_{q,k}}{-\log(1-g_{u(T), 1}(T))}, \qquad T \text{ fixed}, k \to \infty\]
 
-    \noindent Moreover, in the fixed $T$ regime, the improvement factor satisfies
-    %
-    \[
-    \liminf_{k\to\infty}\frac{M_o(k,T)}{M_b(k,T)}
-    \geq \beta_T
-    :=\frac{\log(1-g_{u(T),1}(T))}{\log(1-s(T))},
-    \qquad
-    \log\beta_T=\Theta(T^{-1})
-    \quad\text{as }T\downarrow0.
-    \]
-    %
 \end{lemma}
 
-\noindent The proof can be found in Appendix~\ref{app:bound-asymptotics}.
+\begin{proof}
+Let $s(T) := \P(S_\infty \leq T)$ be our limiting CDF,
+$\Delta_k(T) := g_{k,1}(T) - s(T)$ our gap, and
+$c(T) := 2f_{S_\infty}(T)$ our gap's asymptotic constant.
+
+We start with $M_o$. Note Lemma \ref{lem:asymptotics_g_k1(T)} implies
+%
+\begin{equation}
+    \log(1-g_{k,1}(T)) \sim \begin{cases} - T, & T \uparrow \infty, \\
+ -\frac{k!}{2^{k-1}} T^{k-1}, &  T = o(k^{-2}).
+\end{cases}
+\label{eqn:asymptotics_T_mapsto_log(one_minus_g_k1(T))}
+\end{equation}
+%
+\noindent From this
+
+\[M_{o}(k,T) \sim \begin{cases}
+    \frac{\kappa_{q,k}}{T}, & T \uparrow \infty, \\
+    \frac{2^{k-3}\kappa_{q,k}}{(k-2)! T^{k-3}}, & T = o(k^{-2}).
+\end{cases}\]
+
+\noindent In particular, we recover the small $T$ bound found in Appendix $B$ of \cite{shekhar2018_how_many_genes_are_enough}, although here we exactly quantify the asymptotic constant.
+
+For the fixed $T$ and asymptotic $k$ bound, we Taylor expand $\log(x)$ about $1 - s$ to observe
+%
+\[\log(1 - g_{k,1}(T) )= \log(1-s)-\sum_{n=1}^\infty \frac{\Delta^n}{n(1-s)^n} = \log(1-s) - \frac{\Delta}{1-s} - O(\Delta^2).\]
+%
+\noindent Hence this and Lemma \ref{lem:asymptotics_g_k1(T)} imply as $k \to \infty$
+%
+\[M_o(k,T) = \frac{\kappa_{q,k}}{\left(\frac{c(T)}{1-s} + o(1)\right) \cdot \frac{1}{k} - \log(1-s)} \sim \frac{\kappa_{q,k}}{-\log(1-s)}.\]
+
+\noindent For $M_b(k,T)$, note as $g_{k,1}(T)$ is decreasing in $k$ we have
+%
+\[\sum_{\ell=2}^{k-2} (1-w_\ell(T))^n \geq (k-3)(1-g_{2,1}(T))^n = (k-3)\exp(-nT).\]
+%
+\noindent Hence $M_b(k,T)\geq \kappa_{q,k}T^{-1}$.
+As $k \mapsto g_{k,1}(T)$ is decreasing and convex by Lemma \ref{lem:g_i1_is_convex},
+%
+\[\sum_{\ell=2}^{k-2} (1-\E g_{U_\ell, 1}(T))^n \leq (k-3) (1- g_{\E U_{k-2}, 1}(T))^n.\]
+%
+\noindent Applying Corollary \ref{corr:upperbound_lineages_balanced},
+%
+\[M_b(k,T) \leq \frac{\kappa_{q,k}}{-\log(1-g_{u(T),1}(T))}.\]
+%
+\noindent Combining these two previous results,
+%
+\[\frac{\kappa_{q,k}}{T} \leq M_{b}(k,T) \leq \frac{\kappa_{q,k}}{-\log(1-g_{u(T), 1}(T))}.\]
+%
+\noindent Since $M_b(k,T) \leq M_o(k,T)$, the lower bound shows us $M_b(k,T) \sim \kappa_{q,k} T^{-1}$ as $T \to \infty$. Since $u(T) \sim 2/T$ as $T \downarrow 0$, the preceding Taylor asymptotics, which require $k^2T=o(1)$, do not describe the relevant joint regime. Lemma~\ref{lem:improvement_ratio_asymptotics} analyzes this regime directly.
+
+\end{proof}
+
+\subsection{The Improvement Factor}
+\label{sec:asymptotic-improvement-factor}
+
+\begin{lemma}[Improvement Factor]
+\label{lem:improvement_ratio_asymptotics}
+For fixed $T$, the improvement factor satisfies
+\[
+\liminf_{k\to\infty}\frac{M_o(k,T)}{M_b(k,T)}
+\geq \beta_T
+:=\frac{\log(1-g_{u(T),1}(T))}{\log(1-s(T))}.
+\]
+Moreover, as $T\downarrow0$,
+\[
+\log\beta_T=\Theta(T^{-1}).
+\]
+\end{lemma}
+
+\begin{proof}
+The fixed-$T$ estimates in Lemma~\ref{lem:bound_asymptotics} give
+\[
+M_o(k,T)\sim\frac{\kappa_{q,k}}{-\log(1-s(T))},
+\qquad
+M_b(k,T)\lesssim
+\frac{\kappa_{q,k}}{-\log(1-g_{u(T),1}(T))},
+\]
+which imply the stated lower bound on the limiting improvement factor.
+
+Since $-\log(1-x)\sim x$ as $x\downarrow0$ and both
+$g_{u(T),1}(T),s(T)\downarrow0$, we have
+\[
+\log\beta_T=\log g_{u(T),1}(T)-\log s(T)+o(1).
+\]
+We first control $\log s(T)$. Let
+$K(x):=\log\E\exp(-xS_\infty)$. By independence, for $x>0$,
+\[
+K(x)=-\log\left(\prod_{n=2}^\infty
+\left[1+\frac{x}{\lambda_n}\right]\right).
+\]
+Since $(n-1)^2\leq2\lambda_n\leq n^2$, the infinite-product expansion of
+$\sinh$ gives
+\[
+0\leq K(x)+\log\left(\frac{\sinh(\pi\sqrt{2x})}{\pi\sqrt{2x}}\right)
+\leq\log(1+2x).
+\]
+Thus $K(x)\sim-\pi\sqrt{2x}$ as $x\to\infty$. Applying Corollary 2 of
+\cite{cadena2015_tauberian_theorems_exponential_type} with
+$A=1$, $P(x)=s(x)$, $B=-\pi^2/2$, and $\beta=-1$ yields
+\[
+\log s(T)\sim-\frac{\pi^2}{2}T^{-1}
+\qquad\text{as }T\downarrow0.
+\]
+
+Next, $\log g_{u(T),1}(T)\leq0$, which already gives
+$\log\beta_T=O(T^{-1})$. For the lower bound, let
+$\tau_i\sim\mathrm{Exp}(\binom{i}{2})$ be independent, so
+\[
+g_{k,1}(T)=\P\left(\sum_{i=2}^k\tau_i\leq T\right).
+\]
+Using $1-e^{-x}\geq x/(1+x)$,
+\[
+g_{k,1}(T)
+\geq\P\left(\bigcap_{i=2}^k
+\left\{\tau_i\leq\frac{T}{k-1}\right\}\right)
+\geq\prod_{i=2}^k
+\frac{\frac{T}{k-1}\binom{i}{2}}
+{1+\frac{T}{k-1}\binom{i}{2}}.
+\]
+If $x_{i,T}:=\frac{T}{k-1}\binom{i}{2}$, then
+\[
+T\log g_{k,1}(T)
+\geq Tk\cdot\frac{1}{k}\sum_{i=2}^k
+\log\frac{x_{i,T}}{1+x_{i,T}}.
+\]
+Since $u(T)\sim2/T$, a Riemann-sum approximation gives
+\[
+T\log g_{u(T),1}(T)
+\geq2\int_0^1\log\frac{y^2}{1+y^2}\,dy+o(1)
+=-(\pi+2\log2)+o(1).
+\]
+Combining this with the asymptotics for $\log s(T)$ gives
+\[
+\log\beta_T
+\geq T^{-1}\left(-\pi-2\log2+\frac{\pi^2}{2}+o(1)\right)
+=\Omega(T^{-1}).
+\]
+Together with the upper bound, this proves
+$\log\beta_T=\Theta(T^{-1})$.
+\end{proof}
+
+Thus, in this regime, the asymptotic lower bound on the improvement factor grows
+exponentially in $T^{-1}$.
+
+\subsection{Limits of the Union-Bound Framework}
+\label{sec:union-bound-limitations}
+
+Repeating the above analysis shows that \textit{any} bound built using the union bound and the coalescent function $g_{k,1}(T)$ cannot be asymptotically better than $\log(k)/T$. This is true, \textit{even if the descendant counts $\alpha_i$ are known}, as we can still upper bound $g_{\alpha_i, 1}(T) \leq g_{2,1}(T)$. Hence the asymptotics in $k$ are fundamentally limited to $\Theta(\log(k))$ by our union bound argument, and we can only hope to improve upon the constant down to the limit $T^{-1}$. The next section examines the corresponding finite-parameter improvements numerically.
 
 
-To see why the $\Theta(\log(k))$ growth rate is natural for the $k$ asymptotics, 
-note that $g_{k,1}(T)$ is roughly constant and equal to $s(T) > 0$ for all large $k$. 
-Hence in large caterpillar trees, where most of the edges have large descendant counts, 
+To see why the $\Theta(\log(k))$ growth rate is natural for the $k$ asymptotics,
+note that $g_{k,1}(T)$ is roughly constant and equal to $s(T) > 0$ for all large $k$.
+Hence in large caterpillar trees, where most of the edges have large descendant counts,
 most of their bipartitions have $g_{k,1}(T)$ saturating in this way.
 
-In this setting, we are essentially saying each bipartition corresponds to 
-a $\mathrm{Geometric}(s(T))$ random variable which specifies how many gene trees we need 
+In this setting, we are essentially saying each bipartition corresponds to
+a $\mathrm{Geometric}(s(T))$ random variable which specifies how many gene trees we need
 for that specific bipartition to show up. Each such variable has tail
- $\P(\mathrm{Geo}(s) > m) = (1-s)^{m}$. Solving for $p(m) = k^{-1}$ we see 
- $m = \log(k)/[-\log(1-s)]$, so the maximum of $k$ independent such geometric random 
+ $\P(\mathrm{Geo}(s) > m) = (1-s)^{m}$. Solving for $p(m) = k^{-1}$ we see
+ $m = \log(k)/[-\log(1-s)]$, so the maximum of $k$ independent such geometric random
  variables ought to be roughly of this order.
 
+% Experimental Results %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Numerical Results and Simulations}
+\label{sec:simulations}
+
+In this section we compare the performance of our new bounds both to
+the original bound of \citet{uricchio2016_bipartition_cover} and to empirical
+results coming from simulations of the MSC model under various species tree topologies.
+Code for reproducing the below figures can be found on GitHub \citep{mcnulty2025_msc_bipartition_cover_code}.
+
+
+% Bound growth rates
+\subsection{Numerical Growth of the Bounds}
+\label{sec:bound-growth-rates}
+
+First, we numerically explore how the original and balanced bounds grow as functions of the two key parameters:
+the minimum branch length $T_{\mathrm{min}}$ and the species count $k$. We evaluated the
+bounds at coverage probability $q=0.99$, for $T_{\mathrm{min}}\in\{0.1,0.2,0.5,1,2\}$
+and $k\in\{5,10,15,20,25,30\}$. Figure \ref{fig:bound_comparison} highlights our results.
+Both bounds increase with $k$ and decrease with $T_{\mathrm{min}}$, as expected. However,
+the balanced bound is dramatically lower in essentially all regimes.
+
+% Bound comparisons (as functions of k, T_min)
+\begin{figure}[!tbp]
+    \centering
+    \captionsetup{type=figure, justification=raggedright, singlelinecheck=false}
+    \includegraphics[height=4cm]{bound_plots/original_bound.png}
+
+    \includegraphics[height=4cm]{bound_plots/balanced_bound.png}
+    \caption{Bipartition cover bounds as functions of the two key parameters $k$ and $T_{\min}$. (top) The original bound \citep{uricchio2016_bipartition_cover}. (bottom) The balanced bound (Theorem~\ref{thm:improved_bipartition_cover_bound_balanced}).}
+    \label{fig:bound_comparison}
+\end{figure}
+
+While it varies species to species, the maximal number of independent genes is typically
+on the order of $10^3$ to $10^5$ \cite{loman2015_bacterial_genome_sequencing, pertea2023_human_gene_catalogue}.
+One drawback of the original bipartition cover bound \eqref{eqn:uricchios_bipartition_cover_bound} that
+Figure \ref{fig:bound_comparison} highlights is that it dips above this threshold even for relatively
+few species $k$, especially when the minimum branch length is short. This can limit its practicability
+because scientists might not have access to enough genes to achieve their desired coverage probability.
+One attractive feature of our new bound is that it remains below these biologically reasonable
+thresholds for a much wider parameter range, greatly improving its utility.
+
+
+% Improvement Ratios
+\subsection{Numerical Improvement Ratios}
+\label{sec:improvement-ratios}
+
+To quantify how much these new bounds improve on the bound of \cite{uricchio2016_bipartition_cover},
+we plot the ratios $I := M_{\mathrm{old}}/M_{\mathrm{new}}$ again as functions of
+the two nontrivial parameters $T_{\mathrm{min}}, k$. Values of $I > 1$ indicate an improvement over the
+ original bound, and values $I < 1$ a degradation. Figure \ref{fig:improvement_ratios} shows
+ these improvement ratios over the same parameter range as the previous subsection.
+
+% Improvement ratio fig
+\begin{figure}[!tbp]
+    \centering
+    \captionsetup{type=figure, justification=raggedright, singlelinecheck=false}
+    \includegraphics[height=4cm]{improvement_ratios/cat_vs_original.png}
+
+    \includegraphics[height=4cm]{improvement_ratios/balanced_vs_original.png}
+    \caption{Improvement ratios. (top) Improvement of the caterpillar bound (Corollary~\ref{cor:improved_bipartition_cover_bound_caterpillar}) over the original bound (Theorem~\ref{thm:uricchios_bipartition_cover_bound}). (bottom) Improvement of the balanced bound (Theorem~\ref{thm:improved_bipartition_cover_bound_balanced}) over the original bound.}
+    \label{fig:improvement_ratios}
+\end{figure}
+
+ As Figure \ref{fig:improvement_ratios} highlights, most of the improvement comes from the more
+ sophisticated balanced bound (Theorem \ref{thm:improved_bipartition_cover_bound_balanced}), which
+ improves on the original bound by several orders of magnitude in the challenging high $k$ and
+ low $T_{\mathrm{min}}$ regimes.
+
+On the other hand, the caterpillar bound only improves by a small constant factor. This is due to
+the fact
+%
+    \[s(T) := \lim_{\ell \to \infty} g_{\ell,1}(T) > 0,\]
+%
+so most terms in the  sum $\sum_{\ell=2}^{k-2} (1-g_{\ell,1}(T))^n$ quickly saturate near $s(T)$ and we
+gain little by replacing the maximum $g_{k-2,1}(T)$ by $g_{\ell, 1}(T)$.
+
+
+% Empirical Comparison
+\subsection{Simulation-Based Overestimation}
+\label{sec:quantifying-overestimation}
+
+In this subsection, we aim to quantify the level to which our bounds
+overestimate the number of gene trees required to obtain a bipartition cover.
+If $n_b$ is one of our upper bounds, define the \textit{overestimation ratio} to be the
+quantity $n_b/N_{cov}(q; \cT^*)$. To estimate $N_{cov}(q; \cT^*)$, we sample gene
+trees independently from the MSC model until we get a bipartition cover, and repeat
+this for $N$ independent trials to get an estimate of the desired
+quantile. We used $N=10^4$ and $q=0.9$. These were chosen so a significant
+number of trials (roughly $1000$) would generate data above the true $90^{th}$ quantile.
+Each trial was capped at $10^5$ gene trees, and we required fewer than $1\%$ of trials in every
+parameter setting to reach this cap.
+
+We explore a few different species tree topologies: the caterpillar
+tree with equal branch lengths, the balanced tree with equal branch
+lengths, and trees generated randomly from the Yule model. For the
+first two topologies, we used $T_{\mathrm{min}}\in\{0.1,0.2,0.5,1\}$
+and $k\in\{10,15,20,25,30\}$. We generated $100$ Yule trees with birth rate one for each pair
+$T_{\mathrm{min}}\in\{0.2,0.5,1\}$ and $k\in\{8,16\}$, and rescaled all branch lengths
+so that the shortest internal branch had length $T_{\mathrm{min}}$. We then again
+ran $N$ trials on each tree.
+
+Because caterpillar and balanced trees realize the two distinct extremal mechanisms used in our
+topology-free analysis, they help measure how close the resulting bound is to optimal in that
+sense. We expect the bound to be tighter for these structured cases than for the more typical
+Yule trees. Our results for caterpillar and balanced trees are displayed in
+Figures~\ref{fig:empirical_overestimation_ratios_for_caterpillar_trees}
+and~\ref{fig:empirical_overestimation_ratios_for_balanced_trees}, respectively.
+
+% overestimation for Caterpillar Trees
+\begin{figure}[!tbp]
+    \centering
+    \captionsetup{type=figure, justification=raggedright, singlelinecheck=false}
+    \includegraphics[height=4cm]{overestimation_ratios/caterpillar_tree_original_bound_vs_T_k.png}
+
+    \includegraphics[height=4cm]{overestimation_ratios/caterpillar_tree_balanced_bound_vs_T_k.png}
+    \caption{Empirical overestimation ratios for caterpillar trees. (top) The original bound (Theorem~\ref{thm:uricchios_bipartition_cover_bound}). (bottom) The balanced bound (Theorem~\ref{thm:improved_bipartition_cover_bound_balanced}).}
+    \label{fig:empirical_overestimation_ratios_for_caterpillar_trees}
+\end{figure}
+
+% overestimation for Balanced Trees
+\begin{figure}[!tbp]
+    \centering
+    \captionsetup{type=figure, justification=raggedright, singlelinecheck=false}
+    \includegraphics[height=4cm]{overestimation_ratios/balanced_tree_original_bound_vs_T_k.png}
+
+    \includegraphics[height=4cm]{overestimation_ratios/balanced_tree_balanced_bound_vs_T_k.png}
+    \caption{Empirical overestimation ratios for balanced trees. (top) The original bound (Theorem~\ref{thm:uricchios_bipartition_cover_bound}). (bottom) The balanced bound (Theorem~\ref{thm:improved_bipartition_cover_bound_balanced}).}
+    \label{fig:empirical_overestimation_ratios_for_balanced_trees}
+\end{figure}
+
+The overestimation
+ratio is significantly higher for balanced trees as compared to caterpillars. Since our bound
+is topology-free, this aligns with the empirical observation that caterpillar trees are difficult
+to recover under the MSC.
+
+Examining its dependence on the model parameters, we observe that the overestimation ratio of
+our new bound varies less with the species parameter $k$ as compared to the original bound,
+indicating that the balanced bound should scale more favorably to larger values of $k$ compared
+ to the original bound. On the other hand, performance appears to deteriorate significantly as
+$T_{\mathrm{min}}$ decreases, suggesting less favorable scaling in the small $T_{\mathrm{min}}$
+regime.
+
+
+Since most trees differ substantially from these worst-case configurations, the performance
+on Yule trees provides a more realistic measure of the typical behavior of the bound. To assess
+this, we sample a range of species tree topologies from the Yule model and compute the
+corresponding overestimation ratios. Figure~\ref{fig:empirical_overestimation_ratios_for_yule_trees}
+shows the resulting distribution of these ratios across various choices of $k$ and $T_{\min}$.
+
+% overestimation for Yule Trees
+\begin{figure}[p]
+    \centering
+    \captionsetup{justification=raggedright,singlelinecheck=false}
+    \includegraphics[height=0.80\textheight,keepaspectratio]{overestimation_ratios/yule_trees_overestimation.png}
+
+    \caption{Log-scaled overestimation ratios for Yule trees. Rows vary
+    $T_{\min} \in \{0.2,0.5,1\}$ and columns vary $k \in \{8,16\}$;
+    nested boxes show progressively wider quantile intervals around the median
+    (25–75\%, 12.5–87.5\%, 6.25–93.75\%, and 3.125–96.875\%).}
+    \label{fig:empirical_overestimation_ratios_for_yule_trees}
+\end{figure}
+
+As expected, performance in this setting is noticeably worse than in the structured worst-case
+scenarios, but it remains substantially better than that of the original bound. Increasing the
+species parameter $k$ appears to have a much larger impact than in the previous settings,
+suggesting worse scaling. Overall, the new bound is still fairly far from tight, suggesting
+incorporating even partial topological information might be necessary.
+
+\clearpage
 
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  % Conclusion
@@ -782,93 +1353,28 @@ lineages is distributed more evenly across descendant populations, more lineages
 uncoalesced. While short internal branches and anomaly-zone behavior are familiar obstacles to
 species-tree inference, our analysis identifies a distinct topology-dependent mechanism: balanced
 splits systematically delay coalescence, allowing ancestral lineages to persist longer
-and thereby increasing the potential for incomplete lineage sorting. Moreover, these 
+and thereby increasing the potential for incomplete lineage sorting. Moreover, these
 balancing lemmas may be interesting in their own right, providing new insight into coalescence
-under the MSC model. 
+under the MSC model.
 
 For fixed branch length, the new bound grows as $\Theta_T(\log k)$, which is the
 best possible order within the union-bound framework used here. The bound need
 not be globally tight, however, because its two extremal ingredients are attained
 by different tree topologies. As the branch length tends to zero, our asymptotic
-lower bound on the improvement factor grows as $\exp(\Theta(T^{-1}))$. Our simulations likewise show these bounds are still 
+lower bound on the improvement factor grows as $\exp(\Theta(T^{-1}))$. Our simulations likewise show these bounds are still
 fairly conservative, particularly in the challenging short branch length regime.
 Incorporating partial information about the species tree topology therefore
 provides a natural direction for obtaining sharper finite-sample guarantees.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%  FIGURES
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Bound comparisons (as functions of k, T_min)
-\newpage
-\begin{figure}[p]
-    \centering
-    \captionsetup{type=figure, justification=raggedright, singlelinecheck=false}
-    \includegraphics[height=4cm]{bound_plots/original_bound.png}
-
-    \includegraphics[height=4cm]{bound_plots/balanced_bound.png}
-    \caption{Bipartition cover bounds as functions of the two key parameters: $k$, $T_{\min}$. (top) The original bound \citep{uricchio2016_bipartition_cover}. (bottom) Our balanced bound (Theorem~\ref{thm:improved_bipartition_cover_bound_balanced})}
-    \label{fig:bound_comparison}
-\end{figure}
-
-% Improvement ratio fig
-\begin{figure}[p]
-    \centering
-    \captionsetup{type=figure, justification=raggedright, singlelinecheck=false}
-    \includegraphics[height=4cm]{improvement_ratios/cat_vs_original.png}
-
-    \includegraphics[height=4cm]{improvement_ratios/balanced_vs_original.png}
-    \caption{Improvement ratios. (top) Improvement of caterpillar bound (Theorem~\ref{thm:caterpillar_bound}) over the original bound (Theorem~\ref{thm:uricchios_bipartition_cover_bound}). (bottom) Improvement of the balanced bound over original}
-    \label{fig:improvement_ratios}
-\end{figure}
-
-% overestimation for Caterpillar Trees
-\begin{figure}[p]
-    \centering
-    \captionsetup{type=figure, justification=raggedright, singlelinecheck=false}
-    \includegraphics[height=4cm]{overestimation_ratios/caterpillar_tree_original_bound_vs_T_k.png}
-
-    \includegraphics[height=4cm]{overestimation_ratios/caterpillar_tree_balanced_bound_vs_T_k.png}
-    \caption{Empirical overestimation ratios for caterpillar trees. (top) The original bound (Theorem~\ref{thm:uricchios_bipartition_cover_bound}) and (bottom) our balanced bound (Theorem~\ref{thm:improved_bipartition_cover_bound_balanced})}
-    \label{fig:empirical_overestimation_ratios_for_caterpillar_trees}
-\end{figure}
-
-% overestimation for Balanced Trees
-\begin{figure}[p]
-    \centering
-    \captionsetup{type=figure, justification=raggedright, singlelinecheck=false}
-    \includegraphics[height=4cm]{overestimation_ratios/balanced_tree_original_bound_vs_T_k.png}
-
-    \includegraphics[height=4cm]{overestimation_ratios/balanced_tree_balanced_bound_vs_T_k.png}
-    \caption{Empirical overestimation ratios for balanced trees. (top) The original bound (Theorem~\ref{thm:uricchios_bipartition_cover_bound}) and (bottom) our balanced bound (Theorem~\ref{thm:improved_bipartition_cover_bound_balanced})}
-    \label{fig:empirical_overestimation_ratios_for_balanced_trees}
-\end{figure}
-\clearpage
-
-% overestimation for Yule Trees
-\begin{figure}[p]
-    \centering
-    \captionsetup{justification=raggedright,singlelinecheck=false}
-    \includegraphics[height=0.80\textheight,keepaspectratio]{overestimation_ratios/yule_trees_overestimation.png}
-
-
-    \caption{Log-scaled overestimation ratios for Yule trees. Rows vary
-    $T_{\min} \in \{0.2,0.5,1\}$ and columns vary $k \in \{8,16\}$;
-    nested boxes show progressively wider quantile intervals around the median 
-    (25–75\%, 12.5–87.5\%, 6.25–93.75\%, and 3.125–96.875\%).}
-    \label{fig:empirical_overestimation_ratios_for_yule_trees}
-\end{figure}
-
 
 % Appendix: Basic Results %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \clearpage
 \begin{subappendices}
 
-\section{Basic Results}
+\section{Supporting Results for Coalescence and Stochastic Orders}
 \label{app:basic-results}
 
     % Basic Properties Log-concavity
-    \subsection{Basic Properties of Log-Concavity}
+    \subsection{Log-Concavity and Ultra Log-Concavity}
     \label{app:basic-log-concavity}
 
     A sequence $\{x_k\}$ is \textit{log-concave} if $x_{k}^2 \geq x_{k-1}x_{k+1}$. We say a random variable $X$ is log-concave if the sequence $x_k = \P(X = k)$ is log-concave.
@@ -930,7 +1436,7 @@ provides a natural direction for obtaining sharper finite-sample guarantees.
 
 
 % Properties of g_ij
-\subsection{Basic Properties of $g_{i,j}(T)$ and $Z^T_i$}
+\subsection{Coalescent Transition Probabilities and Lineage Counts}
 \label{app:basic-coalescent-properties}
 
 We will start by proving some basic properties about the function $g_{i,j}(T)$ and the associated random variables $Z_i^T$ with distribution $\P(Z_i^T = j) = g_{i,j}(T)$. Recall that $Z^T_i$ gives the distribution of the number of lineages remaining after starting with $i$ lineages and running Kingman's coalescent for $T$ seconds.
@@ -1063,16 +1569,18 @@ The random variables $X_m, Z_{X_m}$ are ultra log-concave, and hence log-concave
     \end{proof}
 
 
-% Basic Properties of Stochastic Orderings
-\subsection{Basic Properties of Stochastic Orderings}
+% First-order stochastic dominance
+\subsection{First-Order Stochastic-Dominance Tools}
 \label{app:basic-stochastic-orderings}
 
-\noindent The following results are just simple general properties of stochastic orderings which we have sometimes reinterpreted in our current setting. The book \cite{shaked2007_stochastic_orders} contains more information on properties of such stochastic orderings, far beyond what we cover here.
-
-\subsubsection{First-Order Stochastic Dominance}
 \label{app:first-order-stochastic-dominance}
 
-In this section, we prove some lemmas relating to first-order stochastic dominance and the random variables $Z^T_i$. Below we typically suppress the $T$ notation unless it is explicitly necessary. The following generalizes Lemma \ref{lem:cdf_of_Zi} by allowing for the number of initial lineages to be random.
+The following results collect general properties of first-order stochastic dominance as
+they apply to the random variables $Z^T_i$. The book
+\cite{shaked2007_stochastic_orders} contains a broader treatment of stochastic orders.
+Below we typically suppress the $T$ notation unless it is explicitly necessary. The
+following generalizes Lemma \ref{lem:cdf_of_Zi} by allowing the number of initial lineages
+to be random.
 
 % compositions
 \begin{corollary}[Stochastic Dominance of Compositions]
@@ -1109,7 +1617,7 @@ In this section, we prove some lemmas relating to first-order stochastic dominan
 
 % Stochastic dominance and conditionals
 \noindent The following tells us that increasing mixtures of increasing variables are again increasing.
-\begin{lemma}
+\begin{lemma}[Mixture Lemma]
 \label{lem:mixtures_and_stochastic_dominance}
     Suppose that we have collections of random variables $\{V_i\}_{i \in \N}, \{\Theta_i\}_{i \in \N}$ so that for each $i \leq j$ we have:
     \begin{enumerate}[label=\alph*)]
@@ -1120,7 +1628,7 @@ In this section, we prove some lemmas relating to first-order stochastic dominan
     \noindent Then $V_i \leq_{st} V_j$ for $i \leq j$.
 \end{lemma}
 
-\begin{proof}[Proof of Lemma \ref{lem:mixtures_and_stochastic_dominance}]
+\begin{proof}[Proof of the Mixture Lemma (Lemma~\ref{lem:mixtures_and_stochastic_dominance})]
     For $i < j$ note by conditioning on $\Theta_i$ we get
     %
     \begin{align*}
@@ -1137,13 +1645,11 @@ In this section, we prove some lemmas relating to first-order stochastic dominan
     \end{proof}
 
     % Likelihood ratio ordering
-    \subsubsection{Likelihood Ratio Ordering}
+    \subsection{Likelihood-Ratio-Order Tools}
     \label{app:likelihood-ratio-ordering}
-    We say a random variable $X$ is less than $Y$ with respect to the \textit{likelihood ratio ordering (LRO)}, and denote this by $X \leq_{lr} Y$,  if the likelihood ratios $f_Y(t)/f_X(t)$ are non-decreasing in $t$. Here, $f_X, f_Y$ are the mass functions of $X,Y$ respectively. Equivalently, we require
-    %
-    \[f_X(s)f_Y(t) \geq f_X(t)f_Y(s), \quad \forall s \leq t\]
-    %
-    \noindent It is not hard to see that $X \leq_{lr} Y$ implies $X \leq_{st} Y$, so this is a strictly stronger ordering than that of first-order stochastic dominance. The LRO has some convenient closure properties. The following appear as Theorems 1.C.9 and 1.C.17 of \cite{shaked2007_stochastic_orders}, respectively.
+    The likelihood ratio ordering defined above has some convenient closure
+    properties. The following appear as Theorems 1.C.9 and 1.C.17 of
+    \cite{shaked2007_stochastic_orders}, respectively.
 
     \begin{theorem}[LRO preserved by Convolutions]
 \label{thm:convolutions_and_likelihood_ratio_order}
@@ -1189,128 +1695,13 @@ For $i \leq j$ we have $Z_i \leq_{lr} Z_j$, $X_i \leq_{lr} X_j$ and $Z_{X_i} \le
 
 
 
-% Caterpillar Bound %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Technical lemmas for the upper-bound results
 \newpage
-\section{Proofs of the Main Upper-Bound Results}
+\section{Technical Results for Extremal Tree Topologies}
 \label{app:main-upper-bound-proofs}
 
-\subsection{Proof of Lemma \ref{lem:caterpillar_maximize_increasing_sums}: Caterpillars Maximize Increasing Sums}
-\label{app:caterpillar-maximization-proof}
-
-\noindent The following is true regardless of our convention for choosing the edge adjacent to the root.
- Moreover, it is clearly also true if we use \textit{all} descendant counts $\{\alpha_i\}_{i=1}^{2k-2}$ 
- rather than just those corresponding to nontrivial bipartitions: all but one of the additional
-  $\alpha_i$ are equal to one, and it is clear from the proof below we can handle the exceptional
-value as well.
-
-\medskip
-
-\noindent \textbf{Lemma:} Suppose $\{\alpha_{i}\}_{i=1}^{k-3}$ are the descendant counts
-corresponding to the nontrivial bipartitions of a binary tree $\cT$. Moreover, suppose $f: \N \to \R$ is
-nondecreasing. Then $\sum_i f(\alpha_{i})$ is maximized when $T$ is the caterpillar tree, for which $\{\alpha_{i}\} = \{2,3,..., k-2\}$.
-
-
-\begin{proof}[Proof Lemma \ref{lem:caterpillar_maximize_increasing_sums}]
-    Since $f$ is nondecreasing, it suffices to show we can reindex $\{\alpha_i\}_{i=1}^{k-3}$ so 
-    $\alpha_i \leq i + 1$. Heuristically, we are just pairing up each edge $e$ in our
-    tree $T$ with an edge $e'$ in our caterpillar tree so that $e$ has at most as many descendants as $e'$. We do so by induction on the number of leaves/species.
-
-    % Base case %%%%%%%%
-    \medskip
-
-    \noindent \textbf{Base Case: $k = 4$}
-
-    \noindent In this case, the two unique rooted trees, shown in Figure \ref{fig:caterpillar_and_balanced_tree}, both have $\alpha_1 = 2$ for their only nontrivial bipartition, so the statement is trivially true. Again we are ignoring trivial bipartitions and possibly one of the edges adjacent to the root.
-
-
-
-
-    \medskip
-
-    \noindent \textbf{Inductive Step}
-
-    \noindent Suppose we have a tree $\cT$ with $k > 4$ leaves. There are two cases:
-
-    \begin{enumerate}[label=(\alph*)]
-        \item \textit{One child of root is a leaf}. If $\cT'$ is the non-leaf subtree of the root,
-               apply the inductive hypothesis to $\cT'$. Let $\{\alpha_i\}_{i=1}^{k-4}$ be the descendant counts of $\cT'$. 
-               By induction, we can reindex $\{\alpha_i\}_{i=1}^{k-4}$ so that $\alpha_i \leq i+1$. Moreover, as all nontrivial 
-               bipartitions have at most $k-2$ leaves in one part, trivially $\alpha_{k-3} \leq k-2$, so we are done. 
-               Namely, we can just pair the remaining nontrivial edge of $\cT$, with the top nontrivial edge of our caterpillar 
-               tree.
-
-        \item \textit{Neither child of root is a leaf}. Let $\cT', \cT''$ be the two subtrees of
-               the root. If these have $r,m$ leaves respectively, where $r,m \in \{2,3,..., k-2\}$ and 
-               $r+m=k$, let $\{\kappa_i\}_{i=1}^{r-3}$ and $\{\beta_j\}_{j=1}^{m-3}$ be their descendant 
-               counts. If $r<4$ (respectively, $m<4$), the corresponding subtree has no nontrivial
-               bipartitions, and we take the family $\{\kappa_i\}$ (respectively, $\{\beta_j\}$) to be empty.
-               By induction, these can be ordered so that $\kappa_i \leq i+1$ and $\beta_j \leq j+1$. 
-               Clearly then defining
-
-        \[\alpha_i = \begin{cases}
-            \kappa_i, & 1 \leq i \leq r-3, \\
-            \beta_{i-r+3}, & r-3 < i  \leq k-6. \\
-        \end{cases}\]
-
-        \noindent Namely, we just list the edges of $\cT'$ first, and then the edges of $\cT''$. This accounts 
-        for all but three of the edges of $\cT$: one of the edges $e$ adjacent to the root of $\cT$, one edge $e'$ in $\cT'$, 
-        and one edge $e''$ in $\cT''$.
-        
-        \indent Note that the descendant counts $\alpha_{e'}, \alpha_{e''}$ of $e', e''$ are at most 
-        $r-1, m-1$ respectively. Moreover
-        %
-        \[r-1 = k-m-1 \leq k-3, \qquad m-1 = k-r-1 \leq k-3\]
-        %
-        \noindent as both $\cT', \cT''$ have at least two leaves. Equality holds if $m=2$ or 
-        $r=2$ respectively, so for $k > 4$ equality cannot hold for both simultaneously. 
-        Hence without loss of generality assume $\alpha_{e'} \leq k-4$. So we can let $\alpha_{k-5}, \alpha_{k-4}$ 
-        correspond to edges $e', e''$ respectively. Trivially $e$ has descendant count at most $k-2$,
-         as all nontrivial bipartitions do. Thus we can let $\alpha_{k-3}$ correspond to edge $e$. 
-         This completes the proof of Lemma \ref{lem:caterpillar_maximize_increasing_sums}.
-
-    \end{enumerate}
-
-        % Example alpha_i
-    \begin{figure}[h]
-    \centering
-    \begin{tikzpicture}[scale=0.7]
-
-    \node[circle, fill=black, inner sep=1.5pt] (root) at (0,0) {};
-    \node[circle, fill=black, inner sep=1.5pt] (n1) at (-2,-1.2) {};
-    \node[circle, fill=black, inner sep=1.5pt] (n2) at (2,-1.2) {};
-    \node[circle, fill=black, inner sep=1.5pt] (n3) at (-3,-2.4) {};
-    \node[circle, fill=black, inner sep=1.5pt] (n4) at (-1,-2.4) {};
-    \node[circle, fill=black, inner sep=1.5pt] (n5) at (1,-2.4) {};
-    \node[circle, fill=black, inner sep=1.5pt] (n6) at (3,-2.4) {};
-    \node[circle, fill=black, inner sep=1.5pt] (n7) at (-3.5,-3.6) {};
-    \node[circle, fill=black, inner sep=1.5pt] (n8) at (-2.5,-3.6) {};
-    \node[circle, fill=black, inner sep=1.5pt] (n9) at (-1.5,-3.6) {};
-    \node[circle, fill=black, inner sep=1.5pt] (n10) at (-0.5,-3.6) {};
-    \node[circle, fill=black, inner sep=1.5pt] (n11) at (0.5,-3.6) {};
-    \node[circle, fill=black, inner sep=1.5pt] (n12) at (1.5,-3.6) {};
-
-    \draw (root) -- (n1) node[midway, above left] {\tiny $\alpha_e = 4$};
-    \draw (root) -- (n2) ;
-    \draw (n1) -- (n3) node[midway, above left] {\tiny $\alpha_{e'} = 2$};
-    \draw (n1) -- (n4) node[midway, above right] {\tiny 2};
-    \draw (n2) -- (n5) node[midway, above left] {\tiny $\alpha_{e''} = 2$};
-    \draw (n2) -- (n6);
-    \draw (n3) -- (n7);
-    \draw (n3) -- (n8);
-    \draw (n4) -- (n9);
-    \draw (n4) -- (n10);
-    \draw (n5) -- (n11);
-    \draw (n5) -- (n12);
-    \end{tikzpicture}
-    \caption{Example of the inductive step in Lemma \ref{lem:caterpillar_maximize_increasing_sums}}
-    \label{fig:inductive_step_case_b}
-    \end{figure}
-    % end fig
-\end{proof}
-%%%%
-
-
-\noindent We can provide a partial complement to the above Lemma \ref{lem:caterpillar_maximize_increasing_sums} analyzing the other extreme. More concretely, we will show that the more balanced the tree is, the smaller these sums tend to be. We will not use this result in this chapter, but it adds to the idea that the balanced tree and the caterpillar tree are in a sense the two extreme points in our space of trees.
+\subsection{Balanced Trees Minimize Convex Descendant-Count Sums}
+\noindent We can provide a partial complement to Lemma \ref{lem:caterpillar_maximize_increasing_sums} analyzing the other extreme. More concretely, we will show that the more balanced the tree is, the smaller these sums tend to be. We will not use this result in this chapter, but it adds to the idea that the balanced tree and the caterpillar tree are in a sense the two extreme points in our space of trees.
 
 \begin{lemma}
 \label{lem:balanced_trees_minimize_increasing_convex_sums}
@@ -1445,265 +1836,23 @@ Lastly, we argue that any tree can be converted into a balanced tree by iteratin
 This type of iterative subtree balancing is reminiscent of measures of tree balance in phylogenetics, where metrics such as the Colless or Sackin indices quantify how balanced a tree is relative to the maximally balanced or maximally imbalanced (caterpillar) configurations. Tree balance statistics have long been used in phylogenetics to characterize the shapes of evolutionary trees, compare them to null models, and infer evolutionary processes such as speciation or extinction biases \cite{kersting2025_tree_balance_phylogenetic_models}.
 
 Classical tree-balancing procedures in computer science—such as AVL trees \cite{adelson1962_avl_information_organization} and weight-balanced trees \cite{nievergelt1973_bounded_balance_binary_search_trees}—use local rotations to enforce constraints on subtree depths or sizes. Our algorithm shares the same conceptual goal of redistributing leaves to reduce imbalance, but it is purely combinatorial and does not maintain any search property.
-
-
-% Proof even splits suck %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newpage
-\subsection{Proof Lemma \ref{lem:deterministic_balancing_lemma}: Deterministic Balancing Lemma}
-\label{app:deterministic-balancing-proof}
-
-Recall we aim to prove:
-
-\medskip
-
-\noindent \textbf{Lemma:} Let $k \geq 4$ be fixed. Then for any fixed $T$
-    \[Z^T_{i} + Z^T_{k-i} \leq_{st} Z^T_{j} + Z^T_{k-j},  \quad  1 \leq i \leq j \leq \frac{k}{2}.\]
-    %
-
-% proof main lemma
-\begin{proof}[Proof Lemma \ref{lem:deterministic_balancing_lemma}]
-
- The statement is vacuously true for $k=2,3$, so for induction assume it is true for all $k' < k$. Let $S_{k,m}^T := Z_m^T + Z^T_{k-m}$ denote the total number of lineages entering an edge $e$ with subtrees of size $m,k-m$, the setup in Figure \ref{fig:coalescent_tree}. Let $\tau_{k,m}$ be the time of the first coalescent event in either of our two subpopulations of size $m,k-m$, allowing the possibility $\tau_{k,m} > T$.
-
-
-  The basic idea is that if we start with $k$ lineages, we can reduce to $k-1$ lineages by just waiting for the first coalescence event to occur in either subpopulation. There is of course the chance no coalescent event occurs, so we must handle this separately. The proof then relies on a few main ideas. Firstly, for more balanced splits we tend to wait longer until the first coalescent event.
-  % claim: first coalescent time
-  \begin{proofclaim}
-\label{claim:even_split_waits_longest_for_first_coalescent}
-      For fixed $k$, $\tau_{k,m}$ is stochastically increasing in $m$ for $1 \leq m \leq k/2$.
-  \end{proofclaim}
-  %
-  \noindent Next, conditional on a specific first coalescent time, the more balanced our split is, the more lineages tend to remain uncoalesced by the end of the branch.
-  % claim: cond first coalescent
-  \begin{proofclaim}
-\label{claim:cond_first_coalescent_even_split_dominates}
-      For fixed $k, x,t$, $\P(S_{k,m}^T \geq x \; | \; \tau_{k,m} = t)$ is an increasing function of $m$ for $1 \leq m \leq k/2$.
-  \end{proofclaim}
-    %
-  \noindent Lastly, the more time we wait until the first coalescent event, the less time the remaining lineages have to coalesce and the more lineages we tend to have by the end of the branch.
-  %
-  % claim:
-  \begin{proofclaim}
-\label{claim:more_time_to_coalesce_is_better}
-      For fixed $k, x, m$, $\P(S_{k,m}^T \geq x \; | \; \tau_{k,m} = t)$ is an increasing function of $t$.
-  \end{proofclaim}
-  %
-  % proof claim 1
-  \begin{proof}[Proof of Claim \ref{claim:even_split_waits_longest_for_first_coalescent}]
-        Let $h_{k,m} := \binom{m}{2} + \binom{k-m}{2}$. Then $\tau_{k,m} \sim \mathrm{Exp}\left(h_{k,m}\right)$. This comes from the fact that coalescents occur at rate $\binom{m}{2}$ in the population of size $m$ and at rate $\binom{k-m}{2}$ in the population of size $k-m$. Together, these produce coalescent events at rate $h_{k,m}$. Since $\tau_{k,m} \sim \exp(h_{k,m})$
-        %
-        \[\P(\tau_{k,m} > t) = \exp\left(-th_{k,m}\right)\]
-        %
-        \noindent As $h_{k,m}$ is decreasing in $m$ for $1 \leq m \leq k/2$, the above is increasing in $m$. Hence $\tau_{k,m}$ is stochastically increasing  in $m$. This proves Claim 1.
-  \end{proof}
-
-  % proof claim 2
-  \begin{proof}[Proof of Claim \ref{claim:cond_first_coalescent_even_split_dominates}]
-      For $t > T$, no coalescent event occurs before time $T$, so
-      \[
-      \P(S_{k,m}^T \geq x \mid \tau_{k,m}=t)=\ind\{x\leq k\},
-      \]
-      which is independent of $m$. Thus the claim is trivial in this case. For $t < T$, by the strong memoryless property of the exponential distribution underlying Kingman's coalescent, we know
-%
-        \begin{equation}
-            \P(S_{k,m}^T \geq x \; | \; \tau_{k,m} = t) = p_{k,m} \cdot \P(S_{k-1,m-1}^{T-t} \geq x) + (1-p_{k, m}) \cdot \P(S_{k-1,m}^{T-t} \geq x)
-            \label{eqn:split_on_first_coalescent_event}
-        \end{equation}
-        %
-
-        \noindent where
-        \[p_{k,m} = \P\left[\mathrm{Exp}\left(\binom{m}{2}\right) \leq \mathrm{Exp}\left(\binom{k-m}{2}\right)\right] = \frac{\binom{m}{2}}{\binom{m}{2} + \binom{k-m}{2}}\]
-        %
-        \noindent is the probability the first coalescence occurs in the population of size $m$. This essentially just says that after the first coalescent event occurs in either subpopulation, what remains is still a Kingman's coalescent just with one less lineage. By our inductive hypothesis, for $1 \leq m \leq k/2 - 1$
-        %
-        \begin{align*}
-             & \P(S_{k,m}^T \geq x \; | \; \tau_{k,m} = t)\\
-             %
-             &  = p_{k,m} \cdot \P(S_{k-1,m-1}^{T-t} \geq x) + (1-p_{k, m}) \cdot \P(S_{k-1,m}^{T-t} \geq x) \\
-            %
-            & \leq \P(S_{k-1,m}^{T-t} \geq x) \\
-            %
-            & \leq  p_{k,m+1} \cdot \P(S_{k-1,m}^{T-t} \geq x) + (1-p_{k, m+1}) \cdot \P(S_{k-1,m+1}^{T-t} \geq x)\\
-            %
-            & = \P(S_{k,m+1}^T \geq x \; | \; \tau_{k,m+1} = t)
-        \end{align*}
-        %
-        \noindent so that $\P(S_{k,m}^T \geq x \; | \; \tau_{k,m} = t)$ is increasing in $m$ for each fixed $t$. This proves Claim 2.
-  \end{proof}
-
-
-  % proof claim 3
-  \begin{proof}[Proof of Claim \ref{claim:more_time_to_coalesce_is_better}]
-      By equation \eqref{eqn:split_on_first_coalescent_event} it suffices to show for fixed $k,m$ that $S^T_{k,m}$ is stochastically decreasing in $T$. But this follows from a simple coupling argument. For $s \leq T$, couple $S_{k,m}^T$ to $S_{k,m}^s$ by using the same exponential clocks for the coalescent events. At time $s$ the number of lineages remaining agree, and $S^T_{k,m}$ can only decrease from here if more coalescents occur between times $s$ and $T$. This proves Claim 3.
-  \end{proof}
-
-  % proof of the rest of the result
-  \noindent With the claims proved, we are ready to finally finish our proof of Lemma \ref{lem:deterministic_balancing_lemma}. Note that our above claims are exactly the conditions of Lemma \ref{lem:mixtures_and_stochastic_dominance} where $\{S_{k,m}^T\}_{m=1}^{\lfloor k/2\rfloor}$ are playing the role of our $V_i$ and $\{\tau_{k,m}\}_{m=1}^{\lfloor k/2\rfloor}$ are playing the role of our $\Theta_i$. Hence the result just follows from applying this lemma. This completes the proof of Lemma \ref{lem:deterministic_balancing_lemma}.
-
-\end{proof}
-% endproof Lemma!
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Proof balanced is worst-case %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Proof of Lemma \ref{lem:balanced_is_worse_case}: Balanced is Worst-Case}
-\label{app:balanced-worst-case-proof}
-
-Recall we aim to prove:
-
-\bigskip
-
-\noindent \textbf{Lemma:} If $\cB_k$ is the balanced tree with $k$ leaves and all branches length $T_{\mathrm{min}}$, then $X_{\cB_k} \geq_{st} X_\cT$ for any other tree $\cT$ with $k$ leaves and minimum branch length $T_{\mathrm{min}}$.
-
-\medskip
-
-\noindent To simplify notation a bit, denote $X_m := X_{\cB_m}$.  To start, we will prove two extensions of our deterministic balancing lemma \ref{lem:deterministic_balancing_lemma}. The first allows the difference between the subpopulation sizes to be random. Heuristically, it  says that conditional on the total number of species in the two subtrees below a given vertex, the more even the split tends to be, the more lineages tend to reach the vertex.
-%% Sum - Difference Lemma
-\begin{lemma}
-\label{lem:stochastic_dominance_with_differences}
-    Suppose for $s \in \N$ that $0 \leq_{st} D \leq_{st} D' < s$ and $D,D' \equiv s \; \mathrm{mod}(2)$. Then
-    %
-    \[Z_{\frac{s + D}{2}} + Z_{\frac{s - D}{2}} \geq_{st} Z_{\frac{s + D'}{2}} + Z_{\frac{s - D'}{2}}.\]
-\end{lemma}
-%
-\begin{proof}[Proof of Lemma \ref{lem:stochastic_dominance_with_differences}]
-    Since the sum $s = (s+d)/2 + (s-d)/2$ is fixed, our deterministic balancing lemma \ref{lem:deterministic_balancing_lemma} implies that
-    %
-    \[Y_d := Z_{\frac{s+d}{2}} + Z_{\frac{s-d}{2}}\]
-    %
-    \noindent is decreasing in $d$ with respect to $\leq_{st}$ for $0 \leq d < s$. Lemma \ref{lem:mixtures_and_stochastic_dominance} then implies the result.
-\end{proof}
-
-\noindent The next extension generalizes this even further by allowing the sum of the subpopulation sizes to be random as well.
-
-    % Balancing Lemma %%%%%%%%%%%%
-  \begin{lemma}[Balancing Lemma]\label{lem:balancing_lemma}
-    If $A,A', B, B'$ are mutually independent, positive integer-valued random variables
-    so that $A \leq_{lr} A'$ and $B \leq_{lr} B'$, then
-    %
-    \[Z_{A + B} + Z_{A' + B'} \leq_{st} Z_{A + B'} + Z_{A' + B}. \]
-    %
-    
-    \end{lemma}
-    %
-    \noindent Note when $A,B,A', B'$ are all deterministic, this reduces to Lemma \ref{lem:deterministic_balancing_lemma}.
-
-    \begin{proof}[Proof of Balancing Lemma \ref{lem:balancing_lemma}]
-        For convenience, define
-        %
-        \[\Delta_A := A' - A, \quad \Delta_B := B' - B, \quad S_A := A' + A, \quad S_B = B' + B.\]
-        %
-        \noindent Now, note in both $Z_{A + B} + Z_{A' + B'}$ and $Z_{A + B'} + Z_{A' + B}$ the total number of lineages $S = S_A + S_B$ is the same. Hence by conditioning on $S_A,S_B, |\Delta_A|,$ and $|\Delta_B|$, Lemma \ref{lem:stochastic_dominance_with_differences} implies it suffices to show $D' \geq_{st} D$ where $D,D'$ are the conditional differences
-        %
-        \[D' = |\Delta_A + \Delta_B| \mid \{|\Delta_A|, |\Delta_B| , S_A, S_B \}, \qquad D = |\Delta_A - \Delta_B| \mid \{|\Delta_A|, |\Delta_B| , S_A, S_B \}.\]
-        %
-        \noindent After this conditioning, $\{D, D'\} = \{|\Delta_A| + |\Delta_B|, ||\Delta_A| - |\Delta_B||\}$. If $|\Delta_A|=0$ or $|\Delta_B|=0$, then $D=D'$, and the conclusion is immediate. Hence suppose both absolute differences are positive. Let
-
-        \[q = \P(D' = |\Delta_A| + |\Delta_B|) = \P(\Delta_A\Delta_B \geq 0 \mid |\Delta_A|, |\Delta_B| , S_A, S_B)\]
-
-        \noindent be the probability $D'$  takes on the larger of these two values. Then it suffices to show $q \geq 1/2$. Since $\Delta_A, \Delta_B$ are conditionally independent given $S_A, S_B$
-        %
-        \[q = p_Ap_B + (1-p_A)(1-p_B) \geq \frac{1}{2} \iff \left(p_A - \frac{1}{2} \right) \left(p_B - \frac{1}{2} \right) \geq 0,\]
-        %
-        \noindent where $p_A = \P(\Delta_A \geq 0 \mid |\Delta_A|, S_A)$ and likewise for $p_B$. We will show that $p_A, p_B \geq 1/2$, completing the proof. Note conditional on $\{|\Delta_A| = m, S_A = s\}$ then $p_A \geq 1/2$ occurs precisely when
-        %
-        \[\P\left(A'=\frac{s+m}{2}, A = \frac{s-m}{2}\right) \geq \P\left(A'=\frac{s-m}{2}, A = \frac{s+m}{2}\right).\]
-        %
-        \noindent As $A,A'$ are independent, this follows from $A \leq_{lr} A'.$ Similarly, $p_B \geq 1/2$, so $D' \geq_{st} D$. The result
-        follows then by taking expectations with respect to $\Delta_A, \Delta_B, S_A, S_B$. 
-    \end{proof}
-
-%%%%%%%%%%%%%%%%%
-
-\noindent Now we are ready to return to the main result. First, we show that the result follows from the following stochastic extension of Lemma \ref{lem:deterministic_balancing_lemma}.
-
-% Lemma: more balanced is better
-\begin{lemma}
-\label{lem:the_more_balanced_the_better}
-    For fixed $k \in \N$, then $Z_{X_i} + Z_{X_{k-i}} \leq_{st} Z_{X_{\lfloor k/2\rfloor}} + Z_{X_{\lceil k/2\rceil}}$ for $1 \leq i \leq \lfloor k/2\rfloor$.
-\end{lemma}
-
-\noindent We conjecture that $Z_{X_i} + Z_{X_{k-i}}$ is increasing in $i$ rather than just maximized at the even split. But for our current purposes, the above suffices. Assuming Lemma \ref{lem:the_more_balanced_the_better} for now, it is easy to prove our desired Lemma \ref{lem:balanced_is_worse_case}.
-
-% proof balanced is worst case
-\begin{proof}[Reduction of Lemma \ref{lem:balanced_is_worse_case} to Lemma \ref{lem:the_more_balanced_the_better}]
- We induct on the number of species $k$.
-
-\bigskip
-
-\noindent \textbf{Base Case ($k = 4$)}
-
-\noindent Again there are only two different tree topologies, the ones in Figure \ref{fig:caterpillar_and_balanced_tree}. Lemma \ref{lem:deterministic_balancing_lemma} shows the even split $Z_2 + Z_2' \geq_{st} Z_1  + Z_3'$, and clearly $Z_1 + Z_3' \geq_{st} Z_1 + Z_{X_3}'$ by Corollary \ref{corollary:stochastic_dominance_composition}.
-
-\bigskip
-
-\noindent \textbf{Inductive Step}
-
-\noindent Suppose $\cT$ is a tree with $k > 4$ leaves. As usual, the main idea is to reduce to smaller trees by looking at the subtrees of the root. We perform the induction in two steps: we first reduce to the case the two subtrees of the root are themselves balanced trees, and then we show in such a setting the worst-case is when the two subtrees have the same number of leaves.
-
-Let $L$ and $R$ be the two subtrees of the root of $\cT$ which are of sizes $m$ and $k-m$ respectively. By our inductive hypothesis, $X_L \leq_{st} X_{\cB_m}$ and $X_R \leq_{st} X_{\cB_{k-m}}$. Let $\cT'$ be the tree whose two subtrees are $\cB_m, \cB_{k-m}$, and whose branch lengths are all $T_{\mathrm{min}}$. Then as $X_\cT = Z_{X_L} + Z_{X_R}$ we see Corollary \ref{corollary:stochastic_dominance_composition} implies $X_{\cT'} \geq_{st} X_{\cT}$ stochastically. Hence all that is left to show is that $X_{\cB_k} \geq_{st} X_{\cT'}$. But this is exactly just the content of Lemma \ref{lem:the_more_balanced_the_better}. Hence Lemma \ref{lem:balanced_is_worse_case} follows from Lemma \ref{lem:the_more_balanced_the_better}.
-\end{proof}
-
-
-\noindent Now, all that is left to do is prove Lemma \ref{lem:the_more_balanced_the_better}.
-
-
-% SECOND ATTEMPT
-\begin{proof}[Proof of Lemma \ref{lem:the_more_balanced_the_better}]
-
- We induct on $k$. The base case is trivial
-    %
-    \[Z_1 + Z_{X_3} \leq_{st} Z_1 + Z_3 \leq_{st} Z_2 + Z_2 = Z_{X_2} + Z_{X_2}.\]
-    %
-    \noindent Now suppose the statement is true for $k' < k$. Note
-
-    \[X_m = Z_{X_{\lfloor m/2 \rfloor}} + Z_{X_{\lceil m/2 \rceil}}, \qquad X_{k-m} = Z_{X_{\lfloor (k-m)/2 \rfloor}} + Z_{X_{\lceil (k-m)/2 \rceil}}.\]
-
-    \noindent By Lemma \ref{lem:xi_zxi_increasing_in_lro} we have for $1 \leq m \leq k/2$
-
-    \[Z_{X_{\lfloor m/2 \rfloor}} \leq_{lr} Z_{X_{\lceil m/2 \rceil}} \leq_{lr} Z_{X_{\lfloor (k-m)/2 \rfloor}} \leq_{lr} Z_{X_{\lceil (k-m)/2 \rceil}}. \]
-
-    \noindent Note that if $k$ is even then
-    %
-    \[\lfloor m/2 \rfloor + \lceil (k-m)/2 \rceil = \lceil m/2 \rceil + \lfloor (k-m)/2 \rfloor = \frac{k}{2}.\]
-    %
-    \noindent The balancing lemma \ref{lem:balancing_lemma} then implies
-    %
-    \[Z_{X_m} + Z_{X_{k-m}} \leq_{st} \left(Z_{Z_{X_{\lfloor m/2 \rfloor}} + Z_{X_{\lceil (k-m)/2 \rceil}}}\right) + \left(Z_{Z_{X_{\lceil m/2 \rceil}} + Z_{X_{\lfloor (k-m)/2 \rfloor}}}\right).\]
-    %
-    \noindent The inductive hypothesis applied to $k' = k/2$ shows the subscripts of each term are maximized at $m = k/2$. Hence Corollary \ref{corollary:stochastic_dominance_composition} implies
-    %
-    \[ \leq_{st} \left(Z_{Z_{X_{\lfloor k/4 \rfloor}} + Z_{X_{\lceil k/4 \rceil}}}\right) + \left(Z_{Z_{X_{\lceil k/4 \rceil}} + Z_{X_{\lfloor k/4 \rfloor}}}\right) = Z_{X_{k/2}} + Z_{X_{k/2}},\]
-    %
-    \noindent as desired. Likewise, if $k$ is odd then
-    %
-    \[\lfloor m/2 \rfloor + \lfloor (k-m)/2 \rfloor = \frac{k-1}{2}, \quad and \quad \lceil m/2 \rceil + \lceil (k-m)/2 \rceil = \frac{k+1}{2}\]
-    %
-    \noindent so we can rearrange using the balancing lemma \ref{lem:balancing_lemma} as
-    %
-    \[Z_{X_m} + Z_{X_{k-m}} \leq_{st} \left(Z_{Z_{X_{\lfloor m/2 \rfloor}} + Z_{X_{\lfloor (k-m)/2 \rfloor}}}\right) + \left(Z_{Z_{X_{\lceil m/2 \rceil}} + Z_{X_{\lceil (k-m)/2 \rceil}}}\right)\]
-    %
-    \noindent Applying induction with $k' = (k-1)/2$ on the left term and $k' = (k+1)/2$ on the right term we see both terms are maximized at $m = \lfloor k /2 \rfloor = (k-1)/2$. Hence
-    %
-    \[\leq_{st} \left(Z_{Z_{X_{\lfloor (k-1)/4 \rfloor}} + Z_{X_{\lfloor (k+1)/4 \rfloor}}}\right) + \left(Z_{Z_{X_{\lceil (k-1)/4 \rceil}} + Z_{X_{\lceil (k+1)/4 \rceil}}}\right) = Z_{X_{(k-1)/2}} + Z_{X_{(k+1) / 2}}\]
-    %
-    \noindent as desired.
-    \end{proof}
-
-
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Proof of asymptotics
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Asymptotic Results}
+\section{Coalescent-Time Asymptotics}
 \label{app:asymptotic-results}
-
-\subsection{Proof of Lemma \ref{lem:asymptotics_g_k1(T)}: Asymptotics $g_{k,1}(T)$}
 \label{app:coalescent-asymptotics-proof}
 
+\subsection{Hypoexponential Representation and Derivative Bounds}
+\label{app:hypoexponential-derivative-bounds}
 
-In this section, we develop some asymptotics for the time $g_{k,1}(T)$ to coalescence of Kingman's coalescent, specialized to the topic of interest. More properties of this coalescent time are discussed in \cite{moehle2015_absorption_time_tree_length} and \cite{chen2013_asymptotic_coefficients_lagrange}. The paper \cite{kersting2017_absorption_time_lambda_coalescents} further generalizes some of these ideas to $\Lambda$-coalescents.
+
+In this appendix, we prove Lemma~\ref{lem:asymptotics_g_k1(T)} by developing
+asymptotics for the time to coalescence in Kingman's coalescent. More properties of this
+coalescent time are discussed in \cite{moehle2015_absorption_time_tree_length} and
+\cite{chen2013_asymptotic_coefficients_lagrange}. The paper
+\cite{kersting2017_absorption_time_lambda_coalescents} further generalizes some of these
+ideas to $\Lambda$-coalescents.
 
  We will work in slightly more generality than this chapter requires. Namely, suppose that we have positive \textbf{distinct} rates $\{\lambda_i\}_{i=1}^\infty$. Define the random variables $\{S_k\}_{k =1}^\infty$ by $S_k = \sum_{i=1}^k X_i$ for $X_i \sim \mathrm{Exp}(\lambda_i)$ independent (namely $X_i$ has density $\tau_i(x) := \lambda_i \exp(-\lambda_i x)$). Moreover, define $F_k(T) := \P(S_k \leq T)$ to be their CDFs and $f_k(T)$ their densities. If we define
 %
@@ -1830,7 +1979,7 @@ for any $T \geq 0$. Taking the supremum over $T$ yields
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % CDF Asymptotics
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{CDF Asymptotics}
+\subsection{Small- and Large-Time CDF Asymptotics}
 \label{app:cdf-asymptotics}
 \noindent Now that we have these bounds, the main results follow. We in fact show something slightly stronger: that the relative error in the Taylor series approximation is negligible in the $T = o((s_k/k)^{-1})$ regime no matter where we truncate it.
 
@@ -1875,7 +2024,7 @@ Note that trivially $h_{r+1} \leq h_r s_k$ as the former includes all monomials 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Gap Asymptotics
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Gap Asymptotics}
+\subsection{Gap Asymptotics}
 \label{app:gap-asymptotics}
 
 \noindent The following statement gives us a sense of how fast our coalescent probabilities $g_{k,1}(T)$ will saturate as $k \to \infty$.
@@ -1913,140 +2062,4 @@ Note that trivially $h_{r+1} \leq h_r s_k$ as the former includes all monomials 
         1-\frac{3k}{k+2}\exp(-T), & T \uparrow \infty  \text{ and k fixed,}\\
         \frac{(k+1)!}{2^k} T^{k}, &  T = o(k^{-2}).\\
     \end{cases} \qquad \Delta_k(T) = (f_\infty(T) + o(1)) \cdot \frac{2}{k+1}\]
-
-% Improvement Ratio asymptotics
-\subsubsection{Improvement Ratio Asymptotics}
-\label{app:improvement-ratio-asymptotics}
-
-\noindent In Section \ref{sec:estimated_growth_rates} above, we obtained the following 
-asymptotic lower bound on the improvement factor of our balanced bound (Theorem~\ref{thm:improved_bipartition_cover_bound_balanced}) 
-over the original bound
-%
-\[\beta_T := \frac{-\log(1-g_{u(T),1}(T))}{-\log(1-s(T))} \]
-%
-\noindent In this section, we develop small $T$ asymptotics for $\beta_T$. In particular,
-%
-\begin{lemma}[Small $T$ Improvements]\label{lem:improvement_ratio_asymptotics}
-    As $T \downarrow 0$, we have
-    %
-    \[\log \beta_T = \Theta(T^{-1}). \]
-\end{lemma}
-%
- \begin{proof}[Proof of Lemma \ref{lem:improvement_ratio_asymptotics}]
-
-    Since $-\log(1-x) \sim x$ as $x \downarrow 0$ and both $g_{u(T),1}(T), s(T) \downarrow 0$ we have
-    %
-    \[\log \beta_T = \log g_{u(T),1}(T) - \log s(T) + o(1). \]
-    %
-    \noindent We start by controlling $\log s(T)$. To do so, we develop asymptotics for the cummulant-generating 
-    function $K(x):=\log \E \exp(-xS_\infty)$ and use a classical Tauberian theorem to relate this to the log CDF. 
-    By independence, for $x > 0$
-    %
-    \[K(x) = \log \left(\prod_{n=2}^\infty \frac{\lambda_n}{\lambda_n + x}\right) = -\log\left(\prod_{n=2}^\infty \left[1 + \frac{x}{\lambda_n}\right]\right).\]
-    %
-    \noindent Since $(n-1)^2 \leq 2\lambda_n \leq n^2$, using the infinite product expansion of $\sinh$, we see
-    %
-    \[0 \leq K(x) + \log\left(\frac{\sinh(\pi \sqrt{2x})}{\pi \sqrt{2x}}\right) \leq \log(1+2x).\]
-    %
-    \noindent Hence as $\log(y^{-1} \sinh(y)) \sim y$ as $y \to \infty$, we see $K(x) \sim -\pi\sqrt{2x}$ 
-    as $x \to \infty$. Applying Corollary 2 of \cite{cadena2015_tauberian_theorems_exponential_type} 
-    with $A = 1, P(x) = s(x), B = -\pi^2/2,$ and $\beta = -1$ we see this implies
-    $\log(s(T)) \sim -\pi^2/2 T^{-1}$ as $T \downarrow 0$.
-
-    Next, we control $\log g_{u(T),1}(T)$. Trivially $\log g_{u(T),1}(T) \leq 0$, which with 
-    our asymptotics for $\log s(T)$ show $\log \beta_T = O(T^{-1})$. For a lower bound, again let $\tau_i \sim \mathrm{Exp}(\binom{i}{2})$ be independent, 
-    so
-    %
-        \[g_{k,1}(T) = \P\left(\sum_{i=2}^k \tau_i \leq T\right). \]
-    %
-    Using a crude lower bound and $1-e^{-x} \geq \frac{x}{1+x}$ we see
-    %
-    \begin{equation*}
-        g_{k,1}(T) \geq \P\left(\bigcap_{i=2}^k\left\{\tau_i \leq \frac{T}{k-1}\right\}\right) \geq \prod_{i=2}^k \frac{\frac{T}{k-1} \binom{i}{2}}{1 + \frac{T}{k-1} \binom{i}{2}}.
-    \end{equation*}
-    %
-    \noindent Thus if $x_{i,T} := \frac{T}{k-1} \binom{i}{2}$ we see
-    %
-    \[T \log g_{k,1}(T) \geq Tk \cdot \frac{1}{k} \sum_{i=2}^{k} \log \frac{x_{i,T}}{1 + x_{i,T}}.\]
-    %
-    \noindent Using $u(T) \sim 2/T$, we see $x_{i,T} \sim T^2i^2/4$, so a Riemann sum approximation gives
-    %
-    \[T \log g_{u(T),1}(T) \geq 2\int_0^1 \log \frac{y^2}{1+y^2} \; dy + o(1) = -(\pi + 2 \log 2) + o(1). \]
-    %
-    \noindent Hence combining with our above asymptotics for $\log s(T)$ we see
-    %
-        \[\log \beta_T \geq T^{-1}(- (\pi + 2\log 2) + \pi^2/2 + o(1)) = \Omega(T^{-1}).\]
-    %
-    \noindent Combined with our upper bound from above, we see $\log \beta_T = \Theta(T^{-1})$ as desired.
-%
-\end{proof}
-
-\noindent Note that above we showed
-%
-\[s(T) = \exp\left(-\frac{\pi^2}{2} T^{-1} (1 + o(1)) \right).\]
-%
-Since for typical trees (e.g. Yule trees) we have $T_{\mathrm{min}} = O(k^{-1})$, this heuristically tells us the original bound is $O(\log(k) \exp(k))$.
-
-
-% Bound asymptotics
-\subsubsection{Bound Asymptotics (Lemma \ref{lem:bound_asymptotics})}
-\label{app:bound-asymptotics}
-
-Now that we have analyzed the core function $g_{k,1}(T)$ we are ready to analyze our bounds. Let $\kappa_{q,k} = -\log\left((1-q)/(k-3)\right)$ be the coefficient that occurs in the numerator of all our bounds. Moreover, let $s(T) := \P(S_\infty \leq T)$ be our limiting CDF, $\Delta_k(T) := g_{k,1}(T) - s(T)$ our gap, and $c(T) := 2f_{S_\infty}(T)$ our gap's asymptotic constant. Recall that $M_o(k, T)$ denotes the original bound from Theorem \ref{thm:uricchios_bipartition_cover_bound} and $M_b(k,T)$ our balanced bound Theorem \ref{thm:improved_bipartition_cover_bound_balanced}.
-
- We start with $M_o$. Note Lemma \ref{lem:asymptotics_g_k1(T)} implies
-%
-\begin{equation}
-    \log(1-g_{k,1}(T)) \sim \begin{cases} - T, & T \uparrow \infty, \\
- -\frac{k!}{2^{k-1}} T^{k-1}, &  T = o(k^{-2}).
-\end{cases}
-\label{eqn:asymptotics_T_mapsto_log(one_minus_g_k1(T))}
-\end{equation}
-%
-\noindent From this
-
-\[M_{o}(k,T) \sim \begin{cases}
-    \frac{\kappa_{q,k}}{T}, & T \uparrow \infty, \\
-    \frac{2^{k-3}\kappa_{q,k}}{(k-2)! T^{k-3}}, & T = o(k^{-2}).
-\end{cases}\]
-
-\noindent In particular, we recover the small $T$ bound found in Appendix $B$ of \cite{shekhar2018_how_many_genes_are_enough}, although here we exactly quantify the asymptotic constant.
-
-  For the fixed $T$ and asymptotic $k$ bound, we Taylor expand $\log(x)$ about $1 - s$ to observe
-%
-\[\log(1 - g_{k,1}(T) )= \log(1-s)-\sum_{n=1}^\infty \frac{\Delta^n}{n(1-s)^n} = \log(1-s) - \frac{\Delta}{1-s} - O(\Delta^2).\]
-%
-\noindent Hence this and Lemma \ref{lem:asymptotics_g_k1(T)} imply as $k \to \infty$
-%
-\[M_o(k,T) = \frac{\kappa_{q,k}}{\left(\frac{c(T)}{1-s} + o(1)\right) \cdot \frac{1}{k} - \log(1-s)} \sim \frac{\kappa_{q,k}}{-\log(1-s)}.\]
-
-\noindent For $M_b(k,T)$, note as $g_{k,1}(T)$ is decreasing in $k$ we have
-%
-\[\sum_{\ell=2}^{k-2} (1-w_\ell(T))^n \geq (k-3)(1-g_{2,1}(T))^n = (k-3)\exp(-nT).\]
-%
-\noindent Hence $M_b(k,T)\geq \kappa_{q,k}T^{-1}$.
-As $k \mapsto g_{k,1}(T)$ is decreasing and convex by Lemma \ref{lem:g_i1_is_convex}
- %
-    \[\sum_{\ell=2}^{k-2} (1-\E g_{U_\ell, 1}(T))^n \leq (k-3) (1- g_{\E U_{k-2}, 1}(T))^n.\]
-%
-\noindent Applying Corollary \ref{corr:upperbound_lineages_balanced}
-%
-\[M_b(k,T) \leq \frac{\kappa_{q,k}}{-\log(1-g_{u(T),1}(T))}, \quad u(T) := \frac{2-\exp(-T/2)}{1-\exp(-T/2)}.\]
-%
-\noindent Combining these two previous results
-%
-\[\frac{\kappa_{q,k}}{T} \leq M_{b}(k,T) \leq \frac{\kappa_{q,k}}{-\log(1-g_{u(T), 1}(T))}.\]
-%
-\noindent Since $M_b(k,T) \leq M_o(k,T)$, the lower bound shows us $M_b(k,T) \sim \kappa_{q,k} T^{-1}$ as $T \to \infty$. Since $u(T) \sim 2/T$ as $T \downarrow 0$, the preceding Taylor asymptotics, which require $k^2T=o(1)$, do not describe the relevant joint regime. Lemma~\ref{lem:improvement_ratio_asymptotics} analyzes this regime directly.
-
-For fixed $T$, the upper bound implies that the asymptotic improvement factor of $M_b(k,T)$ over $M_o(k,T)$ is at least
-%
-\[\beta_T := \frac{\log(1-g_{u(T),1}(T))}{\log(1-s(T))}.\]
-%
-\noindent In Lemma~\ref{lem:improvement_ratio_asymptotics}, we show that
-$\log\beta_T=\Theta(T^{-1})$ as $T \downarrow 0$. Thus, in this regime, the
-asymptotic lower bound on the improvement factor grows exponentially in $T^{-1}$.
-
-Repeating our above analysis shows that \textit{any} bound built using the union bound and the coalescent function $g_{k,1}(T)$ cannot be asymptotically better than $\log(k)/T$. This is true, \textit{even if the descendant counts $\alpha_i$ are known}, as we can still upper bound $g_{\alpha_i, 1}(T) \leq g_{2,1}(T)$. Hence the asymptotics in $k$ are fundamentally limited to $\Theta(\log(k))$ by our union bound argument, and we can only hope to improve upon the constant down to the limit $T^{-1}$. Still, we see some finite-sample improvements empirically, as we observed in Figure \ref{fig:improvement_ratios}.
-
 \end{subappendices}

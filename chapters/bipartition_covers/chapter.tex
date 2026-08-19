@@ -535,8 +535,11 @@ Let $Z_i^T$ be the random variable with distribution
  \noindent When we write expressions such as $Z_A^T + Z_B^T$ including multiple such mixtures,
  we implicitly mean we are mixing two independent families $\{Z_\ell\}_{\ell \geq 1}, \{Z_\ell'\}_{\ell\geq 1}$ so
  %
-    \[\P(Z_A^T + Z_B^T = i) = \sum_{m=1}^{i-1} \P(Z_A^T = m) \P(Z_B^T = m-i).\]
+    \[\P(Z_A^T + Z_B^T = i) = \sum_{m=1}^{i-1} \P(Z_A^T = m) \P(Z_B^T = i-m).\]
  %
+\noindent Several basic properties of these random variables and their stochastic orderings are collected
+in Appendices~\ref{app:first-order-stochastic-dominance} and \ref{app:likelihood-ratio-ordering}.
+
 Suppose below the edge $e$ our tree splits into two subtrees of size $m, k-m$. Clearly then
 %
 \[X_e \leq_{st}  Z_{m}^{T_1} + Z_{k-m}^{T_2},\]
@@ -667,10 +670,10 @@ Thus $\P(S_{k,m}^T \geq x \; | \; \tau_{k,m} = t)$ is increasing in $m$ for each
  remaining agree, and $S^T_{k,m}$ can only decrease from here if more coalescents
   occur between times $s$ and $T$.
 
- With the claims proved, we are ready to finally finish our proof of
+With the claims proved, we are ready to finally finish our proof of
 Lemma \ref{lem:deterministic_balancing_lemma}. Note that our above claims are exactly the
-conditions of the Mixture Lemma (Lemma~\ref{lem:mixtures_and_stochastic_dominance}), which shows first-order stochastic dominance
-is preserved by increasing mixtures, where $\{S_{k,m}^T\}_{m=1}^{\lfloor k/2\rfloor}$ are playing the
+conditions of the Mixture Lemma (Lemma~\ref{lem:mixtures_and_stochastic_dominance}), which shows first-order 
+stochastic dominance is preserved by increasing mixtures, where $\{S_{k,m}^T\}_{m=1}^{\lfloor k/2\rfloor}$ are playing the
 role of our $V_i$ and $\{\tau_{k,m}\}_{m=1}^{\lfloor k/2\rfloor}$ are playing the role of our $\Theta_i$.
 Hence the result just follows from applying this lemma.
 \end{proof}
@@ -703,7 +706,7 @@ The LRO implies first-order stochastic dominance.
 % Balancing Lemma %%%%%%%%%%%%
 \begin{lemma}[Balancing Lemma]
 \label{lem:balancing_lemma}
-If $A,A', B, B'$ are mutually independent, positive integer-valued random variables
+If $A,A', B, B'$ are mutually independent, non-negative integer-valued random variables
 so that $A \leq_{lr} A'$ and $B \leq_{lr} B'$, then
 %
 \[Z_{A + B} + Z_{A' + B'} \leq_{st} Z_{A + B'} + Z_{A' + B}. \]
@@ -762,14 +765,15 @@ precise.
 \end{lemma}
 
 \begin{proof}[Proof of Lemma \ref{lem:balanced_is_worse_case}]
-First, replacing every branch length in $\cT$ by $T_{\mathrm{min}}$ can only
+First, by a simple coupling argument we see replacing every branch length in $\cT$ by $T_{\mathrm{min}}$ can only
 increase the number of lineages reaching the root. It therefore suffices to
 assume that all branch lengths are $T_{\mathrm{min}}$.
 
 Throughout the proof, write $X_r:=X_{\cB_r}$ and $U_r:=Z_{X_r}$, with all
 occurrences of these random variables understood to be independent copies when
-they arise from disjoint subtrees. We first establish the balanced-subtree split
+they arise from disjoint subtrees. Define $X_0 = U_r := 0$. We first establish the balanced-subtree split
 comparison
+%
 \begin{equation}
 U_m+U_{k-m}
 \leq_{st}
@@ -777,10 +781,11 @@ U_{\lfloor k/2\rfloor}+U_{\lceil k/2\rceil} \overset{d}{=} X_k,
 \qquad 1\leq m\leq\lfloor k/2\rfloor.
 \label{eq:balanced-subtree-split-comparison}
 \end{equation}
-
-The idea of the proof is simple: both $X_m$ and $X_{k-m}$ consist of two subtrees of (approximately)
-the same size. By taking one subtree from each of $X_m, X_{k-m}$ and swapping them using the balancing lemma,
-we create two balanced subpopulations. From there, we can inductively balance these two subpopulations separately to get the result.
+%
+The idea of the proof is simple: $X_m$ and $X_{k-m}$ consist of two subtrees of
+size (approximately) $m/2$ and $(k-m)/2$ respectively. By taking one subtree from each of $X_m, X_{k-m}$ and swapping them 
+using the balancing lemma~\ref{lem:balancing_lemma}, we balance these two subpopulations so they are both (approximately) size $k/2$. 
+From there, we can inductively balance these two subpopulations separately to get the result.
 
 More formally, we prove equation~\eqref{eq:balanced-subtree-split-comparison} by strong induction
 on $k$. The cases $k\leq3$ are
@@ -808,7 +813,7 @@ X_m\stackrel{d}{=}U_a+U_{a'},
 \qquad
 X_{k-m}\stackrel{d}{=}U_b+U_{b'}.
 \]
-By Lemma~\ref{lem:xi_zxi_increasing_in_lro},
+Since $U_r$ is increasing in the likelihood-ratio order (Lemma~\ref{lem:xi_zxi_increasing_in_lro}),
 \[
 U_a\leq_{lr}U_{a'}\leq_{lr}U_b\leq_{lr}U_{b'}.
 \]
@@ -821,8 +826,8 @@ $(A,A',B,B')=(U_a,U_b,U_{a'},U_{b'})$ to obtain
 U_m+U_{k-m} \stackrel{d}{=}Z_{U_a+U_{a'}}+Z_{U_b+U_{b'}} \leq_{st}Z_{U_a+U_{b'}}+Z_{U_{a'}+U_b}.
 \end{equation*}
 %
-Applying the inductive hypothesis with total $k/2$ shows both $U_a + U_{b'} \leq_{st} X_{k/2}$ and $, U_{a'} + U_b \leq_{st} X_{k/2}$. 
-Hence Corollary~\ref{corollary:stochastic_dominance_composition} yields
+Applying the inductive hypothesis with total $k/2$ shows both $U_a + U_{b'} \leq_{st} X_{k/2}$ and $U_{a'} + U_b \leq_{st} X_{k/2}$.
+As $U \mapsto Z_U$ preserves $\leq_{st}$ by Corollary~\ref{corollary:stochastic_dominance_composition}, we see
 \[
 U_m+U_{k-m}
 \leq_{st}Z_{X_{k/2}}+Z_{X_{k/2}}
@@ -1270,28 +1275,6 @@ Yule trees. Our results for caterpillar and balanced trees are displayed in
 Figures~\ref{fig:empirical_overestimation_ratios_for_caterpillar_trees}
 and~\ref{fig:empirical_overestimation_ratios_for_balanced_trees}, respectively.
 
-% overestimation for Caterpillar Trees
-\begin{figure}[!tbp]
-    \centering
-    \captionsetup{type=figure, justification=raggedright, singlelinecheck=false}
-    \includegraphics[height=4cm]{overestimation_ratios/caterpillar_tree_original_bound_vs_T_k.png}
-
-    \includegraphics[height=4cm]{overestimation_ratios/caterpillar_tree_balanced_bound_vs_T_k.png}
-    \caption{Empirical overestimation ratios for caterpillar trees. (top) The original bound (Theorem~\ref{thm:uricchios_bipartition_cover_bound}). (bottom) The balanced bound (Theorem~\ref{thm:improved_bipartition_cover_bound_balanced}).}
-    \label{fig:empirical_overestimation_ratios_for_caterpillar_trees}
-\end{figure}
-
-% overestimation for Balanced Trees
-\begin{figure}[!tbp]
-    \centering
-    \captionsetup{type=figure, justification=raggedright, singlelinecheck=false}
-    \includegraphics[height=4cm]{overestimation_ratios/balanced_tree_original_bound_vs_T_k.png}
-
-    \includegraphics[height=4cm]{overestimation_ratios/balanced_tree_balanced_bound_vs_T_k.png}
-    \caption{Empirical overestimation ratios for balanced trees. (top) The original bound (Theorem~\ref{thm:uricchios_bipartition_cover_bound}). (bottom) The balanced bound (Theorem~\ref{thm:improved_bipartition_cover_bound_balanced}).}
-    \label{fig:empirical_overestimation_ratios_for_balanced_trees}
-\end{figure}
-
 The overestimation
 ratio is significantly higher for balanced trees as compared to caterpillars. Since our bound
 is topology-free, this aligns with the empirical observation that caterpillar trees are difficult
@@ -1311,26 +1294,11 @@ this, we sample a range of species tree topologies from the Yule model and compu
 corresponding overestimation ratios. Figure~\ref{fig:empirical_overestimation_ratios_for_yule_trees}
 shows the resulting distribution of these ratios across various choices of $k$ and $T_{\min}$.
 
-% overestimation for Yule Trees
-\begin{figure}[p]
-    \centering
-    \captionsetup{justification=raggedright,singlelinecheck=false}
-    \includegraphics[height=0.80\textheight,keepaspectratio]{overestimation_ratios/yule_trees_overestimation.png}
-
-    \caption{Log-scaled overestimation ratios for Yule trees. Rows vary
-    $T_{\min} \in \{0.2,0.5,1\}$ and columns vary $k \in \{8,16\}$;
-    nested boxes show progressively wider quantile intervals around the median
-    (25–75\%, 12.5–87.5\%, 6.25–93.75\%, and 3.125–96.875\%).}
-    \label{fig:empirical_overestimation_ratios_for_yule_trees}
-\end{figure}
-
 As expected, performance in this setting is noticeably worse than in the structured worst-case
 scenarios, but it remains substantially better than that of the original bound. Increasing the
 species parameter $k$ appears to have a much larger impact than in the previous settings,
 suggesting worse scaling. Overall, the new bound is still fairly far from tight, suggesting
 incorporating even partial topological information might be necessary.
-
-\clearpage
 
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  % Conclusion
@@ -1366,6 +1334,39 @@ fairly conservative, particularly in the challenging short branch length regime.
 Incorporating partial information about the species tree topology therefore
 provides a natural direction for obtaining sharper finite-sample guarantees.
 
+% Numerical figures are placed after the conclusion to keep its prose uninterrupted.
+% Keep these two numbered figures together to facilitate comparison.
+\begin{figure}[p]
+    \centering
+    \captionsetup{type=figure, justification=raggedright, singlelinecheck=false}
+    \includegraphics[height=4cm]{overestimation_ratios/caterpillar_tree_original_bound_vs_T_k.png}
+
+    \includegraphics[height=4cm]{overestimation_ratios/caterpillar_tree_balanced_bound_vs_T_k.png}
+    \caption{Empirical overestimation ratios for caterpillar trees. (top) The original bound (Theorem~\ref{thm:uricchios_bipartition_cover_bound}). (bottom) The balanced bound (Theorem~\ref{thm:improved_bipartition_cover_bound_balanced}).}
+    \label{fig:empirical_overestimation_ratios_for_caterpillar_trees}
+
+    \vspace{0.75\baselineskip}
+
+    \includegraphics[height=4cm]{overestimation_ratios/balanced_tree_original_bound_vs_T_k.png}
+
+    \includegraphics[height=4cm]{overestimation_ratios/balanced_tree_balanced_bound_vs_T_k.png}
+    \caption{Empirical overestimation ratios for balanced trees. (top) The original bound (Theorem~\ref{thm:uricchios_bipartition_cover_bound}). (bottom) The balanced bound (Theorem~\ref{thm:improved_bipartition_cover_bound_balanced}).}
+    \label{fig:empirical_overestimation_ratios_for_balanced_trees}
+\end{figure}
+
+% overestimation for Yule Trees
+\begin{figure}[p]
+    \centering
+    \captionsetup{justification=raggedright,singlelinecheck=false}
+    \includegraphics[height=0.80\textheight,keepaspectratio]{overestimation_ratios/yule_trees_overestimation.png}
+
+    \caption{Log-scaled overestimation ratios for Yule trees. Rows vary
+    $T_{\min} \in \{0.2,0.5,1\}$ and columns vary $k \in \{8,16\}$;
+    nested boxes show progressively wider quantile intervals around the median
+    (25–75\%, 12.5–87.5\%, 6.25–93.75\%, and 3.125–96.875\%).}
+    \label{fig:empirical_overestimation_ratios_for_yule_trees}
+\end{figure}
+
 % Appendix: Basic Results %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \clearpage
 \begin{subappendices}
@@ -1386,7 +1387,7 @@ provides a natural direction for obtaining sharper finite-sample guarantees.
         If $X, Y$ are independent, (ultra) log-concave, integer-valued random variables, then $X+Y$ is (ultra) log-concave. Equivalently, the class of (ultra) log-concave distributions is closed under convolution.
     \end{theorem}
 
-    \noindent The following shows us that Kingman's coalescent preserves log-concavity in our setting of interest.
+    \noindent The following shows Kingman's coalescent preserves log-concavity in our setting of interest.
 
     % C log concavity
 \begin{theorem}[Preservation of Ultra Log-Concavity]
@@ -1589,7 +1590,9 @@ to be random.
 
     \[Z_X \geq_{st} Z_{Y}.\]
 
-    \noindent Moreover, if $X' \geq_{st} Y'$ and $X \indep Y, X' \indep Y'$, or more generally if $(X,Y) \geq_{st} (X',Y')$ coordinate-wise then
+    \noindent Moreover, if $X \geq_{st} X'$ and $Y \geq_{st} Y'$, with
+    $X \indep Y$ and $X' \indep Y'$, or more generally if
+    $(X,Y) \geq_{st} (X',Y')$ coordinate-wise, then
     %
         \[Z_X + Z_{Y} \geq_{st} Z_{X'}+ Z_{Y'}.\]
     %

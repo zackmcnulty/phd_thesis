@@ -628,7 +628,7 @@ Let $i,j,k$ denote the most recent common ancestors of these leaves, as depicted
 The same argument gives analogous expected-margin bounds under the standalone $ID(\theta, \lambda, \mu; \cT^*)$ process; see Corollary~\ref{cor:expected_margin_under_id}.
 \end{remark}
 
-\noindent More granular bounds can be found in the proof of Lemma~\ref{lem:canby_expected_margin} in the Appendix.
+\noindent More granular bounds are developed in the proof below.
 The above highlights exactly the quartets that are hard to recover:
 those where $u,v$ and $x,y$ are far from their respective most
 recent common ancestors $j,k,$ and where these common ancestors
@@ -650,6 +650,182 @@ topology can be quite small.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Bipartition Covers
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Proof of the Expected Margin Lower Bound}
+
+\begin{proof}[Proof of Lemma \ref{lem:canby_expected_margin} (Expected support margin)]
+
+Fix $t \in A_s \setminus \{q\}$ and recall that
+$D_t=|M_q^{(c)}|-|M_t^{(c)}|$ and $\Delta_q^{(c)}=\E D_t$.
+For an ordered pair of distinct non-homoplastic states, define
+%
+\[I_q(\alpha,\beta):=1\{(\alpha,\beta)\in M_q^{(c)}\}.\]
+%
+Suppose first that the quartet $q = uv || xy$ induces a balanced tree in $\cT^*$. Let $i, j, k$ denote the internal vertices of this subtree like so:
+
+\begin{center}
+\begin{tikzpicture}[
+  level distance=12mm,
+  level 1/.style={sibling distance=24mm},
+  level 2/.style={sibling distance=14mm},
+  every node/.style={font=\small},
+  edge from parent/.style={draw,-},
+]
+\node (i) {$i$}
+  child { node (j) {$j$}
+    child { node (u) {$u$} }
+    child { node (v) {$v$} }
+  }
+  child { node (k) {$k$}
+    child { node (x) {$x$} }
+    child { node (y) {$y$} }
+  };
+\end{tikzpicture}
+\end{center}
+
+\noindent Let $I := c(i)$ be the set of micro-states at vertex $i$, and likewise for $J,K$.
+The cancellation argument in the proof of Theorem 1
+from~\cite{evans2026_canby_identifiability} gives
+%
+\[\E [D_t \mid J, K] = \sum_{(\alpha, \beta) \in \cA(J, K)} \E(I_{uv||xy}(\alpha, \beta) \mid J, K),\]
+%
+\noindent where
+%
+\[\cA(J, K) = \{(\alpha, \beta) : \alpha\neq\beta \in \Sigma_N,\ \alpha \in J,\ \beta \in K,\ \{\alpha, \beta\} \nsubseteq J \cap K\}.\]
+%
+\noindent We see that
+%
+\[\cB(J, K) := \{(\alpha, \beta) : \alpha \in J \setminus K,\ \beta \in K \setminus J\} \subseteq \cA(J, K).\]
+%
+\noindent For $(\alpha, \beta) \in \cB(J, K)$, since we just need $\alpha, \beta$ to survive until the leaves, by Lemma \ref{lem:death_rate_prob_bounds}
+%
+\[\E(I_{uv||xy}(\alpha, \beta) \mid J, K) \geq \eta_{ju} \eta_{jv} \eta_{kx} \eta_{ky}.\]
+%
+\noindent Hence
+%
+\[\Delta_q^{(c)} \geq \E |\cB(J, K)| \cdot \eta_{ju} \eta_{jv} \eta_{kx} \eta_{ky}.\]
+%
+\noindent We lower-bound $|\cB(J,K)|$ using only pairs for which state $\alpha$ is born
+along $(i,j]$ and survives until $j$, while state $\beta$ is born along $(i,k]$ and
+survives until $k$. In this case the roles of $J,K$ decouple. By
+Lemma~\ref{lem:pop_sizes_in_ID_processes}, the numbers of such $\alpha$ and $\beta$
+are at least $\mathrm{Poisson}(m_0(\ell_{ij}))$ and $\mathrm{Poisson}(m_0(\ell_{ik}))$
+respectively, where $m_0(t) = \frac{\lambda_N}{\mu}(1-\eta_t)$, and these are
+clearly independent. This produces on average $m_0(\ell_{ij}) \cdot m_0(\ell_{ik})$ pairs $(\alpha, \beta)$.
+Thus
+%
+\[\E|\cB(J,K)|\geq m_0(\ell_{ij})m_0(\ell_{ik}),\]
+%
+\noindent which gives the desired bound on $\Delta_q^{(c)}$ when the induced subtree is balanced.
+
+If the subtree induced by $q$ is a caterpillar tree like so
+
+\begin{center}
+\begin{tikzpicture}[
+  level distance=12mm,
+  level 1/.style={sibling distance=24mm},
+  level 2/.style={sibling distance=14mm},
+  every node/.style={font=\small},
+  edge from parent/.style={draw,-},
+]
+\node (i) {$i$}
+  child { node (u) {$u$}}
+  child { node (j) {$j$}
+    child { node (v) {$v$} }
+    child { node (k) {$k$}
+        child { node (x) {$x$} }
+        child { node (y) {$y$} }
+    }
+  };
+\end{tikzpicture}
+\end{center}
+
+\noindent then the analogous cancellation argument from the proof of
+Theorem 1 in~\cite{evans2026_canby_identifiability} gives
+%
+\[\E [D_t \mid I, J, K] = \sum_{(\alpha, \beta) \in \tilde{\cA}(I, J, K)} \E(I_{uv||xy}(\alpha, \beta) \mid I, J, K),\]
+%
+\noindent where
+\[\tilde{\cA}(I, J, K) = \{(\alpha, \beta) : \alpha\neq\beta \in \Sigma_N,\ \alpha \in I \cap J,\ \beta \in K,\ \{\alpha, \beta\} \nsubseteq J \cap K\}.\]
+%
+\noindent Again, we see this set contains
+%
+\[\tilde{\cB}(I, J, K) := \{(\alpha, \beta) : \alpha \in (I \cap J) \setminus K,\ \beta \in K \setminus J\}.\]
+%
+For $(\alpha, \beta) \in \tilde{\cB}(I, J, K)$ we see $(\alpha,\beta) \in M_{uv||xy}$ if and only if:
+
+\begin{itemize}
+    \item $\alpha$ survives on $(i, u]$ and $(j, v]$.
+    \item $\beta$ survives on $(k,x]$ and $(k,y]$.
+\end{itemize}
+
+\noindent so again by Lemma \ref{lem:death_rate_prob_bounds}
+%
+\[\E(I_{uv||xy}(\alpha, \beta) \mid I, J, K) \geq \eta_{iu}\eta_{jv} \eta_{kx} \eta_{ky}.\]
+%
+\noindent In particular, $(\alpha, \beta) \in \tilde{\cB}(I,J,K)$ can occur if
+%
+\begin{itemize}
+    \item $\alpha$ is born before $i$, survives along $(i,j]$, and dies on $(j,k]$.
+    \item $\beta$ is born on $(j,k]$ and survives until $k$.
+\end{itemize}
+
+\noindent Let $\rho_N := \E |c(r) \cap \Sigma_N|$ be the expected number of
+non-homoplastic states present at the root. Clearly we have
+%
+    \[\E |I\cap\Sigma_N| \geq \rho_N \eta_{ri} + m_0(\ell_{ri})\]
+%
+\noindent as non-homoplastic states in $I$ can come either from the root or be born along $[r,i]$. Of these, at
+least
+%
+    \[\E |I \cap J\cap\Sigma_N| \geq \left(\rho_N \eta_{ri} + m_0(\ell_{ri})\right) \eta_{ij}. \]
+%
+\noindent survive until they reach $j$, giving our candidates for $\alpha$. Condition on $I \cap J\cap\Sigma_N$ and
+fix $\alpha \in I \cap J\cap\Sigma_N$. Let
+%
+    \[X_\alpha := \# \{\beta : (\alpha, \beta) \in \tilde{\cB}(I, J, K)\}\]
+%
+\noindent be the number of pairs that $\alpha$ contributes to $\tilde{\cB}$. If a non-homoplastic state
+$\beta$ is born at location $s \in [j, k]$, it appears in $X_\alpha$ with probability at least
+%
+    \[p(s):= \exp(-\mu \ell_{sk} ) \cdot (1- \exp(-\mu \ell_{sk})),\]
+%
+\noindent since this is the probability $\beta$'s death clock does not ring in $[s,k]$,
+but that $\alpha$'s does. If $N$ represents the coupled rate-$\lambda_N$ Poisson process of
+non-homoplastic births in $[j,k]$, which is independent of the death clocks, then Campbell's formula gives
+%
+    \[\E X_\alpha \geq \E \left(\sum_{s \in N} p(s)\right) = \lambda_N \int_{0}^{\ell_{jk}} \exp(-\mu s) (1 - \exp(-\mu s)) \; ds = \frac{\lambda_N}{2\mu} (1-\exp(-\mu \ell_{jk}))^2. \]
+%
+\noindent Hence we see
+%
+    \[\E |\tilde{\cB}(I,J,K)| \geq \left[\rho_N \eta_{ri} + \frac{\lambda_N}{\mu}(1-e^{-\mu \ell_{ri}})\right] \eta_{ij} \cdot \left[\frac{\lambda_N}{2\mu} (1-\eta_{jk})^2\right],\]
+%
+\noindent giving the desired bound.
+\end{proof}
+
+\begin{corollary}[Expected Margin under the ID Process]
+\label{cor:expected_margin_under_id}
+Suppose characters are generated under $ID(\theta,\lambda,\mu;\cT^*)$. If $q$ induces a balanced quartet, then
+\[
+    \Delta_q \geq \left(\frac{\lambda}{\mu}\right)^2
+    (1-\eta_{ij})(1-\eta_{ik})\eta_{uv}\eta_{xy}.
+\]
+If $q$ induces a caterpillar quartet, then
+\[
+    \Delta_q \geq
+    \left[\theta\eta_{ri}+\frac{\lambda}{\mu}(1-\eta_{ri})\right]
+    \frac{\lambda}{\mu}(1-\eta_{jk})^2\eta_{uv}\eta_{xy}.
+\]
+\end{corollary}
+
+\begin{proof}
+The balanced bound follows from the proof of Lemma~\ref{lem:canby_expected_margin} with
+$\lambda_N=\lambda$ and $\rho_N=\theta$. For a caterpillar quartet, a candidate state $\alpha$
+dies along $[j,k]$ with probability $1-\eta_{jk}$, independently of the number of states $\beta$
+born along this branch and surviving to $k$, whose mean is
+$m_0(\ell_{jk})=\lambda\mu^{-1}(1-\eta_{jk})$. Multiplying these quantities and the relevant
+survival probabilities gives the result.
+\end{proof}
+
 \section{A Restricted Search-Space}
 \label{sec:bipartition_covers_canby}
 
@@ -710,6 +886,38 @@ on $\cT^*$ with no borrowing and whose rates follow an immigration-death process
 %
 \end{theorem}
 %
+\begin{proof}
+Fix an edge $e \in E(\cT)$ with $k_e$ descendants and a given character $c$.
+For ease of notation, we drop all the $(c)$ superscripts for now. If $\phi_e$ is the
+corresponding bipartition, we will lower bound the probability that
+$\phi_e = (L_\alpha \mid \cL(\cT^*) \setminus L_\alpha)$ for some $\alpha \in \Sigma$.
+
+First, note by our coupling to the ID process, the number $N_e$ of non-homoplastic
+states born along the edge $e$ satisfies
+%
+\[N_e \succeq_{st} \mathrm{Poisson}(\lambda T_e \cdot \nu(\Sigma_N)) \succeq_{st} \mathrm{Poisson}(\eta), \qquad \eta := \lambda f_{min} \nu(\Sigma_N),\]
+%
+\noindent where $T_e$ is the length of the branch $e$ and $f_{min}$ is the minimum branch length in the tree.
+
+For a given non-homoplastic $\alpha$ born along the edge $e$, we can lower bound the probability it has no deaths below $e$. By Lemma \ref{lem:death_rate_prob_bounds} the probability $\alpha$ survives along a branch of length $T$ is at least $\exp(-\mu T)$. There are $2k_e - 1 \leq 2k_e$ edges (including $e$) that $\alpha$ can die on. Each is at most length $f_{max}$, so we can lower bound the probability $\alpha$ has no deaths at all by
+%
+\[\P(\alpha \text{ has no deaths} \mid \alpha \in \Sigma_N,\ \alpha \text{ born on } e) \geq \exp(- \tau_{k_e}), \qquad \tau_{k_e} := 2\mu k_e f_{max}.\]
+%
+\noindent Using this result followed by $N_e \succeq_{st} \mathrm{Poisson}(\eta)$ we see
+%
+\[\P\bigl(\exists\alpha \; \phi_e = (L_\alpha \mid \cL(\cT^*) \setminus L_\alpha)\bigr) \geq \E_{n \sim N_e} \left(1-(1-\exp(-\tau_{k_e}))^n\right) \geq 1-\exp(-\eta e^{-\tau_{k_e}}).\]
+%
+From here, the caterpillar bound from~\cite{mcnulty2026_improved_bipartition_cover_bound} applied to our $|\cC|$ characters implies
+%
+\[\P(\cB \subseteq \cX_1) \geq 1 - \sum_{\ell=2}^{k-2} \prod_{c \in \cC}\exp\left(-\eta^{(c)} e^{-\tau_{\ell}^{(c)}}\right) =  1 - \sum_{\ell=2}^{k-2} \exp\left(-\sum_{c \in \cC}\eta^{(c)} e^{-\tau_{\ell}^{(c)}}\right).\]
+%
+\noindent Note none of the above uses our boundedness assumptions on the birth or death rates $\lambda^{(c)}, \mu^{(c)}$. Using these assumptions on the birth and death rates, we see
+%
+\[\P(\cB \subseteq \cX_1) \geq 1 - \sum_{\ell=2}^{k-2}q_\ell^{|\cC_N|} \geq 1-(k-3)q_{k-2}^{|\cC_N|}, \qquad q_\ell := \exp\left(-bf_{min} \exp\left[-2\ell Df_{max}\right]\right).\]
+%
+\noindent Hence we get the desired exponential convergence of the coverage probability.
+\end{proof}
+
 In particular, this implies if we run the ASTRAL as proposed in \cite{evans2026_canby_identifiability},
 restricted to the bipartition set $\cX_1$, this is a statistically consistent estimate
 of the true underlying phylogenetic tree $T$, and that we require $\exp(O(k))$ characters to
@@ -803,8 +1011,66 @@ beyond the anomaly-free property, so it applies equally to the PCH model and the
     \noindent then the above ASTRAL-based procedure recovers $\cT^*$ with probability at least $1-\varepsilon$.
 \end{theorem}
 
-\noindent The proof is analogous to the proof of Theorem 2.1 in~\cite{shekhar2018_how_many_genes_are_enough}, which union bounds over quartets and
-utilizes simple concentration bounds for the multinomial distribution. In Appendix~\ref{app:anomaly-free_zone}, we briefly discuss the
+\begin{proof}
+Let $K:=\binom{k}{4}$. For a fixed leaf set $s$, write
+$p_s:=\P(I_s)$ and let $n_s$ be the number of informative characters. Since
+$n_s\sim\mathrm{Binomial}(n,p_s)$, Chernoff's bound gives
+\[
+    \P\left(n_s<\frac{np_s}{2}\right)
+    \leq \exp\left(-\frac{np_{\min}}{8}\right).
+\]
+Therefore, by union bound
+\[
+    \P\left(\min_{s\in {[k]\choose 4}}n_s<\frac{np_{\min}}{2}\right)
+    \leq K\exp\left(-\frac{np_{\min}}{8}\right).
+\]
+
+\noindent Hence with high probability, every leaf set $s$ has at least
+$n' := np_{\min}/2$ informative characters. Now fix $s$ and label its two incorrect topologies $t_1,t_2$. Conditional on
+$I_s$, define
+\[
+    p_s^*:=\P(\tau_s^{(c)}=\cT_s^*\mid I_s),
+    \qquad
+    r_{s,j}:=\P(\tau_s^{(c)}=t_j\mid I_s),\quad j=1,2.
+\]
+For each informative character $c_i$, let
+\[
+    Z_i^{(j)}
+    :=1\{\tau_s^{(c_i)}=\cT_s^*\}
+    -1\{\tau_s^{(c_i)}=t_j\},\qquad j=1,2.
+\]
+Conditional on $n_s$, the variables $Z_i^{(j)}$ are iid, take values in
+$[-1,1]$, and satisfy
+\[
+    \E[Z_i^{(j)}\mid I_s]=p_s^*-r_{s,j}\geq\Delta.
+\]
+Hence Hoeffding's inequality implies
+\[
+    \P\left(\sum_{i=1}^{n_s}Z_i^{(j)}\leq0\,\middle|\,n_s\right)
+    \leq \exp\left(-\frac{n_s\Delta^2}{2}\right).
+\]
+Let $F_s$ be the event that $\cT_s^*$ is not the unique empirical maximizer for $s$.
+On $F_s$, the above event occurs for at least one $j\in\{1,2\}$. Thus, on
+$n_s\geq np_{\min}/2$,
+\[
+    \P\left(F_s\,\middle|\,n_s\right)
+    \leq 2\exp\left(-\frac{np_{\min}\Delta^2}{4}\right).
+\]
+
+If the true topology is uniquely modal for every leaf set, exact ASTRAL returns
+$\cT^*$. Combining the preceding estimate with the informative-count bound
+above and union bounding over the $K$ leaf sets gives
+\[
+    \P(\widehat{\cT}\neq\cT^*)
+    \leq K\exp\left(-\frac{np_{\min}}{8}\right)
+    +2K\exp\left(-\frac{np_{\min}\Delta^2}{4}\right)
+    \leq 3K\exp\left(-\frac{np_{\min}\Delta^2}{8}\right),
+\]
+as $\Delta\leq1$. Applying the assumed lower bound on $n$
+gives $\P(\widehat{\cT}=\cT^*)\geq1-\varepsilon$ as desired.
+\end{proof}
+
+\noindent The argument is analogous to the proof of Theorem 2.1 in~\cite{shekhar2018_how_many_genes_are_enough}. In Appendix~\ref{app:anomaly-free_zone}, we briefly discuss the
 anomaly-free zone and show that, at least for the $ID(\theta, \lambda, \mu; \cT^*)$ process, it occurs
 in the low-polymorphism setting.
 
@@ -840,6 +1106,51 @@ consequence of our concentration bound Lemma~\ref{lem:canby_concentration_of_sco
     %
     \noindent characters, we recover the true species tree with probability at least $1-\delta$.
 \end{lemma}
+
+\begin{proof}[Proof of Lemma \ref{lem:sample_complexity_pch_astral} (Sample Complexity PCH-ASTRAL)]
+    If for each leaf-set $s$ the topology $q \in A_s$ maximizing the score $S_q$ is the correct topology,
+    then PCH-ASTRAL will trivially return the correct species tree $\cT^*$, as the set of topologies $\{q_s\}_{s \in {[k] \choose 4}}$
+    will exactly match those generated by the species tree $\cT^*$. Hence if $\hat{\cT}$ is the output of this inference procedure, by union bound
+    %
+     \[\P(\hat{\cT} = \cT^*) \geq 1 - \sum_{s} \P(q_s \neq \cT^*_s).\]
+    %
+    \noindent Hence it suffices to upper bound $p_s := \P(q_s \neq \cT^*_s)$. Note
+    %
+    \[p_s \leq \sum_{t \in A_s \setminus \{\cT_s^*\}} \P(S_{\cT_s^*} \leq S_t).\]
+    %
+    \noindent so it suffices to bound each term on the right hand side. For $t \in A_s \setminus \{\cT_s^*\}$, define
+    %
+        \[D_i := |M^{(c_i)}_{\cT^*_s}| - |M^{(c_i)}_t|, \qquad S_{\cT_s^*} - S_t = \frac{1}{n} \sum_{i=1}^n D_i.\]
+    %
+    \noindent Since $L \leq \E D_i$ we have
+    %
+        \[\P(S_{\cT_s^*} \leq S_t) \leq \P\left(\Bigg| \sum_{i=1}^n (D_i - \E D_i)\Bigg| \geq n L\right).\]
+    %
+    \noindent Lemma~\ref{lem:canby_concentration_of_scores} implies for universal constants
+    %
+        \[\|D_i - \E D_i\|_{\Psi_{1/2}} \lesssim
+        \bigl\||M_{\cT_s^*}|\bigr\|_{\Psi_{1/2}}
+        + \bigl\||M_t|\bigr\|_{\Psi_{1/2}} \lesssim \kappa.\]
+    %
+
+    \noindent Applying the sub-Weibull concentration inequality of Theorem 3.1 in~\cite{kuchibhotla2022_beyond_sub_gaussian_high_dimensional_statistics}
+    %
+        \[\P\left(\Bigg| \sum_{i=1}^n (D_i - \E D_i)\Bigg| \gtrsim \kappa( \sqrt{nt} + t^2)\right) \leq 2e^{-t}.\]
+    %
+    \noindent Choose $t_\delta = \log(4{k \choose 4} / \delta)$. Note our assumptions on $n$ imply
+    %
+    \[nL \gtrsim \kappa (\sqrt{nt_\delta} + t_\delta^2),\]
+    %
+    \noindent and we have
+    %
+        \[\P(S_{\cT_s^*} \leq S_t) \leq 2\exp(-t_\delta).\]
+    %
+    \noindent Taking a union bound over quartets and the two incorrect topologies then gives
+    %
+        \[\P(\hat{\cT} = \cT^*) \geq 1 - 2{k \choose 4} \cdot 2\exp(-t_\delta) = 1-\delta,\]
+    %
+    \noindent as desired.
+\end{proof}
 
 \noindent As discussed in the proof, the parameter $\kappa$ in a sense measures how heavy-tailed the support sizes $|M_{uv||xy}|$ are.
 It has the trivial upper bound $\kappa \leq (1 + \zeta)^2$, which is a function merely of the expected number of
@@ -1216,445 +1527,6 @@ the second term thins these to only those reaching both $u,v$.
     \[||\mathrm{Poisson}(m) ||_{\Psi_1} = \frac{1}{\log(1 + \log(2) / m)} \leq 1 + \frac{m}{\log(2)},\]
     %
     \noindent from which the result follows.
-\end{proof}
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Additional Proofs
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Additional Proofs}
-\label{app:canby_additional_proofs}
-
-%%%%%%%%%%%%%%%
-% Bipartition Cover Bounds
-%%%%%%%%%%%%%%%
-\canbyproofstatement{Theorem~\ref{thm:canby_bipartition_cover_bounds_no_borrowing}}{
-Let $\cB$ be the bipartitions of a phylogenetic tree $\cT^*$ with $k$ leaves
-and branch lengths in $[f_{min},f_{max}]$. Consider independent PCH characters
-$c\in \cC$ under the no-borrowing model with immigration--death dynamics, and define
-\[
-    \cC_N=\{c\in \cC:\nu^{(c)}(\Sigma_N^{(c)})>0\}.
-\]
-Assume $\lambda^{(c)}\nu^{(c)}(\Sigma_N^{(c)})\geq b>0$ and
-$\mu^{(c)}\leq D<\infty$ for every $c\in \cC_N$. Then
-\[
- \P(\cB\nsubseteq\cX_1)
- \leq\sum_{\ell=2}^{k-2}q_\ell^{|\cC_N|}
- \leq(k-3)q_{k-2}^{|\cC_N|},\qquad
- q_\ell=e^{-bf_{min}e^{-2\ell Df_{max}}},
-\]
-and hence $\P(\cB\subseteq\cX_1)\to1$ as $|\cC_N|\to\infty$.}
-\begin{proof}[Proof of Theorem \ref{thm:canby_bipartition_cover_bounds_no_borrowing} (Bipartition Cover Bound)]
-
-Fix an edge $e \in E(\cT)$ with $k_e$ descendants and a given character $c$. 
-For ease of notation, we drop all the $(c)$ superscripts for now. If $\phi_e$ is the 
-corresponding bipartition, we will lower bound the probability that 
-$\phi_e = (L_\alpha \mid \cL(\cT^*) \setminus L_\alpha)$ for some $\alpha \in \Sigma$.
-
-First, note by our coupling to the ID process, the number $N_e$ of non-homoplastic 
-states born along the edge $e$ satisfies
-%
-\[N_e \succeq_{st} \mathrm{Poisson}(\lambda T_e \cdot \nu(\Sigma_N)) \succeq_{st} \mathrm{Poisson}(\eta), \qquad \eta := \lambda f_{min} \nu(\Sigma_N),\]
-%
-\noindent where $T_e$ is the length of the branch $e$ and $f_{min}$ is the minimum branch length in the tree.
-
-For a given non-homoplastic $\alpha$ born along the edge $e$, we can lower bound the probability it has no deaths below $e$. By Lemma \ref{lem:death_rate_prob_bounds} the probability $\alpha$ survives along a branch of length $T$ is at least $\exp(-\mu T)$. There are $2k_e - 1 \leq 2k_e$ edges (including $e$) that $\alpha$ can die on. Each is at most length $f_{max}$, so we can lower bound the probability $\alpha$ has no deaths at all by
-%
-\[\P(\alpha \text{ has no deaths} \mid \alpha \in \Sigma_N,\ \alpha \text{ born on } e) \geq \exp(- \tau_{k_e}), \qquad \tau_{k_e} := 2\mu k_e f_{max}.\]
-%
-\noindent Using this result followed by $N_e \succeq_{st} \mathrm{Poisson}(\eta)$ we see
-%
-\[\P\bigl(\exists\alpha \; \phi_e = (L_\alpha \mid \cL(\cT^*) \setminus L_\alpha)\bigr) \geq \E_{n \sim N_e} \left(1-(1-\exp(-\tau_{k_e}))^n\right) \geq 1-\exp(-\eta e^{-\tau_{k_e}}).\]
-%
- From here, we use the caterpillar bound from~\cite{mcnulty2026_improved_bipartition_cover_bound} applied to our $|\cC|$ characters implies
-%
-\[\P(\cB \subseteq \cX_1) \geq 1 - \sum_{\ell=2}^{k-2} \prod_{c \in \cC}\exp\left(-\eta^{(c)} e^{-\tau_{\ell}^{(c)}}\right) =  1 - \sum_{\ell=2}^{k-2} \exp\left(-\sum_{c \in \cC}\eta^{(c)} e^{-\tau_{\ell}^{(c)}}\right).\]
-%
-\noindent Note none of the above uses our boundedness assumptions on the birth or death rates $\lambda^{(c)}, \mu^{(c)}$. Using these assumptions on the birth and death rates, we see
-%
-\[\P(\cB \subseteq \cX_1) \geq 1 - \sum_{\ell=2}^{k-2}q_\ell^{|\cC_N|} \geq 1-(k-3)q_{k-2}^{|\cC_N|}, \qquad q_\ell := \exp\left(-bf_{min} \exp\left[-2\ell Df_{max}\right]\right).\]
-%
-\noindent Hence we get the desired exponential convergence of the coverage probability.
-\end{proof}
-
-
-%%%%%%%%%%%%%%%
-% Sample complexity bounds for new ASTRAL procedure
-%%%%%%%%%%%%%%%
-\canbyproofstatement{Theorem~\ref{thm:sample_complexity_separate_characters}}{
-Let $\{c_i\}_{i=1}^n$ be iid characters in the anomaly-free zone, let
-$I_s=\{\max_{q\in A_s}|M_q^{(c)}|>0\}$, and fix $0<\varepsilon<1$. Define
-\[
- \Delta=\min_s\min_{t\neq\cT_s^*}
- \left[\P(\tau_s^{(c)}=\cT_s^*\mid I_s)-
- \P(\tau_s^{(c)}=t\mid I_s)\right],qquad
- p_{\min}=\min_s\P(I_s).
-\]
-If
-\[
- n>\frac{8}{p_{\min}\Delta^2}
- \log\!\left(\frac{3\binom{k}{4}}{\varepsilon}\right),
-\]
-then PCH-ASTRAL(sc) recovers $\cT^*$ with probability at least $1-\varepsilon$.}
-\begin{proof}[Proof of Theorem~\ref{thm:sample_complexity_separate_characters} (Sample Complexity PCH-ASTRAL(sc))]
-    Let $K:=\binom{k}{4}$. For a fixed leaf set $s$, write
-    $p_s:=\P(I_s)$ and let $n_s$ be the number of informative characters. Since
-    $n_s\sim\mathrm{Binomial}(n,p_s)$, Chernoff's bound gives
-    \[
-        \P\left(n_s<\frac{np_s}{2}\right)
-        \leq \exp\left(-\frac{np_{\min}}{8}\right).
-    \]
-    Therefore, by union bound
-    \[
-        \P\left(\min_{s\in {[k]\choose 4}}n_s<\frac{np_{\min}}{2}\right)
-        \leq K\exp\left(-\frac{np_{\min}}{8}\right).
-    \]
-
-    \noindent Hence with high probability, every leaf set $s$ has at least
-    $n' := np_{\min}/2$ informative characters. Now fix $s$ and label its two incorrect topologies $t_1,t_2$. Conditional on
-    $I_s$, define
-    \[
-        p_s^*:=\P(\tau_s^{(c)}=\cT_s^*\mid I_s),
-        \qquad
-        r_{s,j}:=\P(\tau_s^{(c)}=t_j\mid I_s),\quad j=1,2.
-    \]
-    For each informative character $c_i$, let
-    \[
-        Z_i^{(j)}
-        :=1\{\tau_s^{(c_i)}=\cT_s^*\}
-        -1\{\tau_s^{(c_i)}=t_j\},\qquad j=1,2.
-    \]
-    Conditional on $n_s$, the variables $Z_i^{(j)}$ are iid, take values in
-    $[-1,1]$, and satisfy
-    \[
-        \E[Z_i^{(j)}\mid I_s]=p_s^*-r_{s,j}\geq\Delta.
-    \]
-    Hence Hoeffding's inequality implies
-    \[
-        \P\left(\sum_{i=1}^{n_s}Z_i^{(j)}\leq0\,\middle|\,n_s\right)
-        \leq \exp\left(-\frac{n_s\Delta^2}{2}\right).
-    \]
-    Let $F_s$ be the event that $\cT_s^*$ is not the unique empirical maximizer for $s$.
-    On $F_s$, the above event occurs for at least one $j\in\{1,2\}$. Thus, on
-    $n_s\geq np_{\min}/2$,
-    \[
-        \P\left(F_s\,\middle|\,n_s\right)
-        \leq 2\exp\left(-\frac{np_{\min}\Delta^2}{4}\right).
-    \]
-
-    If the true topology is uniquely modal for every leaf set, exact ASTRAL returns
-    $\cT^*$. Combining the preceding estimate with the informative-count bound
-    above and union bounding over the $K$ leaf sets gives
-    \[
-        \P(\widehat{\cT}\neq\cT^*)
-        \leq K\exp\left(-\frac{np_{\min}}{8}\right)
-        +2K\exp\left(-\frac{np_{\min}\Delta^2}{4}\right)
-        \leq 3K\exp\left(-\frac{np_{\min}\Delta^2}{8}\right),
-    \]
-    as $\Delta\leq1$. Applying the assumed lower bound on $n$
-    gives $\P(\widehat{\cT}=\cT^*)\geq1-\varepsilon$ as desired.
-\end{proof}
-
-%%%%%%%%%%%%%%%%%%%
-% Expected Margin
-%%%%%%%%%%%%%%%%%%%
-\canbyproofstatement{Lemma~\ref{lem:canby_expected_margin}}{
-Under the PCH model, let $q=\cT_s^*=uv||xy$, let
-$\Delta_q^{(c)}=\E[|M_q^{(c)}|-|M_t^{(c)}|]$ for either incorrect
-$t\in A_s\setminus\{q\}$, set $\lambda_N=\lambda\nu(\Sigma_N)$ and
-$\rho_N=\E|c(r)\cap\Sigma_N|$, and label the internal vertices $i,j,k$ as in
-Figure~\ref{fig:canby_quartet_topologies}. If the induced quartet is balanced,
-\[
- \Delta_q^{(c)}\geq
- \left(\frac{\lambda_N}{\mu}\right)^2
- (1-\eta_{ij})(1-\eta_{ik})\eta_{uv}\eta_{xy}.
-\]
-If it is a caterpillar, then
-\[
- \Delta_q^{(c)}\geq
- \left[\rho_N\eta_{ri}+\frac{\lambda_N}{\mu}(1-\eta_{ri})\right]
- \frac{\lambda_N}{2\mu}(1-\eta_{jk})^2\eta_{uv}\eta_{xy}.
-\]}
-\begin{proof}[Proof of Lemma \ref{lem:canby_expected_margin} (Expected support margin)]
-
-Fix $t \in A_s \setminus \{q\}$ and recall that
-$D_t=|M_q^{(c)}|-|M_t^{(c)}|$ and $\Delta_q^{(c)}=\E D_t$.
-For an ordered pair of distinct non-homoplastic states, define
-%
-\[I_q(\alpha,\beta):=1\{(\alpha,\beta)\in M_q^{(c)}\}.\]
-%
-Suppose first that the quartet $q = uv || xy$ induces a balanced tree in $\cT^*$. Let $i, j, k$ denote the internal vertices of this subtree like so:
-
-\begin{center}
-\begin{tikzpicture}[
-  level distance=12mm,
-  level 1/.style={sibling distance=24mm},
-  level 2/.style={sibling distance=14mm},
-  every node/.style={font=\small},
-  edge from parent/.style={draw,-},
-]
-\node (i) {$i$}
-  child { node (j) {$j$}
-    child { node (u) {$u$} }
-    child { node (v) {$v$} }
-  }
-  child { node (k) {$k$}
-    child { node (x) {$x$} }
-    child { node (y) {$y$} }
-  };
-\end{tikzpicture}
-\end{center}
-
-\noindent Let $I := c(i)$ be the set of micro-states at vertex $i$, and likewise for $J,K$.
-The cancellation argument in the proof of Theorem 1
-from~\cite{evans2026_canby_identifiability} gives
-%
-\[\E [D_t \mid J, K] = \sum_{(\alpha, \beta) \in \cA(J, K)} \E(I_{uv||xy}(\alpha, \beta) \mid J, K),\]
-%
-\noindent where
-%
-\[\cA(J, K) = \{(\alpha, \beta) : \alpha\neq\beta \in \Sigma_N,\ \alpha \in J,\ \beta \in K,\ \{\alpha, \beta\} \nsubseteq J \cap K\}.\]
-%
-\noindent We see that
-%
-\[\cB(J, K) := \{(\alpha, \beta) : \alpha \in J \setminus K,\ \beta \in K \setminus J\} \subseteq \cA(J, K).\]
-%
-\noindent For $(\alpha, \beta) \in \cB(J, K)$, since we just need $\alpha, \beta$ to survive until the leaves, by Lemma \ref{lem:death_rate_prob_bounds}
-%
-\[\E(I_{uv||xy}(\alpha, \beta) \mid J, K) \geq \eta_{ju} \eta_{jv} \eta_{kx} \eta_{ky}.\]
-%
-\noindent Hence
-%
-\[\Delta_q^{(c)} \geq \E |\cB(J, K)| \cdot \eta_{ju} \eta_{jv} \eta_{kx} \eta_{ky}.\]
-%
-\noindent Note $(\alpha, \beta) \in \cB(J, K)$ can occur if:
-%
-\begin{enumerate}[label=(\roman*)]
-    \item State $\alpha$ is born along the branch $(i, j]$ and survives until $j$. State $\beta$ is born along the branch $(i, k]$ and survives until $k$.
-
-    \item State $\alpha$ is born before $i$, dies along $(i,k]$, and survives along $(i, j]$. State $\beta$ is born along the branch $(i, k]$ and survives until $k$.
-
-    \item State $\beta$ is born before $i$, dies along $(i,j]$, and survives along $(i, k]$. State $\alpha$ is born along the branch $(i, j]$ and survives until $j$.
-
-    \item  State $\alpha$ is born before $i$, dies along $(i,k]$, and survives along $(i, j]$. State $\beta$ is born before $i$, dies along $(i,j]$, and survives along $(i, k]$.
-\end{enumerate}
-%
-\noindent We focus solely on $(i)$, as in this case the roles of $J,K$ nicely decouple. By Lemma \ref{lem:pop_sizes_in_ID_processes}, the number of such $\alpha$ and $\beta$
-are at least $\mathrm{Poisson}(m_0(\ell_{ij}))$ and $\mathrm{Poisson}(m_0(\ell_{ik}))$
-respectively, where $m_\theta(t) = \theta e^{-\mu t} + \frac{\lambda_N}{\mu} \cdot (1-\eta_t)$, and these are
-clearly independent. This produces on average $m_0(\ell_{ij}) \cdot m_0(\ell_{ik})$ pairs $(\alpha, \beta)$.
-
-The contributions from (ii), (iii), (iv) can similarly be calculated using the death rate lower bound
-found in Lemma~\ref{lem:death_rate_prob_bounds}. If we let $\theta = \E|R \cap \Sigma_N|$ be the expected
-number of non-homoplastic states at the root, then thinning and linearity of expectation give contributions
-%
-\begin{enumerate}
-    \item[(ii)] $m_\theta(\ell_{ri}) \xi_{ik} \eta_{ij} \cdot m_0(\ell_{ik})$.
-    \item[(iii)] $m_0(\ell_{ij}) \cdot m_\theta(\ell_{ri}) \xi_{ij} \eta_{ik} $.
-\end{enumerate}
-
-\noindent If we additionally assume $|R \cap \Sigma_N| \sim \mathrm{Poisson}(\theta)$, then
-\begin{enumerate}
-        \item[(iv)] $m_\theta(\ell_{ri})^2 \xi_{ik} \eta_{ij} \xi_{ij} \eta_{ik}$.
-\end{enumerate}
-%
-\noindent Formula (iv) comes from the fact that $|I| \sim \mathrm{Poisson}(m_\theta(\ell_{ri}))$, and so there are $\E |I| (|I| - 1) = m_\theta(\ell_{ri})^2$ ordered pairs
-of distinct states on average at $i$. Hence, under this additional Poisson assumption,
-%
-\[\E |\cB(J,K)|
-\geq
-\left[
-m_0(\ell_{ij})
-+
-m_\theta(\ell_{ri})\eta_{ij}\xi_{ik}
-\right]
-\left[
-m_0(\ell_{ik})
-+
-m_\theta(\ell_{ri})\xi_{ij}\eta_{ik}
-\right] \geq m_0(\ell_{ij})  m_0(\ell_{ik}).\]
-%
-\noindent Without the Poisson assumption on $|R|$, the simpler lower bound
-$\E|\cB(J,K)|\geq m_0(\ell_{ij})m_0(\ell_{ik})$ remains valid. With our above work,
-this gives the desired bound on $\Delta_q^{(c)}$ when the induced subtree is balanced.
-
-If the subtree induced by $q$ is a caterpillar tree like so
-
-\begin{center}
-\begin{tikzpicture}[
-  level distance=12mm,
-  level 1/.style={sibling distance=24mm},
-  level 2/.style={sibling distance=14mm},
-  every node/.style={font=\small},
-  edge from parent/.style={draw,-},
-]
-\node (i) {$i$}
-  child { node (u) {$u$}}
-  child { node (j) {$j$}
-    child { node (v) {$v$} }
-    child { node (k) {$k$}
-        child { node (x) {$x$} }
-        child { node (y) {$y$} }
-    }
-  };
-\end{tikzpicture}
-\end{center}
-
-\noindent then the analogous cancellation argument from the proof of
-Theorem 1 in~\cite{evans2026_canby_identifiability} gives
-%
-\[\E [D_t \mid I, J, K] = \sum_{(\alpha, \beta) \in \tilde{\cA}(I, J, K)} \E(I_{uv||xy}(\alpha, \beta) \mid I, J, K),\]
-%
-\noindent where
-\[\tilde{\cA}(I, J, K) = \{(\alpha, \beta) : \alpha\neq\beta \in \Sigma_N,\ \alpha \in I \cap J,\ \beta \in K,\ \{\alpha, \beta\} \nsubseteq J \cap K\}.\]
-%
-\noindent Again, we see this set contains
-%
-\[\tilde{\cB}(I, J, K) := \{(\alpha, \beta) : \alpha \in (I \cap J) \setminus K,\ \beta \in K \setminus J\}.\]
-%
-For $(\alpha, \beta) \in \tilde{\cB}(I, J, K)$ we see $(\alpha,\beta) \in M_{uv||xy}$ if and only if:
-
-\begin{itemize}
-    \item $\alpha$ survives on $(i, u]$ and $(j, v]$.
-    \item $\beta$ survives on $(k,x]$ and $(k,y]$.
-\end{itemize}
-
-\noindent so again by Lemma \ref{lem:death_rate_prob_bounds}
-%
-\[\E(I_{uv||xy}(\alpha, \beta) \mid I, J, K) \geq \eta_{iu}\eta_{jv} \eta_{kx} \eta_{ky}.\]
-%
-\noindent In particular, $(\alpha, \beta) \in \tilde{\cB}(I,J,K)$ can occur if
-%
-\begin{itemize}
-    \item $\alpha$ is born before $i$, survives along $(i,j]$, and dies on $(j,k]$.
-    \item $\beta$ is born on $(j,k]$ and survives until $k$.
-\end{itemize}
-
-\noindent Let $\rho_N := \E |c(r) \cap \Sigma_N|$ be the expected number of
-non-homoplastic states present at the root. Clearly we have
-%
-    \[\E |I\cap\Sigma_N| \geq \rho_N \eta_{ri} + m_0(\ell_{ri})\]
-%
-\noindent as non-homoplastic states in $I$ can come either from the root or be born along $[r,i]$. Of these, at
-least
-%
-    \[\E |I \cap J\cap\Sigma_N| \geq \left(\rho_N \eta_{ri} + m_0(\ell_{ri})\right) \eta_{ij}. \]
-%
-\noindent survive until they reach $j$, giving our candidates for $\alpha$. Condition on $I \cap J\cap\Sigma_N$ and
-fix $\alpha \in I \cap J\cap\Sigma_N$. Let
-%
-    \[X_\alpha := \# \{\beta : (\alpha, \beta) \in \tilde{\cB}(I, J, K)\}\]
-%
-\noindent be the number of pairs that $\alpha$ contributes to $\tilde{\cB}$. If a non-homoplastic state
-$\beta$ is born at location $s \in [j, k]$, it appears in $X_\alpha$ with probability at least
-%
-    \[p(s):= \exp(-\mu \ell_{sk} ) \cdot (1- \exp(-\mu \ell_{sk})),\]
-%
-\noindent since this is the probability $\beta$'s death clock does not ring in $[s,k]$,
-but that $\alpha$'s does. If $N$ represents the coupled rate-$\lambda_N$ Poisson process of
-non-homoplastic births in $[j,k]$, which is independent of the death clocks, then Campbell's formula gives
-%
-    \[\E X_\alpha \geq \E \left(\sum_{s \in N} p(s)\right) = \lambda_N \int_{0}^{\ell_{jk}} \exp(-\mu s) (1 - \exp(-\mu s)) \; ds = \frac{\lambda_N}{2\mu} (1-\exp(-\mu \ell_{jk}))^2. \]
-%
-\noindent Hence we see
-%
-    \[\E |\tilde{\cB}(I,J,K)| \geq \left[\rho_N \eta_{ri} + \frac{\lambda_N}{\mu}(1-e^{-\mu \ell_{ri}})\right] \eta_{ij} \cdot \left[\frac{\lambda_N}{2\mu} (1-\eta_{jk})^2\right],\]
-%
-\noindent giving the desired bound.
-\end{proof}
-
-\begin{corollary}[Expected Margin under the ID Process]
-\label{cor:expected_margin_under_id}
-Suppose characters are generated under $ID(\theta,\lambda,\mu;\cT^*)$. If $q$ induces a balanced quartet, then
-\[
-    \Delta_q \geq \left(\frac{\lambda}{\mu}\right)^2
-    (1-\eta_{ij})(1-\eta_{ik})\eta_{uv}\eta_{xy}.
-\]
-If $q$ induces a caterpillar quartet, then
-\[
-    \Delta_q \geq
-    \left[\theta\eta_{ri}+\frac{\lambda}{\mu}(1-\eta_{ri})\right]
-    \frac{\lambda}{\mu}(1-\eta_{jk})^2\eta_{uv}\eta_{xy}.
-\]
-\end{corollary}
-
-\begin{proof}
-The balanced bound follows from the proof of Lemma~\ref{lem:canby_expected_margin} with
-$\lambda_N=\lambda$ and $\rho_N=\theta$. For a caterpillar quartet, a candidate state $\alpha$
-dies along $[j,k]$ with probability $1-\eta_{jk}$, independently of the number of states $\beta$
-born along this branch and surviving to $k$, whose mean is
-$m_0(\ell_{jk})=\lambda\mu^{-1}(1-\eta_{jk})$. Multiplying these quantities and the relevant
-survival probabilities gives the result.
-\end{proof}
-
-
-
-
-\canbyproofstatement{Lemma~\ref{lem:sample_complexity_pch_astral}}{
-Let $\{c_i\}_{i=1}^n$ be iid from
-$ID(\theta,\lambda,\mu;\cT^*)$, let $0<\delta<1$, and define
-\[
- \zeta=\theta\vee\frac{\lambda}{\mu},\qquad
- \kappa=\max_s\max_{uv||xy\in A_s}
- (1+\zeta\eta_{uv})(1+\zeta\eta_{xy}),
-\]
-\[
- L=\min_s\min_{t\neq\cT_s^*}
- \E\left[|M_{\cT_s^*}|-|M_t|\right]>0,
- \qquad
- t_\delta=\log\!\left(\frac{4\binom{k}{4}}{\delta}\right).
-\]
-If
-\[
- n\gtrsim\max\left\{\frac{\kappa^2}{L^2}t_\delta,
-                     \frac{\kappa}{L}t_\delta^2\right\},
-\]
-then PCH-ASTRAL recovers $\cT^*$ with probability at least $1-\delta$.}
-\begin{proof}[Proof of Lemma \ref{lem:sample_complexity_pch_astral} (Sample Complexity PCH-ASTRAL)]
-    If for each leaf-set $s$ the topology $q \in A_s$ maximizing the score $S_q$ is the correct topology,
-    then PCH-ASTRAL will trivially return the correct species tree $\cT^*$, as the set of topologies $\{q_s\}_{s \in {[k] \choose 4}}$
-    will exactly match those generated by the species tree $\cT^*$. Hence if $\hat{\cT}$ is the output of this inference procedure, by union bound
-    %
-     \[\P(\hat{\cT} = \cT^*) \geq 1 - \sum_{s} \P(q_s \neq \cT^*_s).\]
-    %
-    \noindent Hence it suffices to upper bound $p_s := \P(q_s \neq \cT^*_s)$. Note
-    %
-    \[p_s \leq \sum_{t \in A_s \setminus \{\cT_s^*\}} \P(S_{\cT_s^*} \leq S_t).\]
-    %
-    \noindent so it suffices to bound each term on the right hand side. For $t \in A_s \setminus \{\cT_s^*\}$, define
-    %
-        \[D_i := |M^{(c_i)}_{\cT^*_s}| - |M^{(c_i)}_t|, \qquad S_{\cT_s^*} - S_t = \frac{1}{n} \sum_{i=1}^n D_i.\]
-    %
-    \noindent Since $L \leq \E D_i$ we have
-    %
-        \[\P(S_{\cT_s^*} \leq S_t) \leq \P\left(\Bigg| \sum_{i=1}^n (D_i - \E D_i)\Bigg| \geq n L\right).\]
-    %
-    \noindent Lemma~\ref{lem:canby_concentration_of_scores} implies for universal constants
-    %
-        \[\|D_i - \E D_i\|_{\Psi_{1/2}} \lesssim
-        \bigl\||M_{\cT_s^*}|\bigr\|_{\Psi_{1/2}}
-        + \bigl\||M_t|\bigr\|_{\Psi_{1/2}} \lesssim \kappa.\]
-    %
-
-    \noindent Applying the sub-Weibull concentration inequality of Theorem 3.1 in~\cite{kuchibhotla2022_beyond_sub_gaussian_high_dimensional_statistics}
-    %
-        \[\P\left(\Bigg| \sum_{i=1}^n (D_i - \E D_i)\Bigg| \gtrsim \kappa( \sqrt{nt} + t^2)\right) \leq 2e^{-t}.\]
-    %
-    \noindent Choose $t_\delta = \log(4{k \choose 4} / \delta)$. Note our assumptions on $n$ imply
-    %
-    \[nL \gtrsim \kappa (\sqrt{nt_\delta} + t_\delta^2),\]
-    %
-    \noindent and we have
-    %
-        \[\P(S_{\cT_s^*} \leq S_t) \leq 2\exp(-t_\delta).\]
-    %
-    \noindent Taking a union bound over quartets and the two incorrect topologies then gives
-    %
-        \[\P(\hat{\cT} = \cT^*) \geq 1 - 2{k \choose 4} \cdot 2\exp(-t_\delta) = 1-\delta,\]
-    %
-    \noindent as desired.
 \end{proof}
 
 \end{subappendices}

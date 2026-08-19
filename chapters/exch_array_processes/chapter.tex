@@ -101,12 +101,6 @@ random sequence that left-converges in probability while its canonical step-func
 Cauchy in probability in this norm. Furthermore,
 we discuss how one might possibly extend a suitable metric from binary arrays to arrays with more general state spaces.
 
-For clarity of exposition, most proofs are postponed until Appendix~\ref{appendix:proof_appendix}.
-
-
-
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Exchangeable Array Processes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -171,6 +165,30 @@ that the Markov property is preserved.
 \end{lemma}
 %
 
+\begin{proof}
+First, note that the definition of an exchangeable array implies
+%
+\[\P(L_n = x) = \P(L_n = x') \qquad \forall x \sim x'.\]
+
+\noindent Moreover if $x \sim x'$ are related by $\sigma \in \operatorname{Sym}(\N)$ then again exchangeability implies
+%
+\begin{align*}
+    \P(M_{n+1} = [y]_\sim,\; L_n = x) & = \sum_{y' \sim y} \P(L_{n+1} = y', \; L_n = x)\\
+    & = \sum_{y' \sim y} \P(L_{n+1} = \sigma(y'), \; L_n = \sigma(x)) \\
+    & = \sum_{z \sim y} \P(L_{n+1} = z, \; L_n = x') \\
+    & = \P(M_{n+1} = [y]_\sim,\; L_n = x').
+\end{align*}
+%
+\noindent Thus we see
+%
+\[\P(M_{n+1} = [y]_\sim \; | \; L_n = x) = \P(M_{n+1} = [y]_\sim \; | \; L_n = x') \qquad \forall x \sim x', \quad [y]_\sim \in [E_{n+1}]_\sim.\]
+%
+\noindent Thus the transition probability from $x$ into the class $[y]_\sim$
+depends only on the equivalence class $[x]_\sim$. The projected transition
+kernel is therefore well-defined on equivalence classes, and hence $M_n$ is a
+Markov chain.
+\end{proof}
+
 \noindent The above lemma is true for any initial distribution, but we
 are almost exclusively interested in the case where $M_0$ is the empty array.
 The main benefit of this framework is that exchangeable arrays share a
@@ -211,6 +229,14 @@ Next, we point out a simple way of generating new exchangeable arrays from old o
     If $(X_e)$ is an exchangeable array with entries in $S$ and $g:S \to S'$ is measurable, then $(g(X_e))$ is an exchangeable array of the same dimension. Moreover, if $f$ is the representing function of $(X_e)$, then $g \circ f$ is the representing function of $(g(X_e))$.
 
 \end{lemma}
+
+\begin{proof}
+The result follows immediately from applying $g$ coordinatewise. If $(X_e)$ is exchangeable, then for each finite permutation $\sigma$,
+\[
+(g(X_{\sigma(e)}))_{e \in \binom{\N}{d}} \overset{\mathrm{law}}{=} (g(X_e))_{e \in \binom{\N}{d}}.
+\]
+Moreover, if $X_e = f(U_\emptyset,(U_i)_{i \in e},\ldots,U_e)$ in distribution, then $g(X_e)$ is represented by $g \circ f$.
+\end{proof}
 
 \noindent Here we are essentially defining an equivalence relation on the entries of the array where we let $s \sim s'$ if $g(s) = g(s')$.
 We call this the \textit{state-space equivalence}.
@@ -294,6 +320,25 @@ to $e \in \binom{[n-1]}{d}$ to obtain $L_{n-1}$. Thus, its Doob-Martin boundary 
     The boundary of $L_n$ consists of the deterministic arrays $x \in \mathrm{supp}(X)$.
 \end{lemma}
 
+\begin{proof}
+Fix $x\in E_m$ and $y\in E_n$ with $n\geq m$. Since the backwards dynamics
+of the labeled chain are deterministic,
+\[
+\P(L_m=x\mid L_n=y)=\ind\{y|_{[m]}=x\}.
+\]
+Consequently, the Doob--Martin kernel of the labeled chain is
+\[
+K_L(x,y)=\frac{\ind\{y|_{[m]}=x\}}{\P(L_m=x)}.
+\]
+Thus a sequence $(y_n)$ with $y_n\in E_n$ converges in the Doob--Martin
+topology if and only if, for every $m$, the restriction $y_n|_{[m]}$ is
+eventually constant. These limiting restrictions are consistent and therefore
+define a unique deterministic infinite array in $\operatorname{supp}(X_e)$.
+Conversely, the finite restrictions of any deterministic array in
+$\operatorname{supp}(X_e)$ form a convergent sequence with that boundary
+point as its limit.
+\end{proof}
+
 \noindent Given the exchangeable array $(X_e)$ and a measurable function $g:S \to S'$, we can generate a new exchangeable
 array $G(X)$ by applying $g$ coordinatewise: $G(X)_e := g(X_e)$. Although the boundary points of both labeled chains are deterministic arrays by Lemma~\ref{lem:boundary_labeled_chain},
 state-space projection may collapse a nontrivial mixture of boundary points to a single projected boundary point. Indeed, any random array $X$ supported on $G^{-1}(y)$
@@ -319,6 +364,25 @@ Recalling the correspondence \eqref{eqn:K_alpha_processes_char_h_processes} betw
 
 \end{lemma}
 
+\begin{proof}
+Suppose the harmonic $h \geq 0$ with $h(x_0) = 1$ is the one corresponding to this particular bridge. If $L_n$ is the original labeled exchangeable array process and $L^h_n$ is the infinite bridge
+%
+\[\P(L^h_0 = x_0, \ldots, L^h_n = x_n) = h(x_n) \cdot \P(L_0 = x_0, \ldots, L_n = x_n).\]
+%
+\noindent The right hand side is zero if the states $x_0, \ldots , x_n$ are not nested in the sense of arrays, $x_m = (x_n) |_{\binom{[m]}{d}}$ for $m < n$, and thus the same is true of the left hand side. Thus, by taking a projective limit, the chain $L_n^h$ a.s. defines an array ($X^h_e)$ of the same dimension as the original exchangeable array $(X_e)$ of which it is the corresponding array process.
+
+Now if $\sigma \in \operatorname{Sym}(\N)$ let $\tx := \sigma(x)$ be the array generated by permuting the coordinates of $x$. Then the definition of the Doob h-transform and the exchangeability of the original array imply
+%
+\begin{align*}
+    \P(L^h_0 = \tx_0, \ldots, L^h_n = \tx_n)  & = h(\tx_n) \cdot \P(L_0 = \tx_0, \ldots, L_n = \tx_n) \\
+    %
+    & = h(\tx_n) \cdot \P(L_0 = x_0, \ldots, L_n = x_n) \\
+    & = \frac{h(\tx_n)}{h(x_n)} \cdot \P(L^h_0 = x_0, \ldots, L^h_n = x_n).
+\end{align*}
+
+\noindent These two are equal if and only if $h(\tx_n) = h(x_n)$. Since $x_n$ and $\sigma$ were arbitrary, the result follows from the fact that the finite dimensional distributions of our array $(X^h_e)$ are determined from the distribution of $(L_n^h)$.
+\end{proof}
+
 \noindent This immediately implies the harmonic functions $\tilde{h}$ of the
 unlabeled chain are in direct correspondence with the bridges of labeled chain which
 come from exchangeable arrays.
@@ -330,6 +394,28 @@ come from exchangeable arrays.
     corresponding to the bridge $B_n$, then $h(x) := \tilde{h}([x])$
     is the harmonic corresponding to the array $(X_e^h)$.
 \end{corollary}
+
+\begin{proof}
+The bridges of $(M_n)$ are in correspondence with harmonic functions
+$\tilde{h}$ of this chain. Define $h(x) := \tilde{h}([x])$ on the labeled state
+space. Since the transition kernel of $M_n$ is obtained by summing the
+transition probabilities of $L_n$ over equivalence classes, harmonicity of
+$\tilde{h}$ gives
+%
+\[
+    h(x)
+    =
+    \tilde{h}([x])
+    =
+    \sum_{[y]_\sim} p_M([x]_\sim,[y]_\sim)\tilde{h}([y]_\sim)
+    =
+    \sum_y p_L(x,y) h(y).
+\]
+%
+Thus $h$ is a harmonic function for the labeled chain and is constant on the
+equivalence classes of $\sim$. Applying Lemma~\ref{lem:harmonic_functions_labeled}
+gives the corollary.
+\end{proof}
 
 The relation $\sim$ extends to infinite $d$-dimensional arrays $x$
 in the obvious way: $x \sim y$ if there is $\sigma \in \operatorname{Sym}(\N)$ so $x = \sigma(y)$.
@@ -358,7 +444,6 @@ the unlabeled chain.
     \end{enumerate}
 \end{theorem}
 
-
 %
 \begin{remark}
     By Example~\ref{example:graphon_chain}, given a graphon $w$ the representation function
@@ -370,6 +455,62 @@ the unlabeled chain.
     graphons correspond to the extremal infinite bridges, and hence the minimal
     Doob-Martin boundary, of the graphon chain, as noted in~\cite{grubel2015_persisting_randomness_graphs_search_trees}.
 \end{remark}
+
+\begin{proof}
+The last three statements are equivalent by Lemma 7.35 of~\cite{kallenberg2005_probabilistic_symmetries}. For the implication $(2) \to (1)$, suppose for contraposition that we have a nonextremal bridge $M_n^{\tilde{h}}$ associated to the harmonic $\tilde{h}$. Then equation~\eqref{eqn:K_alpha_processes_char_h_processes} applied to the Doob-Martin kernel $\tilde{K}$ of our unlabeled chain implies
+
+\[\P((M_n^{\tilde{h}}) = [x]_\sim) = \int_{\partial_m \tilde{E}} \P^{\tilde{K}(\cdot, \alpha)}([x]_\sim) \; \mu_{\tilde{h}}(d\alpha),\]
+
+\noindent for some nondegenerate measure $\mu_{\tilde{h}}$ on the minimal boundary $\partial_m \tilde{E}$ of the unlabeled chain. By construction of the Doob-Martin boundary, the functions $\tilde{K}(\cdot, \alpha)$ are harmonic for the unlabeled chain. Thus by Corollary~\ref{cor:unlabeled_associated_to_exchangeable_array} the distributions $\P^{\tilde{K}(\cdot, \alpha)}$ correspond to the unlabeled chains associated to exchangeable arrays $(X^\alpha_e)$. Likewise, $M_n^{\tilde{h}}$ corresponds to some exchangeable array $(X_e^{\tilde{h}})$ as well. Thus we can rephrase the previous equation in terms of the associated exchangeable arrays
+
+\[\P((X^{\tilde{h}}_e) \in [x]_\sim) = \int_{\partial_m \tilde{E}} \P(X_e^\alpha \in [x]_\sim) \; \mu_{\tilde{h}}(d\alpha).\]
+
+\noindent These probabilities are constant on the equivalence classes by exchangeability. Hence
+
+\[\P((X^{\tilde{h}}_e) = x) = \int_{\partial_m \tilde{E}} \P(X_e^\alpha = x) \; \mu_{\tilde{h}}(d\alpha).\]
+
+\noindent Thus as $\mu_{\tilde{h}}$ is nondegenerate, $(X_e^{\tilde{h}})$ is a nondegenerate mixture of other exchangeable arrays, and hence not ergodic.
+
+For the implication $(1) \to (2)$, suppose for contraposition that the
+exchangeable array associated with a bridge $M_n^\alpha$ has a nonergodic law
+$\nu$. Then there is a $\nu$-invariant event $I$ with $0<\nu(I)<1$. Define
+the conditional laws
+\[
+    \nu_1(\,\cdot\,) := \nu(\,\cdot\mid I),
+    \qquad
+    \nu_0(\,\cdot\,) := \nu(\,\cdot\mid I^c).
+\]
+Because $I$ is invariant and $\nu$ is exchangeable, both $\nu_0$ and $\nu_1$
+are exchangeable. Let $M_n^{(0)}$ and $M_n^{(1)}$ be their associated
+unlabeled processes.
+
+We claim that both processes are infinite bridges of $M_n$. Indeed, under any
+exchangeable array law, conditioning on $M_{n+1}=[y]_\sim$ makes the labeled
+array at level $n+1$ uniform over $[y]_\sim$. Consequently,
+\[
+    \P_{\nu_i}\left(M_n=[x]_\sim\mid M_{n+1}=[y]_\sim\right)
+    =
+    \frac{\left|\left\{z\in[y]_\sim:z|_{[n]}\in[x]_\sim\right\}\right|}
+         {|[y]_\sim|},
+    \qquad i\in\{0,1\}.
+\]
+This backwards transition probability depends only on the equivalence classes
+$[x]_\sim$ and $[y]_\sim$, not on the particular exchangeable law. Hence
+$M_n^{(0)}$ and $M_n^{(1)}$ have the same backwards transitions as
+$M_n^\alpha$, and therefore as the original chain $M_n$.
+
+Finally, projection from a labeled array to its unlabeled process is affine, so
+\[
+    \mathcal{L}\bigl((M_n^\alpha)_{n\geq0}\bigr)
+    = \nu(I)\,\mathcal{L}\bigl((M_n^{(1)})_{n\geq0}\bigr)
+      +(1-\nu(I))\,\mathcal{L}\bigl((M_n^{(0)})_{n\geq0}\bigr).
+\]
+This mixture is nontrivial. Indeed, if the two unlabeled process laws were
+equal, exchangeability and uniformity within each equivalence class would
+imply that all their finite labeled distributions were equal, and hence that
+$\nu_0=\nu_1$. This is impossible because $\nu_1(I)=1$ whereas
+$\nu_0(I)=0$. Thus $M_n^\alpha$ is not extremal, proving the contraposition.
+\end{proof}
 
 As a consequence, every unlabeled bridge admits a representation function
 obtained by mixing the extremal representation
@@ -527,6 +668,18 @@ densities satisfy the following relationships.
 
 \end{lemma}
 
+\begin{proof}
+These proofs extend analogous arguments from graphon theory in~\cite{meliot2024_graphons_permutons_survey}.
+First, (i) is immediate because every embedding is a weak embedding. For (ii), note that if
+$\sigma \in \operatorname{Sym}(\N)$ is such that $x \lesssim \sigma(y)$,
+ then there is precisely one $x' \geq x$ so that $x' \leq y$, namely $x'$ equals the array
+ $\sigma(y)$ restricted to $\binom{\{1,\ldots,|x|\}}{d}$. For (iii), if for each $e$ where $x_e=0$ we let $A_e$ be the set of weak embeddings of $x'=x+\delta_e$ into $y$, then
+%
+\[\{\text{embeddings of $x$ into $y$}\} = \{\text{weak embeddings of $x$ into $y$}\} \setminus \bigcup_{e \;:\; x_e=0} A_e.\]
+%
+\noindent The formula follows from inclusion--exclusion.
+\end{proof}
+
 \noindent Given any notion $t(x,y)$ of the embedding density of $x$ into $y$, we can topologize our collection
 of combinatorial objects: we simply say a sequence $y_n$ converges if
 %
@@ -549,6 +702,34 @@ in the graphon literature. In fact, left-convergence is closely related to the D
     \noindent For binary arrays, convergence of the weak embedding density is also equivalent.
 
 \end{lemma}
+
+\begin{proof}
+Exchangeability implies
+
+\[\P(L_n = x \; |\; M_n = [x]_\sim) = \frac{\P(L_n = x)}{\P(M_n = [x]_\sim) }=\frac{1}{| \; [x]_\sim \; |}.\]
+
+\noindent As $L_n$ has deterministic backwards dynamics, this implies the unlabeled chain $M_n$
+has
+%
+    \[\P(M_{n} = [x]_\sim \mid M_{n+m} = [y]_\sim) = \frac{| \{z \in [y]_\sim : z|_{[n]} \in [x]_\sim\} \; |}{|\; [y]_\sim \; |} \quad x \in E_n, y \in E_{n+m},\]
+%
+\noindent where $z|_{[n]}$ is the restriction of $z$ to indices in $\binom{[n]}{d}$. Since any
+permutation of $[n]$ extends to a permutation of $[n+m]$, the number of elements
+$z\in[y]_\sim$ satisfying $z|_{[n]}=\widetilde x$ is the same for every $\widetilde x\in[x]_\sim$.
+Thus the above equals
+%
+    \[= \frac{|\{z \in [y]_\sim : z\mid_{[n]} = x \}| }{|[y]_\sim|} \cdot |[x]_\sim| = emb(x,y) \cdot |[x]_\sim|.\]
+%
+\noindent As a result, we have Doob-Martin kernel for the unlabeled chain
+%
+    \[K([x]_\sim, [y]_\sim) = \frac{emb(x, y) |[x]_\sim|}{\P(M_n = [x]_\sim)} = \frac{emb(x,y)}{\P(L_n = x)}.\]
+%
+\noindent Hence the embedding density and Doob-Martin kernel differ only up to a constant depending on $x$.
+Thus for fixed $x$, one converges if and only if the other does.
+For binary arrays, Lemma~\ref{lem:relating_different_notions_of_embedding}
+shows that convergence of all exact embedding densities is equivalent to
+convergence of all weak embedding densities.
+\end{proof}
 
 \noindent In the case of our graphon and permuton chains, the notion of
 embedding can be extended to the limiting object, graphons and permutons,
@@ -612,6 +793,49 @@ If $F$ and $f$ are binary-valued, then also
 
 \end{lemma}
 
+\begin{proof}
+First we prove the expectation formulas, starting with $emb^W$. Let
+$\phi : [k] \to [n]$ be injective. Then
+    \begin{align*}
+        \P(\text{$\phi$ is an array embedding}) &= \int_{[0,1]^{2^n}} \prod_{S \in \ind(F)} f(x_{(\phi(S))}) \, d\lambda_{2^n}
+        \intertext{By the injectivity of $\phi$ we can apply a change of coordinates,}
+        &= \int_{[0,1]^{2^n}} \prod_{S \in \ind(F)} f(x_{(S)}) \, d\lambda_{2^n} \\
+        \intertext{After integrating out all the superfluous coordinates,}
+        &= emb^W(F,f).
+    \end{align*}
+    So, writing $emb^W(F,X_n(f))$ in terms of the indicator functions $\ind_{\{\text{$\varphi$ is an array embedding}\}}$,
+    \begin{equation*}
+        \E[emb^W(F,X_n(f))] = emb^W(F,f).
+    \end{equation*}
+
+    \noindent The proof for $emb$ is identical.
+
+    For the concentration results, we follow exactly the proof of Theorem 2.5 in~\cite{lovasz2004_limits_dense_graph_sequences},
+    except that we choose a different filtration meant to capture the randomness available at different levels of a
+    multidimensional array. Namely, define filtration
+    %
+        \[\cF_m := \sigma\left(\left\{U_A : A \subseteq [n], \max A \leq m\right\}\right), \quad \cF_0 := \sigma(U_\emptyset).\]
+    %
+    \noindent This can be used to define a Doob martingale
+    %
+        \[B_m := \E (emb^W(F, X_n(f)) \mid \cF_m).\]
+    %
+    \noindent Note that
+    %
+        \[B_0 = \E (emb^W(F, X_n(f)) \mid U_\emptyset) = emb^W(F, f_{U_\emptyset}), \quad B_n = emb^W(F, X_n(f)).\]
+    %
+    \noindent Here $f_{U_\emptyset}$ is the (random) representation function
+    %
+        \[f_{U_\emptyset}(u) := f(U_\emptyset, (u_i)_{i \in [d]}, \ldots, u_{[d]}).\]
+    %
+    \noindent If $f$ does not depend on $U_\emptyset$, then $f_{U_\emptyset}=f$ is deterministic.
+    Bounding the increments using a bound on the number of injective functions $\phi:[k] \to [n]$
+    and applying Azuma's inequality as in~\cite{lovasz2004_limits_dense_graph_sequences} gives the desired inequalities.
+    Then apply an identical procedure for $emb$.
+
+    The convergence then follows immediately from Borel-Cantelli.
+\end{proof}
+
 \noindent This is analogous to the graphon identity
 %
 \[\E\,emb^W(F,G_n(w))
@@ -656,6 +880,24 @@ vanishes asymptotically.
         \leq \frac{1}{|z|}\binom{|F|}{2}.
     \]
 \end{lemma}
+
+\begin{proof}
+Let $\Phi:[|F|]\to[|z|]$ be a uniformly random map. By the definition of
+$f_z$ and the integral formula for weak embedding densities,
+$emb^W(F,f_z)$ is the probability that
+\[
+    \{\Phi(i):i\in S\}\in\ind(z)
+    \qquad\text{for every }S\in\ind(F).
+\]
+Conditional on $\Phi$ being injective, it is a uniformly random injection, so
+the conditional probability of this event is $emb^W(F,z)$. The difference
+between the unconditional and conditional probabilities is therefore at most
+\[
+    \P(\Phi\text{ is not injective})
+    \leq \frac{1}{|z|}\binom{|F|}{2},
+\]
+where the last inequality is the union bound over pairs of indices in $[|F|]$.
+\end{proof}
 
 
 
@@ -1286,355 +1528,5 @@ boundary, the points of the minimal boundary correspond to extremal infinite
 bridges and extremal nonnegative harmonic functions.
 
 
-
-% Proof Appendix %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newpage
-\section{Proofs}
-\label{appendix:proof_appendix}
-
-\subsection{Proofs of Section~\ref{sec:exchangeable_array_processes} (Exchangeable Array Processes)}
-
-\noindent\textbf{Lemma~\ref{lem:state_equivalence} (State-Space Projections of Exchangeable Arrays).}
-If $(X_e)$ is an exchangeable array with entries in $S$ and $g:S \to S'$ is
-measurable, then $(g(X_e))$ is an exchangeable array of the same dimension.
-Moreover, if $f$ is the representing function of $(X_e)$, then $g \circ f$ is
-the representing function of $(g(X_e))$.
-
-\begin{proof}[Proof of Lemma~\ref{lem:state_equivalence} (State-Space Projections of Exchangeable Arrays)]
-The result follows immediately from applying $g$ coordinatewise. If $(X_e)$ is exchangeable, then for each finite permutation $\sigma$,
-\[
-(g(X_{\sigma(e)}))_{e \in \binom{\N}{d}} \overset{\mathrm{law}}{=} (g(X_e))_{e \in \binom{\N}{d}}.
-\]
-Moreover, if $X_e = f(U_\emptyset,(U_i)_{i \in e},\ldots,U_e)$ in distribution, then $g(X_e)$ is represented by $g \circ f$.
-\end{proof}
-
-\noindent\textbf{Lemma~\ref{lem:index_equivalence} (Markov Property of the Unlabeled Chain).}
-When the state space $S$ is countable, the process $M_n$ is a Markov chain.
-
-\begin{proof}[Proof of Lemma~\ref{lem:index_equivalence} (Markov Property of the Unlabeled Chain)]
-First, note that the definition of an exchangeable array implies
-%
-\[\P(L_n = x) = \P(L_n = x') \qquad \forall x \sim x'.\]
-
-\noindent Moreover if $x \sim x'$ are related by $\sigma \in \operatorname{Sym}(\N)$ then again exchangeability implies
-%
-\begin{align*}
-    \P(M_{n+1} = [y]_\sim,\; L_n = x) & = \sum_{y' \sim y} \P(L_{n+1} = y', \; L_n = x)\\
-    & = \sum_{y' \sim y} \P(L_{n+1} = \sigma(y'), \; L_n = \sigma(x)) \\
-    & = \sum_{z \sim y} \P(L_{n+1} = z, \; L_n = x') \\
-    & = \P(M_{n+1} = [y]_\sim,\; L_n = x').
-\end{align*}
-%
-\noindent Thus we see
-%
-\[\P(M_{n+1} = [y]_\sim \; | \; L_n = x) = \P(M_{n+1} = [y]_\sim \; | \; L_n = x') \qquad \forall x \sim x', \quad [y]_\sim \in [E_{n+1}]_\sim.\]
-%
-\noindent Thus the transition probability from $x$ into the class $[y]_\sim$
-depends only on the equivalence class $[x]_\sim$. The projected transition
-kernel is therefore well-defined on equivalence classes, and hence $M_n$ is a
-Markov chain.
-\end{proof}
-
-\subsection{Proofs of Section~\ref{sec:exchangeable_array_boundary} (Doob-Martin Boundary)}
-
-\noindent\textbf{Lemma~\ref{lem:boundary_labeled_chain} (Boundary of the Labeled Chain).}
-The boundary of $L_n$ consists of the deterministic arrays
-$x \in \mathrm{supp}(X_e)$.
-
-\begin{proof}[Proof of Lemma~\ref{lem:boundary_labeled_chain} (Boundary of the Labeled Chain)]\leavevmode\par\noindent
-Fix $x\in E_m$ and $y\in E_n$ with $n\geq m$. Since the backwards dynamics
-of the labeled chain are deterministic,
-\[
-\P(L_m=x\mid L_n=y)=\ind\{y|_{[m]}=x\}.
-\]
-Consequently, the Doob--Martin kernel of the labeled chain is
-\[
-K_L(x,y)=\frac{\ind\{y|_{[m]}=x\}}{\P(L_m=x)}.
-\]
-Thus a sequence $(y_n)$ with $y_n\in E_n$ converges in the Doob--Martin
-topology if and only if, for every $m$, the restriction $y_n|_{[m]}$ is
-eventually constant. These limiting restrictions are consistent and therefore
-define a unique deterministic infinite array in $\operatorname{supp}(X_e)$.
-Conversely, the finite restrictions of any deterministic array in
-$\operatorname{supp}(X_e)$ form a convergent sequence with that boundary
-point as its limit.
-\end{proof}
-
-\noindent\textbf{Lemma~\ref{lem:harmonic_functions_labeled} (Exchangeable Bridges of the Labeled Chain).}
-Any infinite bridge of the labeled exchangeable array process is an array
-process, and it is exchangeable if and only if the corresponding harmonic
-function $h$ is constant on the equivalence classes of $\sim$.
-
-\begin{proof}[Proof of Lemma~\ref{lem:harmonic_functions_labeled} (Exchangeable Bridges of the Labeled Chain)]
-Suppose the harmonic $h \geq 0$ with $h(x_0) = 1$ is the one corresponding to this particular bridge. If $L_n$ is the original labeled exchangeable array process and $L^h_n$ is the infinite bridge
-%
-\[\P(L^h_0 = x_0, \ldots, L^h_n = x_n) = h(x_n) \cdot \P(L_0 = x_0, \ldots, L_n = x_n).\]
-%
-\noindent The right hand side is zero if the states $x_0, \ldots , x_n$ are not nested in the sense of arrays, $x_m = (x_n) |_{\binom{[m]}{d}}$ for $m < n$, and thus the same is true of the left hand side. Thus, by taking a projective limit, the chain $L_n^h$ a.s. defines an array ($X^h_e)$ of the same dimension as the original exchangeable array $(X_e)$ of which it is the corresponding array process.
-
-Now if $\sigma \in \operatorname{Sym}(\N)$ let $\tx := \sigma(x)$ be the array generated by permuting the coordinates of $x$. Then the definition of the Doob h-transform and the exchangeability of the original array imply
-%
-\begin{align*}
-    \P(L^h_0 = \tx_0, \ldots, L^h_n = \tx_n)  & = h(\tx_n) \cdot \P(L_0 = \tx_0, \ldots, L_n = \tx_n) \\
-    %
-    & = h(\tx_n) \cdot \P(L_0 = x_0, \ldots, L_n = x_n) \\
-    & = \frac{h(\tx_n)}{h(x_n)} \cdot \P(L^h_0 = x_0, \ldots, L^h_n = x_n).
-\end{align*}
-
-\noindent These two are equal if and only if $h(\tx_n) = h(x_n)$. Since $x_n$ and $\sigma$ were arbitrary, the result follows from the fact that the finite dimensional distributions of our array $(X^h_e)$ are determined from the distribution of $(L_n^h)$.
-\end{proof}
-
-\noindent\textbf{Corollary~\ref{cor:unlabeled_associated_to_exchangeable_array} (Bridges of the Unlabeled Chain).}
-If $M^{\tilde{h}}_n$ is an infinite bridge of the unlabeled chain $M_n$, then
-$M^{\tilde{h}}_n$ equals the unlabeled process associated to some exchangeable
-array $(X_e^h)$. In particular, if $\tilde{h}$ is the harmonic corresponding to
-the bridge $M^{\tilde{h}}_n$, then $h(x) := \tilde{h}([x])$ is the harmonic
-corresponding to the array $(X_e^h)$.
-
-\begin{proof}[Proof of Corollary~\ref{cor:unlabeled_associated_to_exchangeable_array} (Bridges of the Unlabeled Chain)]
-The bridges of $(M_n)$ are in correspondence with harmonic functions
-$\tilde{h}$ of this chain. Define $h(x) := \tilde{h}([x])$ on the labeled state
-space. Since the transition kernel of $M_n$ is obtained by summing the
-transition probabilities of $L_n$ over equivalence classes, harmonicity of
-$\tilde{h}$ gives
-%
-\[
-    h(x)
-    =
-    \tilde{h}([x])
-    =
-    \sum_{[y]_\sim} p_M([x]_\sim,[y]_\sim)\tilde{h}([y]_\sim)
-    =
-    \sum_y p_L(x,y) h(y).
-\]
-%
-Thus $h$ is a harmonic function for the labeled chain and is constant on the
-equivalence classes of $\sim$. Applying Lemma~\ref{lem:harmonic_functions_labeled}
-gives the corollary.
-\end{proof}
-
-\noindent\textbf{Theorem~\ref{thm:boundary_is_ergodic_arrays} (Extremal Bridges and Ergodic Arrays).}
-For any infinite bridge of the unlabeled exchangeable array process $M_n$, the
-following are equivalent:
-\begin{enumerate}
-    \item The infinite bridge is extremal.
-    \item Its corresponding exchangeable array is ergodic.
-    \item Its corresponding exchangeable array is dissociated.
-    \item Its corresponding exchangeable array admits a representation function
-    $f$ that does not depend on $U_\emptyset$ almost surely.
-\end{enumerate}
-
-\begin{proof}[Proof of Theorem~\ref{thm:boundary_is_ergodic_arrays} (Extremal Bridges and Ergodic Arrays)]
-The last three statements are equivalent by Lemma 7.35 of~\cite{kallenberg2005_probabilistic_symmetries}. For the implication $(2) \to (1)$, suppose for contraposition that we have a nonextremal bridge $M_n^{\tilde{h}}$ associated to the harmonic $\tilde{h}$. Then equation~\eqref{eqn:K_alpha_processes_char_h_processes} applied to the Doob-Martin kernel $\tilde{K}$ of our unlabeled chain implies
-
-\[\P((M_n^{\tilde{h}}) = [x]_\sim) = \int_{\partial_m \tilde{E}} \P^{\tilde{K}(\cdot, \alpha)}([x]_\sim) \; \mu_{\tilde{h}}(d\alpha),\]
-
-\noindent for some nondegenerate measure $\mu_{\tilde{h}}$ on the minimal boundary $\partial_m \tilde{E}$ of the unlabeled chain. By construction of the Doob-Martin boundary, the functions $\tilde{K}(\cdot, \alpha)$ are harmonic for the unlabeled chain. Thus by Corollary~\ref{cor:unlabeled_associated_to_exchangeable_array} the distributions $\P^{\tilde{K}(\cdot, \alpha)}$ correspond to the unlabeled chains associated to exchangeable arrays $(X^\alpha_e)$. Likewise, $M_n^{\tilde{h}}$ corresponds to some exchangeable array $(X_e^{\tilde{h}})$ as well. Thus we can rephrase the previous equation in terms of the associated exchangeable arrays
-
-\[\P((X^{\tilde{h}}_e) \in [x]_\sim) = \int_{\partial_m \tilde{E}} \P(X_e^\alpha \in [x]_\sim) \; \mu_{\tilde{h}}(d\alpha).\]
-
-\noindent These probabilities are constant on the equivalence classes by exchangeability. Hence
-
-\[\P((X^{\tilde{h}}_e) = x) = \int_{\partial_m \tilde{E}} \P(X_e^\alpha = x) \; \mu_{\tilde{h}}(d\alpha).\]
-
-\noindent Thus as $\mu_{\tilde{h}}$ is nondegenerate, $(X_e^{\tilde{h}})$ is a nondegenerate mixture of other exchangeable arrays, and hence not ergodic.
-
-For the implication $(1) \to (2)$, suppose for contraposition that the
-exchangeable array associated with a bridge $M_n^\alpha$ has a nonergodic law
-$\nu$. Then there is a $\nu$-invariant event $I$ with $0<\nu(I)<1$. Define
-the conditional laws
-\[
-    \nu_1(\,\cdot\,) := \nu(\,\cdot\mid I),
-    \qquad
-    \nu_0(\,\cdot\,) := \nu(\,\cdot\mid I^c).
-\]
-Because $I$ is invariant and $\nu$ is exchangeable, both $\nu_0$ and $\nu_1$
-are exchangeable. Let $M_n^{(0)}$ and $M_n^{(1)}$ be their associated
-unlabeled processes.
-
-We claim that both processes are infinite bridges of $M_n$. Indeed, under any
-exchangeable array law, conditioning on $M_{n+1}=[y]_\sim$ makes the labeled
-array at level $n+1$ uniform over $[y]_\sim$. Consequently,
-\[
-    \P_{\nu_i}\left(M_n=[x]_\sim\mid M_{n+1}=[y]_\sim\right)
-    =
-    \frac{\left|\left\{z\in[y]_\sim:z|_{[n]}\in[x]_\sim\right\}\right|}
-         {|[y]_\sim|},
-    \qquad i\in\{0,1\}.
-\]
-This backwards transition probability depends only on the equivalence classes
-$[x]_\sim$ and $[y]_\sim$, not on the particular exchangeable law. Hence
-$M_n^{(0)}$ and $M_n^{(1)}$ have the same backwards transitions as
-$M_n^\alpha$, and therefore as the original chain $M_n$.
-
-Finally, projection from a labeled array to its unlabeled process is affine, so
-\[
-    \mathcal{L}\bigl((M_n^\alpha)_{n\geq0}\bigr)
-    = \nu(I)\,\mathcal{L}\bigl((M_n^{(1)})_{n\geq0}\bigr)
-      +(1-\nu(I))\,\mathcal{L}\bigl((M_n^{(0)})_{n\geq0}\bigr).
-\]
-This mixture is nontrivial. Indeed, if the two unlabeled process laws were
-equal, exchangeability and uniformity within each equivalence class would
-imply that all their finite labeled distributions were equal, and hence that
-$\nu_0=\nu_1$. This is impossible because $\nu_1(I)=1$ whereas
-$\nu_0(I)=0$. Thus $M_n^\alpha$ is not extremal, proving the contraposition.
-\end{proof}
-
-\subsection{Proofs of Section~\ref{sec:embedding_density_representation_functions} (Embedding Densities)}
-
-\noindent\textbf{Lemma~\ref{lem:relating_different_notions_of_embedding} (Exact and Weak Embedding Densities).}
-For binary arrays $x,y$, the following hold:
-\begin{enumerate}[label=(\roman*)]
-    \item $emb(x,y) \leq emb^W(x,y)$.
-    \item $emb^W(x,y) = \sum_{x' \geq x} emb(x',y)$.
-    \item $emb(x,y) = \sum_{x' \geq x} (-1)^{|\ind(x')|-|\ind(x)|} \cdot emb^W(x',y)$.
-\end{enumerate}
-
-\begin{proof}
-These proofs extend analogous arguments from graphon theory in~\cite{meliot2024_graphons_permutons_survey}.
-First, (i) is immediate because every embedding is a weak embedding. For (ii), note that if
-$\sigma \in \operatorname{Sym}(\N)$ is such that $x \lesssim \sigma(y)$,
- then there is precisely one $x' \geq x$ so that $x' \leq y$, namely $x'$ equals the array
- $\sigma(y)$ restricted to $\binom{\{1,\ldots,|x|\}}{d}$. For (iii), if for each $e$ where $x_e=0$ we let $A_e$ be the set of weak embeddings of $x'=x+\delta_e$ into $y$, then
-%
-\[\{\text{embeddings of $x$ into $y$}\} = \{\text{weak embeddings of $x$ into $y$}\} \setminus \bigcup_{e \;:\; x_e=0} A_e.\]
-%
-\noindent The formula follows from inclusion--exclusion.
-\end{proof}
-
-\noindent\textbf{Lemma~\ref{lem:equivalence_of_dm_and_density_convergence} (Doob-Martin Convergence and Embedding Densities).}
-Let $y_N\in E_N$. The following are equivalent:
-\begin{enumerate}[label=(\roman*)]
-    \item The sequence $y_N$ converges in the Doob-Martin topology.
-    \item The embedding density $emb(x, y_N)$ converges for all $x$.
-\end{enumerate}
-For binary arrays, convergence of the weak embedding density is also
-equivalent.
-
-\begin{proof}
-Exchangeability implies
-
-\[\P(L_n = x \; |\; M_n = [x]_\sim) = \frac{\P(L_n = x)}{\P(M_n = [x]_\sim) }=\frac{1}{| \; [x]_\sim \; |}.\]
-
-\noindent As $L_n$ has deterministic backwards dynamics, this implies the unlabeled chain $M_n$
-has
-%
-    \[\P(M_{n} = [x]_\sim \mid M_{n+m} = [y]_\sim) = \frac{| \{z \in [y]_\sim : z|_{[n]} \in [x]_\sim\} \; |}{|\; [y]_\sim \; |} \quad x \in E_n, y \in E_{n+m},\]
-%
-\noindent where $z|_{[n]}$ is the restriction of $z$ to indices in $\binom{[n]}{d}$. Since any
-permutation of $[n]$ extends to a permutation of $[n+m]$, the number of elements
-$z\in[y]_\sim$ satisfying $z|_{[n]}=\widetilde x$ is the same for every $\widetilde x\in[x]_\sim$.
-Thus the above equals
-%
-    \[= \frac{|\{z \in [y]_\sim : z\mid_{[n]} = x \}| }{|[y]_\sim|} \cdot |[x]_\sim| = emb(x,y) \cdot |[x]_\sim|.\]
-%
-\noindent As a result, we have Doob-Martin kernel for the unlabeled chain
-%
-    \[K([x]_\sim, [y]_\sim) = \frac{emb(x, y) |[x]_\sim|}{\P(M_n = [x]_\sim)} = \frac{emb(x,y)}{\P(L_n = x)}.\]
-%
-\noindent Hence the embedding density and Doob-Martin kernel differ only up to a constant depending on $x$.
-Thus for fixed $x$, one converges if and only if the other does.
-For binary arrays, Lemma~\ref{lem:relating_different_notions_of_embedding}
-shows that convergence of all exact embedding densities is equivalent to
-convergence of all weak embedding densities.
-\end{proof}
-
-\noindent\textbf{Lemma~\ref{lem:integral_representations_of_embedding_densities} (Embedding Densities of Representation Functions).}
-Suppose $d \leq k \leq n$. If $F$ is a size-$k$, $d$-dimensional array and
-$f$ is the representing function of an exchangeable array $X$, then
-\begin{equation*}
-    emb(F,f) = \int_{[0,1]^{2^k}}  \prod_{S \in \binom{[k]}{d}} \ind \{f(x_{(S)}) = F_S\} \; d\lambda_{2^k}.
-\end{equation*}
-If $F$ and $f$ are binary-valued, then also
-\begin{equation*}
-    emb^W(F,f) = \int_{[0,1]^{2^k}}  \prod_{S \in \ind(F)} f(x_{(S)}) \; d\lambda_{2^k}.
-\end{equation*}
-These quantities are independent of $n$. Moreover, if $F$ and $f$ are binary-valued and $f$ does not depend on $x_\emptyset$,
-\begin{align*}
-    \P\left( |emb^W(F, X_n(f)) - emb^W(F, f)| > \epsilon \right)
-    &\leq 2 \exp \left(-\frac{\epsilon^2}{2k^2} n \right),\\[5pt]
-    \P\left( |emb(F, X_n(f)) - emb(F, f)| > \epsilon \right)
-    &\leq 2 \exp \left(-\frac{\epsilon^2}{2k^2} n \right).
-\end{align*}
-Thus
-\[
-\lim_{n \to \infty} emb(F, X_n(f)) \overset{a.s.}{=} emb(F,f),
-\]
-and
-\[
-    \lim_{n \to \infty} emb^W(F, X_n(f)) \overset{a.s.}{=} emb^W(F,f).
-\]
-In particular, Lemma~\ref{lem:relating_different_notions_of_embedding} (i)--(iii)
-extends to $emb^W(F,f)$ and $emb(F,f)$.
-
-\begin{proof}[Proof of Lemma~\ref{lem:integral_representations_of_embedding_densities} (Embedding Densities of Representation Functions)]\leavevmode\par\noindent
-First we prove the expectation formulas, starting with $emb^W$. Let
-$\phi : [k] \to [n]$ be injective. Then
-    \begin{align*}
-        \P(\text{$\phi$ is an array embedding}) &= \int_{[0,1]^{2^n}} \prod_{S \in \ind(F)} f(x_{(\phi(S))}) \, d\lambda_{2^n}
-        \intertext{By the injectivity of $\phi$ we can apply a change of coordinates,}
-        &= \int_{[0,1]^{2^n}} \prod_{S \in \ind(F)} f(x_{(S)}) \, d\lambda_{2^n} \\
-        \intertext{After integrating out all the superfluous coordinates,}
-        &= emb^W(F,f).
-    \end{align*}
-    So, writing $emb^W(F,X_n(f))$ in terms of the indicator functions $\ind_{\{\text{$\varphi$ is an array embedding}\}}$,
-    \begin{equation*}
-        \E[emb^W(F,X_n(f))] = emb^W(F,f).
-    \end{equation*}
-
-    \noindent The proof for $emb$ is identical.
-
-    For the concentration results, we follow exactly the proof of Theorem 2.5 in~\cite{lovasz2004_limits_dense_graph_sequences},
-    except that we choose a different filtration meant to capture the randomness available at different levels of a
-    multidimensional array. Namely, define filtration
-    %
-        \[\cF_m := \sigma\left(\left\{U_A : A \subseteq [n], \max A \leq m\right\}\right), \quad \cF_0 := \sigma(U_\emptyset).\]
-    %
-    \noindent This can be used to define a Doob martingale
-    %
-        \[B_m := \E (emb^W(F, X_n(f)) \mid \cF_m).\]
-    %
-    \noindent Note that
-    %
-        \[B_0 = \E (emb^W(F, X_n(f)) \mid U_\emptyset) = emb^W(F, f_{U_\emptyset}), \quad B_n = emb^W(F, X_n(f)).\]
-    %
-    \noindent Here $f_{U_\emptyset}$ is the (random) representation function
-    %
-        \[f_{U_\emptyset}(u) := f(U_\emptyset, (u_i)_{i \in [d]}, \ldots, u_{[d]}).\]
-    %
-    \noindent If $f$ does not depend on $U_\emptyset$, then $f_{U_\emptyset}=f$ is deterministic.
-    Bounding the increments using a bound on the number of injective functions $\phi:[k] \to [n]$
-    and applying Azuma's inequality as in~\cite{lovasz2004_limits_dense_graph_sequences} gives the desired inequalities.
-    Then apply an identical procedure for $emb$.
-
-    The convergence then follows immediately from Borel-Cantelli.
-\end{proof}
-
-\noindent\textbf{Lemma~\ref{lem:sampling_functions_approximate_embedding_densities}
-(Sampling Functions Approximate Weak Embedding Densities).}
-Let $F$ and $z$ be finite binary $d$-dimensional arrays with $|F|\leq|z|$.
-Then
-\[
-    \left|emb^W(F,f_z)-emb^W(F,z)\right|
-    \leq \frac{1}{|z|}\binom{|F|}{2}.
-\]
-
-\begin{proof}
-Let $\Phi:[|F|]\to[|z|]$ be a uniformly random map. By the definition of
-$f_z$ and the integral formula for weak embedding densities,
-$emb^W(F,f_z)$ is the probability that
-\[
-    \{\Phi(i):i\in S\}\in\ind(z)
-    \qquad\text{for every }S\in\ind(F).
-\]
-Conditional on $\Phi$ being injective, it is a uniformly random injection, so
-the conditional probability of this event is $emb^W(F,z)$. The difference
-between the unconditional and conditional probabilities is therefore at most
-\[
-    \P(\Phi\text{ is not injective})
-    \leq \frac{1}{|z|}\binom{|F|}{2},
-\]
-where the last inequality is the union bound over pairs of indices in $[|F|]$.
-\end{proof}
 
 \end{subappendices}
